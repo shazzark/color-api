@@ -47,3 +47,15 @@ export interface ContrastResult {
   contrastRatio: number;
   wcag: WcagResults;
 }
+
+export interface ColorToken {
+  name: string;
+  color: ColorValue;
+  cssVariable: string;
+  cssValue: string;
+}
+
+export interface ColorTokenResponse {
+  token: ColorToken;
+  css: string;
+}

@@ -3,7 +3,8 @@
 ## Project
 
 Color API is a learning project for color validation, conversion, contrast
-analysis, and deterministic palette generation. Stage 5 is the current
+analysis, deterministic palette generation, and developer-friendly color
+tokens. Stage 6 is the current
 milestone.
 
 - `GET /health` provides a health check.
@@ -12,6 +13,7 @@ milestone.
 - `POST /v1/colors/contrast` provides WCAG 2.x contrast analysis.
 - `POST /v1/colors/palette` provides deterministic palettes using five fixed
 	strategies.
+- `POST /v1/colors/tokens` provides one-color CSS custom-property tokens.
 - API errors use the stable codes `INVALID_REQUEST`, `INVALID_COLOR`, and
 	`UNSUPPORTED_CONVERSION`.
 
@@ -31,6 +33,7 @@ milestone.
 - Keep pure conversion mathematics in `src/color/conversion.ts`.
 - Keep pure contrast mathematics in `src/color/contrast.ts`.
 - Keep pure palette mathematics in `src/color/palette.ts`.
+- Keep pure token serialization in `src/color/tokens.ts`.
 - Keep conversion functions pure and independent of Fastify.
 - Use RGB as the canonical internal representation.
 - Use HSL as the palette-generation space.
@@ -38,6 +41,8 @@ milestone.
 - Use `convertColor()` as the canonical conversion dispatcher.
 - Keep palette strategies explicit and small; do not introduce a registry or
 	generic strategy abstraction.
+- Keep token generation focused on one color; do not add palette integration,
+	themes, aliases, or exporters.
 - Do not add random palettes, custom palette controls, additional color spaces,
 	databases, or unrelated features unless explicitly requested.
 
@@ -51,6 +56,9 @@ milestone.
 - Keep HSL/HSV hue normalized to `0 <= h < 360`.
 - Keep HSL/HSV output rounded to two decimal places.
 - Keep generated HEX output canonical lowercase `#rrggbb`.
+- Keep token names restricted to `^[a-z][a-z0-9-]*$` before CSS interpolation.
+- Use browser-oriented CSS serialization; HSV structured values serialize as RGB
+	CSS values because `hsv()` is not broadly supported by browsers.
 - Prefer small, focused modules and existing project patterns.
 - Avoid unrelated refactors or behavior changes.
 
@@ -62,6 +70,8 @@ milestone.
 - Test color validation independently.
 - Test WCAG thresholds, palette hue wrapping, monochromatic boundaries, and
 	fixed output lengths.
+- Test token-name validation, deterministic CSS serialization, and HSV-to-RGB
+	CSS output.
 - Test stable API error codes and response envelopes.
 - Vitest must use the configured `forks` pool.
 - Run `npm test` after code changes.

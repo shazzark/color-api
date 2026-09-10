@@ -10,6 +10,7 @@ The API provides:
 - `POST /v1/colors/convert` for color conversion
 - `POST /v1/colors/contrast` for WCAG 2.x contrast analysis
 - `POST /v1/colors/palette` for deterministic palette generation
+- `POST /v1/colors/tokens` for single-color CSS custom-property tokens
 
 The following 12 directed conversions are supported:
 
@@ -283,6 +284,51 @@ Monochromatic palettes preserve the base hue and saturation. For base
 lightness between `0` and `100`, their lightness values are
 `[0, l / 2, l, (l + 100) / 2, 100]`. At lightness `0` or `100`, the values are
 `[0, 25, 50, 75, 100]`.
+
+### Create a color token
+
+Use `POST /v1/colors/tokens` to create one developer-friendly color token.
+Palette integration is not included. The token name must match
+`^[a-z][a-z0-9-]*$`; valid names include `brand`, `brand-primary`, and
+`surface-muted`.
+
+```json
+{
+  "name": "brand",
+  "color": {
+    "format": "hex",
+    "value": "#3498db"
+  },
+  "outputFormat": "hex"
+}
+```
+
+`outputFormat` is optional and defaults to `hex`. It controls the structured
+`ColorValue` in the response. CSS serialization is browser-oriented:
+
+- HEX becomes `#3498db`.
+- RGB becomes `rgb(52, 152, 219)`.
+- HSL becomes `hsl(204.07, 69.87%, 53.14%)`.
+- HSV remains HSV in the structured value, but becomes RGB CSS because
+  `hsv()` is not broadly supported by browsers.
+
+```json
+{
+  "token": {
+    "name": "brand",
+    "color": {
+      "format": "hex",
+      "value": "#3498db"
+    },
+    "cssVariable": "--color-brand",
+    "cssValue": "#3498db"
+  },
+  "css": ":root {\n  --color-brand: #3498db;\n}"
+}
+```
+
+The endpoint supports HEX, RGB, HSL, and HSV input values. It does not emit
+alpha or transparency values.
 
 Invalid requests return HTTP `400` with an error object containing a stable
 `code` and human-readable `message`.

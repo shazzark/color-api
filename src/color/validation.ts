@@ -130,3 +130,20 @@ export function validateColorValue(
       return { format, value: validateHsvColor(value) };
   }
 }
+
+export class InvalidRequestError extends Error {
+  public readonly code = "INVALID_REQUEST";
+
+  public constructor(message: string) {
+    super(message);
+    this.name = "InvalidRequestError";
+  }
+}
+
+export function validateTokenName(value: unknown): string {
+  if (typeof value !== "string" || !/^[a-z][a-z0-9-]*$/.test(value)) {
+    throw new InvalidRequestError("Invalid token name");
+  }
+
+  return value;
+}
