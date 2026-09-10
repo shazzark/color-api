@@ -1,26 +1,30 @@
 import type { FastifyInstance } from "fastify";
+import { convertColor } from "../color/conversion.js";
 import {
-  hexToHsl,
-  hexToHsv,
-  hexToRgb,
-  InvalidColorError
-} from "../color/conversion.js";
+  InvalidColorError,
+  isColorFormat,
+  validateColorValue
+} from "../color/validation.js";
+import type { ColorFormat } from "../color/types.js";
 
 interface ConvertRequest {
   from: string;
   to: string;
-  value: string;
+  value: unknown;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function isConvertRequest(body: unknown): body is ConvertRequest {
-  if (typeof body !== "object" || body === null) {
+  if (!isRecord(body)) {
     return false;
   }
 
-  const request = body as Record<string, unknown>;
-  return typeof request.from === "string"
-    && typeof request.to === "string"
-    && typeof request.value === "string";
+  return typeof body.from === "string"
+    && typeof body.to === "string"
+    && "value" in body;
 }
 
 export async function colorRoutes(app: FastifyInstance): Promise<void> {
@@ -34,29 +38,32 @@ export async function colorRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    if (request.body.from !== "hex"
-      || !["rgb", "hsl", "hsv"].includes(request.body.to)) {
+    if (!isColorFormat(request.body.from)
+      || !isColorFormat(request.body.to)
+      || request.body.from === request.body.to) {
       return reply.code(400).send({
         error: {
           code: "UNSUPPORTED_CONVERSION",
-          message: "Supported conversions are HEX to RGB, HEX to HSL, and HEX to HSV"
+          message: "Supported conversions are between HEX, RGB, HSL, and HSV"
         }
       });
     }
 
     try {
-      const output = request.body.to === "rgb"
-        ? { format: "rgb", value: hexToRgb(request.body.value) }
-        : request.body.to === "hsl"
-          ? { format: "hsl", value: hexToHsl(request.body.value) }
-          : { format: "hsv", value: hexToHsv(request.body.value) };
+      const from: ColorFormat = request.body.from;
+      const to: ColorFormat = request.body.to;
+      const input = validateColorValue(from, request.body.value);
+      const output = convertColor(from, to, input);
 
       return {
         input: {
-          format: "hex",
-          value: request.body.value
+          format: input.format,
+          value: input.value
         },
-        output
+        output: {
+          format: output.format,
+          value: output.value
+        }
       };
     } catch (error: unknown) {
       if (error instanceof InvalidColorError) {

@@ -2,17 +2,21 @@
 
 A learning project for validating and converting colors.
 
-## First milestone
+## Supported conversions
 
-The current milestone provides:
+The API provides:
 
 - `GET /health`
-- `POST /v1/colors/convert` for HEX to RGB, HSL, and HSV conversion
+- `POST /v1/colors/convert` for color conversion
 
-Only six-digit HEX values are supported. The leading `#` is optional.
-HSL and HSV responses use hue in degrees (`0` to `<360`) and percentages for
-saturation, lightness, and value (`0` to `100`). Values are rounded to two
-decimal places.
+The following 12 directed conversions are supported:
+
+- HEX -> RGB, HSL, HSV
+- RGB -> HEX, HSL, HSV
+- HSL -> RGB, HEX, HSV
+- HSV -> RGB, HEX, HSL
+
+RGB is used as the internal intermediate representation for non-RGB formats.
 
 ## Setup
 
@@ -63,6 +67,46 @@ curl -X POST http://127.0.0.1:3000/v1/colors/convert \
 }
 ```
 
+### Structured color input
+
+HEX values are strings. RGB, HSL, and HSV values are objects:
+
+```json
+{
+  "from": "rgb",
+  "to": "hex",
+  "value": {
+    "r": 52,
+    "g": 152,
+    "b": 219
+  }
+}
+```
+
+```json
+{
+  "from": "hsl",
+  "to": "rgb",
+  "value": {
+    "h": 204.07,
+    "s": 69.87,
+    "l": 53.14
+  }
+}
+```
+
+```json
+{
+  "from": "hsv",
+  "to": "rgb",
+  "value": {
+    "h": 204.07,
+    "s": 76.26,
+    "v": 85.88
+  }
+}
+```
+
 ### Convert HEX to HSL
 
 Use `"to":"hsl"` to return hue, saturation, and lightness:
@@ -104,6 +148,21 @@ Use `"to":"hsv"` to return hue, saturation, and value:
   }
 }
 ```
+
+## Value rules
+
+- HEX accepts exactly six hexadecimal digits, with an optional leading `#`.
+- RGB channels `r`, `g`, and `b` are integers from `0` through `255`.
+- HSL uses hue `h` in degrees, saturation `s` from `0` through `100`, and
+  lightness `l` from `0` through `100`.
+- HSV uses hue `h` in degrees, saturation `s` from `0` through `100`, and
+  value `v` from `0` through `100`.
+- Finite HSL and HSV hues are normalized modulo `360`; for example, `-120`
+  becomes `240`, and `360` becomes `0`.
+- HSL and HSV output values are rounded to two decimal places. Intermediate
+  calculations are not rounded.
+- RGB output channels are integers, and HEX output is canonical lowercase
+  six-digit HEX with a leading `#`.
 
 Invalid requests return HTTP `400` with an error object containing a stable
 `code` and human-readable `message`.

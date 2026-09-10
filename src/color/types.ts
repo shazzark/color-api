@@ -1,5 +1,7 @@
 export type HexColor = string;
 
+export type ColorFormat = "hex" | "rgb" | "hsl" | "hsv";
+
 export interface RgbColor {
   r: number;
   g: number;
@@ -17,3 +19,9 @@ export interface HsvColor {
   s: number;
   v: number;
 }
+
+export type ColorValue =
+  | { format: "hex"; value: HexColor }
+  | { format: "rgb"; value: RgbColor }
+  | { format: "hsl"; value: HslColor }
+  | { format: "hsv"; value: HsvColor };
