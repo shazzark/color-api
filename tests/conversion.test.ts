@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  convertColor,
   hexToHsl,
   hexToHsv,
   hexToRgb,
@@ -145,5 +146,28 @@ describe("color validation", () => {
     expect(validateHsvColor({ h: 480, s: 50, v: 25 })).toEqual({ h: 120, s: 50, v: 25 });
     expect(() => validateHsvColor({ h: 0, s: 0, v: 101 })).toThrow(InvalidColorError);
     expect(() => validateHsvColor({ h: Number.POSITIVE_INFINITY, s: 0, v: 0 })).toThrow(InvalidColorError);
+  });
+});
+
+describe("convertColor", () => {
+  it("normalizes and converts a validated source value", () => {
+    expect(
+      convertColor("hex", "rgb", {
+        format: "hex",
+        value: "#3498db",
+      }),
+    ).toEqual({
+      format: "rgb",
+      value: { r: 52, g: 152, b: 219 },
+    });
+  });
+
+  it("rejects a source format mismatch", () => {
+    expect(() =>
+      convertColor("hex", "rgb", {
+        format: "hsl",
+        value: { h: 0, s: 100, l: 50 },
+      }),
+    ).toThrow(InvalidColorError);
   });
 });

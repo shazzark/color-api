@@ -8,6 +8,7 @@ The API provides:
 
 - `GET /health`
 - `POST /v1/colors/convert` for color conversion
+- `POST /v1/colors/contrast` for WCAG 2.x contrast analysis
 
 The following 12 directed conversions are supported:
 
@@ -149,6 +150,57 @@ Use `"to":"hsv"` to return hue, saturation, and value:
 }
 ```
 
+### Analyze contrast
+
+Use `POST /v1/colors/contrast` to analyze the contrast between a foreground
+and background color. Both colors accept HEX, RGB, HSL, or HSV values, and the
+original input representations are preserved in the response.
+
+```json
+{
+  "foreground": {
+    "format": "hex",
+    "value": "#ffffff"
+  },
+  "background": {
+    "format": "rgb",
+    "value": {
+      "r": 0,
+      "g": 0,
+      "b": 0
+    }
+  }
+}
+```
+
+```json
+{
+  "foreground": {
+    "format": "hex",
+    "value": "#ffffff"
+  },
+  "background": {
+    "format": "rgb",
+    "value": {
+      "r": 0,
+      "g": 0,
+      "b": 0
+    }
+  },
+  "contrastRatio": 21,
+  "wcag": {
+    "normalText": {
+      "aa": true,
+      "aaa": true
+    },
+    "largeText": {
+      "aa": true,
+      "aaa": true
+    }
+  }
+}
+```
+
 ## Value rules
 
 - HEX accepts exactly six hexadecimal digits, with an optional leading `#`.
@@ -163,6 +215,17 @@ Use `"to":"hsv"` to return hue, saturation, and value:
   calculations are not rounded.
 - RGB output channels are integers, and HEX output is canonical lowercase
   six-digit HEX with a leading `#`.
+
+Contrast analysis uses opaque sRGB colors and WCAG 2.x relative luminance.
+Alpha and transparency are not supported.
+
+WCAG contrast thresholds are:
+
+- Normal text: AA `4.5`, AAA `7`
+- Large text: AA `3`, AAA `4.5`
+
+The contrast ratio is independent of foreground/background order and is
+rounded to two decimal places only after the calculation.
 
 Invalid requests return HTTP `400` with an error object containing a stable
 `code` and human-readable `message`.

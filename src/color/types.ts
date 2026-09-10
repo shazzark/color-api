@@ -25,3 +25,18 @@ export type ColorValue =
   | { format: "rgb"; value: RgbColor }
   | { format: "hsl"; value: HslColor }
   | { format: "hsv"; value: HsvColor };
+
+export interface WcagTextResult {
+  aa: boolean;
+  aaa: boolean;
+}
+
+export interface WcagResults {
+  normalText: WcagTextResult;
+  largeText: WcagTextResult;
+}
+
+export interface ContrastResult {
+  contrastRatio: number;
+  wcag: WcagResults;
+}
