@@ -1,5 +1,10 @@
 import type { FastifyInstance } from "fastify";
-import { hexToRgb, InvalidColorError } from "../color/conversion.js";
+import {
+  hexToHsl,
+  hexToHsv,
+  hexToRgb,
+  InvalidColorError
+} from "../color/conversion.js";
 
 interface ConvertRequest {
   from: string;
@@ -29,26 +34,29 @@ export async function colorRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    if (request.body.from !== "hex" || request.body.to !== "rgb") {
+    if (request.body.from !== "hex"
+      || !["rgb", "hsl", "hsv"].includes(request.body.to)) {
       return reply.code(400).send({
         error: {
           code: "UNSUPPORTED_CONVERSION",
-          message: "Only HEX to RGB conversion is supported"
+          message: "Supported conversions are HEX to RGB, HEX to HSL, and HEX to HSV"
         }
       });
     }
 
     try {
-      const rgb = hexToRgb(request.body.value);
+      const output = request.body.to === "rgb"
+        ? { format: "rgb", value: hexToRgb(request.body.value) }
+        : request.body.to === "hsl"
+          ? { format: "hsl", value: hexToHsl(request.body.value) }
+          : { format: "hsv", value: hexToHsv(request.body.value) };
+
       return {
         input: {
           format: "hex",
           value: request.body.value
         },
-        output: {
-          format: "rgb",
-          value: rgb
-        }
+        output
       };
     } catch (error: unknown) {
       if (error instanceof InvalidColorError) {

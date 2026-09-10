@@ -35,6 +35,34 @@ describe("API endpoints", () => {
     });
   });
 
+  it("converts HEX to HSL", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/colors/convert",
+      payload: { from: "hex", to: "hsl", value: "#3498db" }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      input: { format: "hex", value: "#3498db" },
+      output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } }
+    });
+  });
+
+  it("converts HEX to HSV", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/v1/colors/convert",
+      payload: { from: "hex", to: "hsv", value: "#3498db" }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      input: { format: "hex", value: "#3498db" },
+      output: { format: "hsv", value: { h: 204.07, s: 76.26, v: 85.88 } }
+    });
+  });
+
   it("rejects malformed colors", async () => {
     const response = await app.inject({
       method: "POST",
@@ -59,7 +87,7 @@ describe("API endpoints", () => {
     expect(response.json()).toEqual({
       error: {
         code: "UNSUPPORTED_CONVERSION",
-        message: "Only HEX to RGB conversion is supported"
+        message: "Supported conversions are HEX to RGB, HEX to HSL, and HEX to HSV"
       }
     });
   });

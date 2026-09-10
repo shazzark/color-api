@@ -5,3 +5,15 @@ export interface RgbColor {
   g: number;
   b: number;
 }
+
+export interface HslColor {
+  h: number;
+  s: number;
+  l: number;
+}
+
+export interface HsvColor {
+  h: number;
+  s: number;
+  v: number;
+}
