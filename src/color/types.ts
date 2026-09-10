@@ -2,6 +2,13 @@ export type HexColor = string;
 
 export type ColorFormat = "hex" | "rgb" | "hsl" | "hsv";
 
+export type PaletteStrategy =
+  | "complementary"
+  | "analogous"
+  | "triadic"
+  | "split-complementary"
+  | "monochromatic";
+
 export interface RgbColor {
   r: number;
   g: number;

@@ -9,6 +9,7 @@ The API provides:
 - `GET /health`
 - `POST /v1/colors/convert` for color conversion
 - `POST /v1/colors/contrast` for WCAG 2.x contrast analysis
+- `POST /v1/colors/palette` for deterministic palette generation
 
 The following 12 directed conversions are supported:
 
@@ -226,6 +227,62 @@ WCAG contrast thresholds are:
 
 The contrast ratio is independent of foreground/background order and is
 rounded to two decimal places only after the calculation.
+
+### Generate a palette
+
+Use `POST /v1/colors/palette` with a base color and one of the supported
+strategies. `outputFormat` is optional and defaults to `hex`.
+
+Supported strategies are `complementary`, `analogous`, `triadic`,
+`split-complementary`, and `monochromatic`.
+
+```json
+{
+  "base": {
+    "format": "hex",
+    "value": "#3498db"
+  },
+  "strategy": "analogous",
+  "outputFormat": "hex"
+}
+```
+
+Every generated color is returned as a discriminated color object:
+
+```json
+{
+  "base": {
+    "format": "hex",
+    "value": "#3498db"
+  },
+  "strategy": "analogous",
+  "outputFormat": "hex",
+  "colors": [
+    {
+      "format": "hex",
+      "value": "#34dbca"
+    },
+    {
+      "format": "hex",
+      "value": "#3498db"
+    },
+    {
+      "format": "hex",
+      "value": "#3445db"
+    }
+  ]
+}
+```
+
+Palette generation converts the validated base color to RGB, uses HSL for
+palette mathematics, and converts each result to the requested output format.
+The fixed output sizes are 2 for complementary, 3 for analogous, triadic, and
+split-complementary, and 5 for monochromatic.
+
+Monochromatic palettes preserve the base hue and saturation. For base
+lightness between `0` and `100`, their lightness values are
+`[0, l / 2, l, (l + 100) / 2, 100]`. At lightness `0` or `100`, the values are
+`[0, 25, 50, 75, 100]`.
 
 Invalid requests return HTTP `400` with an error object containing a stable
 `code` and human-readable `message`.

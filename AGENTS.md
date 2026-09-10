@@ -2,11 +2,16 @@
 
 ## Project
 
-Color API is a learning project for color validation and conversion. Stage 3 is the current milestone.
+Color API is a learning project for color validation, conversion, contrast
+analysis, and deterministic palette generation. Stage 5 is the current
+milestone.
 
 - `GET /health` provides a health check.
 - `POST /v1/colors/convert` supports HEX, RGB, HSL, and HSV.
 - All 12 directed conversions between the four supported formats are available.
+- `POST /v1/colors/contrast` provides WCAG 2.x contrast analysis.
+- `POST /v1/colors/palette` provides deterministic palettes using five fixed
+	strategies.
 - API errors use the stable codes `INVALID_REQUEST`, `INVALID_COLOR`, and
 	`UNSUPPORTED_CONVERSION`.
 
@@ -24,13 +29,16 @@ Color API is a learning project for color validation and conversion. Stage 3 is 
 - Keep color types in `src/color/types.ts`.
 - Keep runtime validation in `src/color/validation.ts`.
 - Keep pure conversion mathematics in `src/color/conversion.ts`.
+- Keep pure contrast mathematics in `src/color/contrast.ts`.
+- Keep pure palette mathematics in `src/color/palette.ts`.
 - Keep conversion functions pure and independent of Fastify.
 - Use RGB as the canonical internal representation.
-- Use `convertColor()` as the canonical conversion dispatcher.
+- Use HSL as the palette-generation space.
 - Keep application construction in `src/app.ts` and server startup in `src/server.ts`.
-- Do not introduce a conversion registry or unnecessary abstraction until project
-	complexity justifies it.
-- Do not add additional color spaces, palettes, random colors, contrast analysis,
+- Use `convertColor()` as the canonical conversion dispatcher.
+- Keep palette strategies explicit and small; do not introduce a registry or
+	generic strategy abstraction.
+- Do not add random palettes, custom palette controls, additional color spaces,
 	databases, or unrelated features unless explicitly requested.
 
 ## Conventions
@@ -49,10 +57,11 @@ Color API is a learning project for color validation and conversion. Stage 3 is 
 ## Testing
 
 - Add or update focused tests for behavior changes.
-- Keep conversion mathematics and validation unit tests separate from endpoint tests where practical.
-- Test all 12 directed conversions.
-- Test HEX, RGB, HSL, and HSV validation independently.
-- Test boundary values, achromatic colors, hue wrapping, and conversion round trips.
+- Keep conversion, contrast, and palette unit tests separate from endpoint tests.
+- Test all 12 directed conversions and all five palette strategies.
+- Test color validation independently.
+- Test WCAG thresholds, palette hue wrapping, monochromatic boundaries, and
+	fixed output lengths.
 - Test stable API error codes and response envelopes.
 - Vitest must use the configured `forks` pool.
 - Run `npm test` after code changes.
@@ -61,7 +70,7 @@ Color API is a learning project for color validation and conversion. Stage 3 is 
 
 - Do not add dependencies unless they are necessary and justified.
 - Prefer the Node.js and Fastify capabilities already in use.
-- Keep color conversion formulas and validation dependency-free.
+- Keep color conversion, contrast, and palette mathematics dependency-free.
 - Never add a database for color conversion features unless explicitly requested.
 
 ## Verification
@@ -85,7 +94,7 @@ npm run build
 Before modifying code:
 
 1. Inspect the relevant files and current behavior.
-2. Identify the owning validation, conversion, route, or test surface.
+2. Identify the owning validation, conversion, contrast, palette, route, or test surface.
 3. State the intended changes briefly.
 4. Make the smallest complete change.
 5. Run `npm test`, `npm run typecheck`, and `npm run build`.
