@@ -49,21 +49,21 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Define the typed public operation/error contracts and mathematical conventions before expanding the engine.
 
-**STATUS:** IN PROGRESS
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phase 0.
 
 **TASK CHECKLIST:**
 
-- [ ] Inventory current public helpers and map them to package/API operations.
-- [ ] Define format/value types for HEX/HEX8, RGB/RGBA, HSL/HSLA, HSV+A, OKLab+A, OKLCH+A.
-- [ ] Define alpha default, optionality/canonical omission, units, serialization, hue conventions, precision, and normalization behavior.
-- [ ] Define structured domain validation errors separately from HTTP errors.
-- [ ] Define same-format conversion as normalization and settle output metadata for gamut mapping.
-- [ ] Define operation spaces/interpolation semantics for manipulation, mixing, scales, and analysis.
-- [ ] Select trustworthy reference-vector sources and tolerances; record the source beside fixtures.
-- [ ] Define conservative format-detection input rules and reject ambiguity.
-- [ ] Review API/backwards-compatibility policy for the not-yet-public `/v1` contract.
+- [x] Inventory current public helpers and map them to package/API operations.
+- [x] Define format/value types for HEX/HEX8, RGB/RGBA, HSL/HSLA, HSV+A, OKLab+A, OKLCH+A.
+- [x] Define alpha default, optionality/canonical omission, units, serialization, hue conventions, precision, and normalization behavior.
+- [x] Define structured domain validation errors separately from HTTP errors.
+- [x] Define same-format conversion as normalization and settle output metadata for gamut mapping.
+- [x] Define operation spaces/interpolation semantics for manipulation, mixing, scales, and analysis.
+- [x] Select trustworthy reference-vector sources and tolerances; record the source beside fixtures.
+- [x] Define conservative format-detection input rules and reject ambiguity.
+- [x] Review API/backwards-compatibility policy for the not-yet-public `/v1` contract.
 
 **SUBAGENTS TO USE:** Product, color science, package, and API architecture reviewers.
 
@@ -77,13 +77,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **GIT CHECKPOINT:** Focused contract/design checkpoint.
 
-**DEFINITION OF DONE:** Each public color representation and cross-operation semantic has a documented, testable contract; no unresolved alpha/gamut/precision ambiguity remains.
+**DEFINITION OF DONE:** Each public color representation and cross-operation semantic has a documented, testable contract; no unresolved alpha/gamut/precision ambiguity remains. Complete after review by product, color-science, package, and API reviewers; `npm run typecheck` passed. Architecture records W3C CSS Color 4 local-MINDE constants/limits, JSON Pointer validation paths, result metadata, and explicit source-over context.
 
 ## Phase 2 — High-precision core, validation, alpha, and color spaces
 
 **OBJECTIVE:** Implement validated conversion and normalization for existing formats plus alpha-aware OKLab/OKLCH without lossy 8-bit intermediates.
 
-**STATUS:** NOT STARTED
+**STATUS:** IN PROGRESS
 
 **DEPENDENCIES:** Phase 1.
 
