@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { analyzeContrast } from "../color/contrast.js";
-import { convertColor } from "../color/conversion.js";
+import { analyzeContrast, type ContrastCriterion, type TextSize } from "../color/contrast.js";
 import type { ColorValue } from "../color/types.js";
 import {
   InvalidColorError,
@@ -11,6 +10,17 @@ import {
 interface ContrastRequest {
   foreground: unknown;
   background: unknown;
+  criterion?: unknown;
+  textSize?: unknown;
+  context?: unknown;
+  canvas?: unknown;
+}
+
+function isCriterion(value: unknown): value is ContrastCriterion {
+  return value === "wcag-2.2-1.4.3" || value === "wcag-2.2-1.4.11";
+}
+function isTextSize(value: unknown): value is TextSize {
+  return value === "normal" || value === "large";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -21,16 +31,6 @@ function isContrastRequest(body: unknown): body is ContrastRequest {
   return isRecord(body)
     && "foreground" in body
     && "background" in body;
-}
-
-function toRgb(value: ColorValue) {
-  const converted = convertColor(value, "rgb").output;
-
-  if (converted.format !== "rgb") {
-    throw new InvalidColorError("Unable to normalize color to RGB");
-  }
-
-  return converted.value;
 }
 
 function parseColor(value: unknown): ColorValue {
@@ -61,19 +61,37 @@ export async function contrastRoutes(app: FastifyInstance): Promise<void> {
     try {
       const foreground = parseColor(request.body.foreground);
       const background = parseColor(request.body.background);
-      const result = analyzeContrast(toRgb(foreground), toRgb(background));
-
-      return {
-        foreground: request.body.foreground,
-        background: request.body.background,
-        ...result
-      };
+      const criterion = request.body.criterion;
+      const textSize = request.body.textSize;
+      if (criterion !== undefined && !isCriterion(criterion)) {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "Unsupported contrast criterion" } });
+      }
+      if (textSize !== undefined && !isTextSize(textSize)) {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "textSize must be normal or large" } });
+      }
+      if (request.body.context !== undefined && typeof request.body.context !== "string") {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "context must be a string" } });
+      }
+      if (typeof request.body.context === "string" && request.body.context.trim().length === 0) {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "context must not be empty" } });
+      }
+      if (criterion === "wcag-2.2-1.4.11" && textSize !== undefined) {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "textSize does not apply to non-text contrast" } });
+      }
+      const canvas = request.body.canvas === undefined ? undefined : parseColor(request.body.canvas);
+      return analyzeContrast(foreground, background, {
+        ...(criterion === undefined ? {} : { criterion }),
+        ...(textSize === undefined ? {} : { textSize }),
+        ...(typeof request.body.context === "string" ? { context: request.body.context } : {}),
+        ...(canvas === undefined ? {} : { canvas })
+      });
     } catch (error: unknown) {
       if (error instanceof InvalidColorError) {
         return reply.code(400).send({
           error: {
-            code: error.code,
-            message: error.message
+          code: error.code,
+            message: error.message,
+            issues: error.issues
           }
         });
       }

@@ -114,12 +114,12 @@ Do not add workspaces/monorepo until there are multiple independently released p
 
 - Analysis reports explicit metrics: relative luminance, contrast, light/dark heuristic, hue, saturation/chroma when meaningful, and color distance with a named distance formula/space.
 - `isLight`/`isDark` are documented as heuristics using relative luminance `>= 0.5` for light; they do not describe perceived brightness universally. `deltaEOK` is the Euclidean distance in OKLab; report the numeric distance and do not imply a universal similarity threshold.
-- WCAG calculations use sRGB relative luminance and unrounded ratios for thresholds, with rounded display values only.
+- WCAG calculations use full-precision, gamut-mapped encoded-sRGB channels, relative luminance, and unrounded ratios for thresholds, with rounded display values only. Results return normalized inputs, effective opaque colors, exact effective sRGB channels, the compositing model, criterion, threshold, and measured ratio.
 - Results distinguish normal/large text AA/AAA. Large-text interpretation and criterion are documented.
 - Large text follows WCAG's definition (at least 24 CSS px regular or approximately 18.67 CSS px bold); callers must supply/assert that context. Report AA/AAA thresholds separately (normal: 4.5/7; large: 3/4.5).
-- Non-text contrast is contextual and tied to the applicable WCAG criterion, not a blanket UI compliance result.
+- Non-text contrast is contextual and tied to WCAG 2.2 SC 1.4.11, not a blanket UI compliance result. It returns only the non-text threshold result, without unrelated text pass flags.
 - Non-text comparison names WCAG 2.2 SC 1.4.11 and the foreground/background boundary or graphical object being checked; apply its 3:1 threshold only for in-scope visual information and preserve stated exceptions.
-- Candidate suggestions use deterministic search and return tested candidates, backdrop, threshold, and measured ratio. A candidate is revalidated after gamut mapping and compositing.
+- Candidate suggestions use deterministic search and return tested candidates, background/canvas context, threshold, and measured ratio. A candidate is revalidated after gamut mapping and compositing. Search is bounded to 24 iterations in each direction, holds OKLCH hue/chroma fixed, and may return no candidate in a direction.
 - First suggestion scope is foreground candidates for one explicit background, requesting an applicable WCAG threshold. Search both lightness directions in OKLCH at fixed hue/chroma, map and re-evaluate candidates, return at most the nearest passing candidate from each direction with deterministic distance/tie ordering. Bound search iterations and candidate count; no complete palette claim.
 - APCA is not a stable replacement for WCAG in this cycle; it may be documented as future/experimental only.
 - Named/closest colors require a defensible dataset and metric before implementation; otherwise omit.

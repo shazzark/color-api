@@ -36,7 +36,26 @@ export type ColorValidationResult =
 
 export interface WcagTextResult { aa: boolean; aaa: boolean }
 export interface WcagResults { normalText: WcagTextResult; largeText: WcagTextResult }
-export interface ContrastResult { contrastRatio: number; wcag: WcagResults }
+export interface ContrastResult {
+  contrastRatio: number;
+  rawContrastRatio: number;
+  wcag?: WcagResults;
+  criterion: "wcag-2.2-1.4.3" | "wcag-2.2-1.4.11";
+  threshold: number;
+  passesCriterion: boolean;
+  textSize?: "normal" | "large";
+  context?: string;
+  compositing: "css-srgb-source-over";
+  foreground: ColorValue;
+  background: ColorValue;
+  effectiveForeground: ColorValue;
+  effectiveBackground: ColorValue;
+  effectiveSrgb: {
+    foreground: { r: number; g: number; b: number };
+    background: { r: number; g: number; b: number };
+  };
+  canvas?: ColorValue;
+}
 export interface ColorToken { name: string; color: ColorValue; cssVariable: string; cssValue: string }
 export interface ColorTokenResponse { token: ColorToken; css: string }
 

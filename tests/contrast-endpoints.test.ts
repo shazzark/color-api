@@ -48,10 +48,15 @@ describe("contrast API endpoint", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       foreground,
       background,
       contrastRatio: 21,
+      rawContrastRatio: 21,
+      criterion: "wcag-2.2-1.4.3",
+      threshold: 4.5,
+      passesCriterion: true,
+      compositing: "css-srgb-source-over",
       wcag: {
         normalText: { aa: true, aaa: true },
         largeText: { aa: true, aaa: true }
@@ -96,11 +101,67 @@ describe("contrast API endpoint", () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       error: {
         code: message.startsWith("Request") ? "INVALID_REQUEST" : "INVALID_COLOR",
         message
       }
     });
+  });
+
+  it("evaluates translucent colors with an explicit canvas and scoped non-text criterion", async () => {
+    const response = await app.inject({
+      method: "POST", url: "/v1/colors/contrast",
+      payload: {
+        foreground: { format: "hex", value: "#000000" },
+        background: { format: "rgb", value: { r: 0, g: 0, b: 0, alpha: 0.5 } },
+        canvas: { format: "hex", value: "#ffffff" },
+        criterion: "wcag-2.2-1.4.11",
+        context: "icon boundary"
+      }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      criterion: "wcag-2.2-1.4.11", context: "icon boundary", threshold: 3,
+      passesCriterion: true, compositing: "css-srgb-source-over",
+      effectiveBackground: { format: "rgb", value: { r: 128, g: 128, b: 128 } },
+      effectiveForeground: { format: "rgb", value: { r: 0, g: 0, b: 0 } }
+    });
+  });
+
+  it("rejects translucent backgrounds without a canvas", async () => {
+    const response = await app.inject({
+      method: "POST", url: "/v1/colors/contrast",
+      payload: {
+        foreground: { format: "hex", value: "#000000" },
+        background: { format: "rgb", value: { r: 255, g: 255, b: 255, alpha: 0.5 } }
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error.issues[0].path).toBe("/canvas");
+  });
+
+  it.each([
+    { options: { criterion: "wcag-2.2-1.4.11" }, message: "Non-text evaluation requires a named graphical object or boundary" },
+    { options: { criterion: "wcag-2.2-1.4.11", context: "icon", textSize: "large" }, message: "textSize does not apply to non-text contrast" },
+    { options: { context: "   " }, message: "context must not be empty" },
+    { options: { criterion: "wcag-2.2-1.4.99" }, message: "Unsupported contrast criterion" }
+  ])("rejects invalid contrast context: $message", async ({ options }) => {
+    const response = await app.inject({
+      method: "POST", url: "/v1/colors/contrast",
+      payload: {
+        foreground: { format: "hex", value: "#000000" },
+        background: { format: "hex", value: "#ffffff" },
+        ...options
+      }
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().error.message).toBe(options.criterion === "wcag-2.2-1.4.11" && "textSize" in options
+      ? "textSize does not apply to non-text contrast"
+      : options.criterion === "wcag-2.2-1.4.11"
+        ? "Non-text evaluation requires a named graphical object or boundary"
+        : options.context === "   "
+          ? "context must not be empty"
+          : "Unsupported contrast criterion");
   });
 });

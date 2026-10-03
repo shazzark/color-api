@@ -219,3 +219,20 @@ export function convertColor(input: unknown, outputFormat: ColorFormat): ColorCo
     ? { input: normalized, output, gamutMapped: true, gamutMapping: "css-color-4-local-minde" }
     : { input: normalized, output, gamutMapped: false };
 }
+
+/** Internal precision-preserving sRGB view for analysis and compositing. */
+export function colorToSrgb(input: unknown): { r: number; g: number; b: number; alpha: number; gamutMapped: boolean } {
+  const source = validateColorInput(input);
+  const raw = toLinear(source);
+  if (![raw.r, raw.g, raw.b, raw.alpha].every(Number.isFinite)) throw new InvalidColorError("Color conversion produced non-finite values");
+  const mapped = mapToSrgb([raw.r, raw.g, raw.b], source.format === "oklch" ? source.value : source.format === "oklab" ? labToOklch(source.value) : undefined);
+  return { r: delinearize(mapped.rgb[0]), g: delinearize(mapped.rgb[1]), b: delinearize(mapped.rgb[2]), alpha: raw.alpha, gamutMapped: mapped.mapped };
+}
+
+/** Full-precision OKLab coordinates for deterministic analysis. */
+export function colorToOklab(input: unknown): OklabColor {
+  const source = validateColorInput(input);
+  const raw = toLinear(source);
+  if (![raw.r, raw.g, raw.b, raw.alpha].every(Number.isFinite)) throw new InvalidColorError("Color conversion produced non-finite values");
+  return { ...linearSrgbToOklab([raw.r, raw.g, raw.b]), ...(raw.alpha === 1 ? {} : { alpha: raw.alpha }) };
+}

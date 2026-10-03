@@ -160,9 +160,11 @@ Use `"to":"hsv"` to return hue, saturation, and value:
 
 ### Analyze contrast
 
-Use `POST /v1/colors/contrast` to analyze the contrast between a foreground
-and background color. Both colors accept HEX, RGB, HSL, or HSV values, and the
-original input representations are preserved in the response.
+Use `POST /v1/colors/contrast` to analyze a foreground/background pair. Both
+colors accept any supported format. `criterion` defaults to `wcag-2.2-1.4.3`;
+set it to `wcag-2.2-1.4.11` for an explicitly named non-text object or
+boundary. Set `textSize` to `large` only when the text meets WCAG's large-text
+definition (at least 24 CSS px regular or about 18.67 CSS px bold).
 
 ```json
 {
@@ -177,7 +179,9 @@ original input representations are preserved in the response.
       "g": 0,
       "b": 0
     }
-  }
+  },
+  "criterion": "wcag-2.2-1.4.3",
+  "textSize": "normal"
 }
 ```
 
@@ -195,6 +199,13 @@ original input representations are preserved in the response.
       "b": 0
     }
   },
+  "criterion": "wcag-2.2-1.4.3",
+  "threshold": 4.5,
+  "passesCriterion": true,
+  "rawContrastRatio": 21,
+  "compositing": "css-srgb-source-over",
+  "effectiveForeground": { "format": "rgb", "value": { "r": 255, "g": 255, "b": 255 } },
+  "effectiveBackground": { "format": "rgb", "value": { "r": 0, "g": 0, "b": 0 } },
   "contrastRatio": 21,
   "wcag": {
     "normalText": {
@@ -224,16 +235,24 @@ original input representations are preserved in the response.
 - RGB output channels are integers, and HEX output is canonical lowercase
   six-digit HEX with a leading `#`.
 
-Contrast analysis uses opaque sRGB colors and WCAG 2.x relative luminance.
-Alpha and transparency are not supported.
+Contrast uses WCAG relative luminance on full-precision encoded-sRGB results;
+threshold checks use the unrounded ratio. The response includes the criterion,
+threshold, raw and display ratios, normalized inputs, effective opaque colors,
+the effective encoded-sRGB channels used for the calculation, and compositing
+model. A translucent background requires an explicit opaque
+`canvas` color. The documented `css-srgb-source-over` model composites in
+encoded sRGB; this is a stated calculation context, not a claim about every
+graphics pipeline. Non-text results apply only to the named object/boundary
+and the in-scope WCAG 2.2 SC 1.4.11 comparison, not an interface as a whole.
 
 WCAG contrast thresholds are:
 
 - Normal text: AA `4.5`, AAA `7`
 - Large text: AA `3`, AAA `4.5`
 
-The contrast ratio is independent of foreground/background order and is
-rounded to two decimal places only after the calculation.
+For opaque pairs the ratio is independent of foreground/background order.
+With transparency, foreground/background compositing order matters. The shown
+ratio is rounded to two decimal places only after threshold evaluation.
 
 ### Generate a palette
 
