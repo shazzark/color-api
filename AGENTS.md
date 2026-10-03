@@ -1,118 +1,48 @@
 # Agent Instructions
 
-## Project
+## Project purpose
 
-Color API is a learning project for color validation, conversion, contrast
-analysis, deterministic palette generation, and developer-friendly color
-tokens, and batch conversion. Stage 7 is the current
-milestone.
+Color API provides a deterministic, stateless color engine through a reusable ESM package and a versioned Fastify REST API. Read `prd.md` for product scope, `architecture.md` for technical boundaries, and `task.md` for current phase/status before major work.
 
-- `GET /health` provides a health check.
-- `POST /v1/colors/convert` supports HEX, RGB, HSL, and HSV.
-- All 12 directed conversions between the four supported formats are available.
-- `POST /v1/colors/contrast` provides WCAG 2.x contrast analysis.
-- `POST /v1/colors/palette` provides deterministic palettes using five fixed
-	strategies.
-- `POST /v1/colors/tokens` provides one-color CSS custom-property tokens.
-- `POST /v1/colors/batch/convert` synchronously converts 1-100 colors with a
-	shared output format.
-- API errors use the stable codes `INVALID_REQUEST`, `INVALID_COLOR`, and
-	`UNSUPPORTED_CONVERSION`.
+## Architecture boundaries
 
-## Stack
+- Keep color math, validation, generation, analysis, accessibility, and serialization in framework-independent domain modules.
+- Keep HTTP, rate limiting, CORS, request IDs, and transport errors in the Fastify adapter.
+- Keep Fastify/server imports out of package exports. Package and API must call the same operations.
+- Do not add website, AI, persistence, accounts, queues, or databases to the core unless the PRD is explicitly changed.
+- Preserve explicit alpha, precision, gamut, compositing, and accessibility semantics. Never silently clip or claim broad accessibility from a single calculation.
 
-- Node.js with TypeScript
-- Fastify
-- Vitest
-- Native ES modules
-- Strict TypeScript
+## Implementation rules
 
-## Architecture
+- Inspect relevant source, tests, docs, and Git state before editing; preserve existing user changes.
+- Follow strict TypeScript, discriminated color types, runtime validation, and existing naming/formatting patterns.
+- Avoid unsafe type assertions, hidden side effects, duplicated color math, unnecessary abstractions, and unjustified dependencies.
+- Keep package/browser code independent of Node-only and Fastify APIs; prove browser compatibility before documenting it.
+- Update `prd.md` only for product scope decisions, `architecture.md` for technical decisions, `task.md` for progress/next work, and this file only for durable agent workflow rules.
 
-- Keep HTTP concerns in `src/routes/`.
-- Keep color types in `src/color/types.ts`.
-- Keep runtime validation in `src/color/validation.ts`.
-- Keep pure conversion mathematics in `src/color/conversion.ts`.
-- Keep pure contrast mathematics in `src/color/contrast.ts`.
-- Keep pure palette mathematics in `src/color/palette.ts`.
-- Keep pure token serialization in `src/color/tokens.ts`.
-- Keep conversion functions pure and independent of Fastify.
-- Use RGB as the canonical internal representation.
-- Use HSL as the palette-generation space.
-- Keep application construction in `src/app.ts` and server startup in `src/server.ts`.
-- Use `convertColor()` as the canonical conversion dispatcher.
-- Keep palette strategies explicit and small; do not introduce a registry or
-	generic strategy abstraction.
-- Keep token generation focused on one color; do not add palette integration,
-	themes, aliases, or exporters.
-- Keep batch conversion synchronous and small; preserve input order and fail
-	the entire request when an item is invalid.
-- Do not add random palettes, custom palette controls, additional color spaces,
-	databases, asynchronous jobs, queues, workers, or unrelated features unless
-	explicitly requested.
+## Required phase workflow
 
-## Conventions
+Follow:
 
-- Follow existing TypeScript formatting and naming.
-- Preserve strict typing; do not use assertions merely to silence errors.
-- Validate untrusted request data at runtime.
-- Preserve the discriminated `ColorValue` and `ColorFormat` model.
-- Keep RGB channels as integers from `0` through `255`.
-- Keep HSL/HSV hue normalized to `0 <= h < 360`.
-- Keep HSL/HSV output rounded to two decimal places.
-- Keep generated HEX output canonical lowercase `#rrggbb`.
-- Keep token names restricted to `^[a-z][a-z0-9-]*$` before CSS interpolation.
-- Use browser-oriented CSS serialization; HSV structured values serialize as RGB
-	CSS values because `hsv()` is not broadly supported by browsers.
-- Prefer small, focused modules and existing project patterns.
-- Avoid unrelated refactors or behavior changes.
+`inspect → understand → plan → delegate where useful → implement → test → independent review → inspect Git diff → update documentation/task status → commit checkpoint → next phase`
 
-## Testing
+- Use relevant specialist subagents throughout remaining phases (color science, product, API, package, security/reliability, DX, QA, deployment as applicable). Delegate read-only analysis when useful; subagents must not mutate Git.
+- Discover and use relevant available skills for provider, publishing, or product-specific tool work. Do not invoke unrelated skills.
+- The lead agent alone performs Git mutations. Never overwrite or discard user changes. Do not stage, commit, push, reset, checkout, rebase, or alter Git configuration unless the current task/phase explicitly authorizes it.
+- Work in `task.md` phase order and do not advance past a failed definition of done.
 
-- Add or update focused tests for behavior changes.
-- Keep conversion, contrast, and palette unit tests separate from endpoint tests.
-- Test all 12 directed conversions and all five palette strategies.
-- Test color validation independently.
-- Test WCAG thresholds, palette hue wrapping, monochromatic boundaries, and
-	fixed output lengths.
-- Test token-name validation, deterministic CSS serialization, and HSV-to-RGB
-	CSS output.
-- Test batch mixed formats, shared output formats, the 1-100 item limit, input
-	ordering, atomic failures, and zero-based invalid-item indexes.
-- Test stable API error codes and response envelopes.
-- Vitest must use the configured `forks` pool.
-- Run `npm test` after code changes.
+## Tests and verification
 
-## Dependencies
+- Add/update focused tests for behavior changes; prove contracts, not test count.
+- Keep domain math tests separate from route tests. Include reference vectors and documented tolerances for color-space math.
+- Test package consumers against built output; test actual browsers before claiming browser support.
+- Test route limits, malformed requests, stable safe errors, CORS/rate policies, and package/API parity as applicable.
+- Before a phase is complete, run `npm test`, `npm run typecheck`, and `npm run build`, plus that phase’s additional verification in `task.md`.
+- Vitest must retain the configured `forks` pool.
 
-- Do not add dependencies unless they are necessary and justified.
-- Prefer the Node.js and Fastify capabilities already in use.
-- Keep color conversion, contrast, and palette mathematics dependency-free.
-- Never add a database for color conversion features unless explicitly requested.
+## Review and definition of done
 
-## Verification
-
-Before considering a change complete, run:
-
-```bash
-npm test
-npm run typecheck
-npm run build
-```
-
-## Git safety
-
-- Do not commit, stage, reset, checkout, rebase, or force-push unless explicitly requested.
-- Preserve existing user changes.
-- Do not modify generated files or dependency lockfiles unless dependency changes require it.
-
-## Agent workflow
-
-Before modifying code:
-
-1. Inspect the relevant files and current behavior.
-2. Identify the owning validation, conversion, contrast, palette, route, or test surface.
-3. State the intended changes briefly.
-4. Make the smallest complete change.
-5. Run `npm test`, `npm run typecheck`, and `npm run build`.
-6. Report changed files, checks performed, and any remaining manual review.
+- An independent reviewer must inspect substantive math, API contracts, release/security behavior, and the final diff as applicable.
+- Check the complete Git diff/status for accidental, generated, or unrelated changes before each checkpoint.
+- Synchronize examples, API schemas, package types, OpenAPI, and docs with implemented behavior.
+- A task/phase is complete only when its documented behavior, tests, verification, documentation, review, and Git checkpoint are complete. Public API release additionally requires a reachable public endpoint and successful smoke tests.
