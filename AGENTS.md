@@ -4,7 +4,7 @@
 
 Color API is a learning project for color validation, conversion, contrast
 analysis, deterministic palette generation, and developer-friendly color
-tokens. Stage 6 is the current
+tokens, and batch conversion. Stage 7 is the current
 milestone.
 
 - `GET /health` provides a health check.
@@ -14,6 +14,8 @@ milestone.
 - `POST /v1/colors/palette` provides deterministic palettes using five fixed
 	strategies.
 - `POST /v1/colors/tokens` provides one-color CSS custom-property tokens.
+- `POST /v1/colors/batch/convert` synchronously converts 1-100 colors with a
+	shared output format.
 - API errors use the stable codes `INVALID_REQUEST`, `INVALID_COLOR`, and
 	`UNSUPPORTED_CONVERSION`.
 
@@ -43,8 +45,11 @@ milestone.
 	generic strategy abstraction.
 - Keep token generation focused on one color; do not add palette integration,
 	themes, aliases, or exporters.
+- Keep batch conversion synchronous and small; preserve input order and fail
+	the entire request when an item is invalid.
 - Do not add random palettes, custom palette controls, additional color spaces,
-	databases, or unrelated features unless explicitly requested.
+	databases, asynchronous jobs, queues, workers, or unrelated features unless
+	explicitly requested.
 
 ## Conventions
 
@@ -72,6 +77,8 @@ milestone.
 	fixed output lengths.
 - Test token-name validation, deterministic CSS serialization, and HSV-to-RGB
 	CSS output.
+- Test batch mixed formats, shared output formats, the 1-100 item limit, input
+	ordering, atomic failures, and zero-based invalid-item indexes.
 - Test stable API error codes and response envelopes.
 - Vitest must use the configured `forks` pool.
 - Run `npm test` after code changes.

@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import { batchRoutes } from "./routes/batch.js";
 import { colorRoutes } from "./routes/colors.js";
 import { contrastRoutes } from "./routes/contrast.js";
 import { healthRoutes } from "./routes/health.js";
@@ -10,6 +11,7 @@ export function buildApp() {
 
   app.register(healthRoutes);
   app.register(colorRoutes);
+  app.register(batchRoutes);
   app.register(contrastRoutes);
   app.register(paletteRoutes);
   app.register(tokenRoutes);

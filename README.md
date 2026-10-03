@@ -11,6 +11,7 @@ The API provides:
 - `POST /v1/colors/contrast` for WCAG 2.x contrast analysis
 - `POST /v1/colors/palette` for deterministic palette generation
 - `POST /v1/colors/tokens` for single-color CSS custom-property tokens
+- `POST /v1/colors/batch/convert` for synchronous batch conversion
 
 The following 12 directed conversions are supported:
 
@@ -329,6 +330,84 @@ Palette integration is not included. The token name must match
 
 The endpoint supports HEX, RGB, HSL, and HSV input values. It does not emit
 alpha or transparency values.
+
+### Batch conversion
+
+Use `POST /v1/colors/batch/convert` to convert between 1 and 100 colors in a
+single synchronous request. Each item may use a different input format, while
+one shared `outputFormat` applies to the entire request. It defaults to `hex`.
+
+Same-format conversions are supported, but may normalize the representation
+rather than preserve the submitted representation byte-for-byte. Conversion
+passes through integer RGB values, so HSL and HSV values may change even when
+the input and output formats match.
+
+```json
+{
+  "colors": [
+    {
+      "format": "hex",
+      "value": "#3498db"
+    },
+    {
+      "format": "rgb",
+      "value": {
+        "r": 231,
+        "g": 76,
+        "b": 60
+      }
+    }
+  ],
+  "outputFormat": "hsl"
+}
+```
+
+Results preserve input order and use the same `input` and `output` color
+envelopes as the single-color conversion endpoint:
+
+```json
+{
+  "results": [
+    {
+      "input": {
+        "format": "hex",
+        "value": "#3498db"
+      },
+      "output": {
+        "format": "hsl",
+        "value": {
+          "h": 204.07,
+          "s": 69.87,
+          "l": 53.14
+        }
+      }
+    },
+    {
+      "input": {
+        "format": "rgb",
+        "value": {
+          "r": 231,
+          "g": 76,
+          "b": 60
+        }
+      },
+      "output": {
+        "format": "hsl",
+        "value": {
+          "h": 5.61,
+          "s": 78.08,
+          "l": 57.06
+        }
+      }
+    }
+  ]
+}
+```
+
+Batch processing is atomic. If any item is invalid, the entire request fails
+with `INVALID_COLOR`; the error includes the invalid item's zero-based `index`.
+Malformed batch metadata, an empty batch, a batch larger than 100 items, or an
+invalid output format returns `INVALID_REQUEST`.
 
 Invalid requests return HTTP `400` with an error object containing a stable
 `code` and human-readable `message`.

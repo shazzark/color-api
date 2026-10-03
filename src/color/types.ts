@@ -59,3 +59,12 @@ export interface ColorTokenResponse {
   token: ColorToken;
   css: string;
 }
+
+export interface ColorConversionResult {
+  input: ColorValue;
+  output: ColorValue;
+}
+
+export interface BatchConversionResponse {
+  results: ColorConversionResult[];
+}
