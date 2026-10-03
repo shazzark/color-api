@@ -79,20 +79,19 @@ export async function batchRoutes(app: FastifyInstance): Promise<void> {
     for (const [index, value] of colors.entries()) {
       try {
         const input = parseColor(value);
-        const output = convertColor(
-          input.format,
-          outputFormat,
-          input
-        );
-
-        results.push({ input, output });
+        results.push(convertColor(input, outputFormat));
       } catch (error: unknown) {
         if (error instanceof InvalidColorError) {
           return reply.code(400).send({
             error: {
-              code: error.code,
-              message: error.message,
+            code: error.code,
+            message: error.message,
+            index,
+            issues: error.issues.map((issue) => ({
+              ...issue,
+              path: issue.path === "/" ? `/colors/${index}` : `/colors/${index}${issue.path}`,
               index
+            }))
             }
           });
         }

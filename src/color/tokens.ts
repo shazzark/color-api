@@ -14,13 +14,21 @@ export function formatCssColor(color: ColorValue): string {
     case "hsl":
       return `hsl(${color.value.h}, ${color.value.s}%, ${color.value.l}%)`;
     case "hsv": {
-      const rgb = convertColor("hsv", "rgb", color);
+      const rgb = convertColor(color, "rgb").output;
 
       if (rgb.format !== "rgb") {
         throw new Error("Unable to serialize HSV color as CSS");
       }
 
       return formatCssColor(rgb);
+    }
+    case "oklab": {
+      const { l, a, b, alpha } = color.value;
+      return `oklab(${l} ${a} ${b}${alpha === undefined ? "" : ` / ${alpha}`})`;
+    }
+    case "oklch": {
+      const { l, c, h, alpha } = color.value;
+      return `oklch(${l} ${c} ${h}${alpha === undefined ? "" : ` / ${alpha}`})`;
     }
   }
 }

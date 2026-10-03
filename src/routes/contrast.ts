@@ -24,7 +24,7 @@ function isContrastRequest(body: unknown): body is ContrastRequest {
 }
 
 function toRgb(value: ColorValue) {
-  const converted = convertColor(value.format, "rgb", value);
+  const converted = convertColor(value, "rgb").output;
 
   if (converted.format !== "rgb") {
     throw new InvalidColorError("Unable to normalize color to RGB");

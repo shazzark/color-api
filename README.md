@@ -1,6 +1,7 @@
 # Color API
 
-A learning project for validating and converting colors.
+A deterministic color engine and versioned Fastify API. The color math and
+validation live in framework-independent domain modules shared by API routes.
 
 ## Supported conversions
 
@@ -13,14 +14,16 @@ The API provides:
 - `POST /v1/colors/tokens` for single-color CSS custom-property tokens
 - `POST /v1/colors/batch/convert` for synchronous batch conversion
 
-The following 12 directed conversions are supported:
+The engine accepts six tagged formats: `hex`, `rgb`, `hsl`, `hsv`, `oklab`,
+and `oklch`. All six support alpha where structured, and HEX accepts six- or
+eight-digit values (`#rrggbb` / `#rrggbbaa`). Conversion supports every pair;
+same-format conversion performs canonical normalization. Opaque alpha is
+omitted from structured output.
 
-- HEX -> RGB, HSL, HSV
-- RGB -> HEX, HSL, HSV
-- HSL -> RGB, HEX, HSV
-- HSV -> RGB, HEX, HSL
-
-RGB is used as the internal intermediate representation for non-RGB formats.
+HSL/HSV and OKLab/OKLCH conversions preserve floating-point intermediates.
+Public HSL/HSV values use two decimal places; OKLab/OKLCH and structured alpha
+use four. sRGB-bounded targets use CSS Color 4 local-MINDE gamut mapping when
+needed and return `gamutMapped` plus the `css-color-4-local-minde` identifier.
 
 ## Setup
 
@@ -67,13 +70,15 @@ curl -X POST http://127.0.0.1:3000/v1/colors/convert \
       "g": 152,
       "b": 219
     }
-  }
+  },
+  "gamutMapped": false
 }
 ```
 
 ### Structured color input
 
-HEX values are strings. RGB, HSL, and HSV values are objects:
+HEX values are strings. RGB, HSL, HSV, OKLab, and OKLCH values are objects.
+Alpha is the optional `alpha` property for structured formats:
 
 ```json
 {
@@ -328,8 +333,9 @@ Palette integration is not included. The token name must match
 }
 ```
 
-The endpoint supports HEX, RGB, HSL, and HSV input values. It does not emit
-alpha or transparency values.
+The endpoint supports all six color formats. Structured token values preserve
+alpha; CSS serialization uses HEX8 for translucent HEX and modern CSS color
+syntax for OKLab/OKLCH.
 
 ### Batch conversion
 
@@ -337,10 +343,10 @@ Use `POST /v1/colors/batch/convert` to convert between 1 and 100 colors in a
 single synchronous request. Each item may use a different input format, while
 one shared `outputFormat` applies to the entire request. It defaults to `hex`.
 
-Same-format conversions are supported, but may normalize the representation
-rather than preserve the submitted representation byte-for-byte. Conversion
-passes through integer RGB values, so HSL and HSV values may change even when
-the input and output formats match.
+Same-format conversions normalize the representation rather than preserve the
+submitted representation byte-for-byte. Cross-format conversions retain
+floating-point intermediate precision; RGB and HEX output remain quantized to
+their defined integer/byte channels.
 
 ```json
 {

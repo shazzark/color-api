@@ -83,21 +83,21 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Implement validated conversion and normalization for existing formats plus alpha-aware OKLab/OKLCH without lossy 8-bit intermediates.
 
-**STATUS:** IN PROGRESS
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phase 1.
 
 **TASK CHECKLIST:**
 
-- [ ] Refactor conversion internals to retain floating-point precision through transformations.
-- [ ] Add OKLab/OKLCH forward/inverse transforms and supported cross-format dispatch.
-- [ ] Add alpha validation and preservation to every supported structured format and HEX8.
-- [ ] Implement canonical normalization and same-format conversion consistently.
-- [ ] Implement explicit sRGB gamut mapping for out-of-gamut OKLCH conversion; return/report mapping metadata.
-- [ ] Define and implement canonical opaque/transparent serialization behavior.
-- [ ] Add strict public `validateColor`, `normalizeColor`, and reliable format-detection operations.
-- [ ] Keep lower-level pure math independent of Fastify.
-- [ ] Document unsupported color formats and ambiguous string parsing.
+- [x] Refactor conversion internals to retain floating-point precision through transformations.
+- [x] Add OKLab/OKLCH forward/inverse transforms and supported cross-format dispatch.
+- [x] Add alpha validation and preservation to every supported structured format and HEX8.
+- [x] Implement canonical normalization and same-format conversion consistently.
+- [x] Implement explicit sRGB gamut mapping for out-of-gamut OKLCH conversion; return/report mapping metadata.
+- [x] Define and implement canonical opaque/transparent serialization behavior.
+- [x] Add strict public `validateColor`, `normalizeColor`, and reliable format-detection operations.
+- [x] Keep lower-level pure math independent of Fastify.
+- [x] Document unsupported color formats and ambiguous string parsing.
 
 **SUBAGENTS TO USE:** Color science reviewer; independent transform/reference-vector reviewer; package/API reviewer.
 
@@ -105,13 +105,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** All meaningful directed conversions; alpha preservation; HEX8 boundaries; achromatic hue convention; finite/range errors; trusted OKLab/OKLCH vectors; round-trip tolerances; in/out-of-gamut mapping; precision and normalization; malformed unknown values.
 
-**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`.
+**VERIFICATION COMMANDS:** `npm test` (166 tests, 9 files); `npm run typecheck`; `npm run build`; `git diff --check`. Independent color-science review found no confirmed transform/alpha defects. Independent QA review findings for route coverage and structured error paths were addressed. Vitest required execution outside the restricted sandbox because esbuild could not load its config there.
 
 **DOCUMENTATION UPDATES:** Synchronize format/range/precision/alpha/gamut contracts in `README.md`, `prd.md`, and `architecture.md`.
 
 **GIT CHECKPOINT:** Focused core format/conversion checkpoint after independent review.
 
-**DEFINITION OF DONE:** Every supported conversion is deterministic, alpha-preserving, validated, precision-documented, gamut-explicit, and covered by independent reference and boundary tests.
+**DEFINITION OF DONE:** Every supported conversion is deterministic, alpha-preserving, validated, precision-documented, gamut-explicit, and covered by independent reference and boundary tests. Phase 2 checkpoint committed after final diff review.
 
 ## Phase 3 — Analysis, compositing, and accessibility
 

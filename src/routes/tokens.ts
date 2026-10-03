@@ -60,11 +60,7 @@ export async function tokenRoutes(app: FastifyInstance): Promise<void> {
         throw new InvalidRequestError("Invalid output format");
       }
 
-      const color = convertColor(
-        input.format,
-        outputFormat,
-        input
-      );
+      const color = convertColor(input, outputFormat).output;
 
       return createTokenResponse(name, color);
     } catch (error: unknown) {

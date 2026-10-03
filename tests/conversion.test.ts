@@ -12,6 +12,8 @@ import {
   hsvToHsl,
   hsvToRgb,
   InvalidColorError,
+  linearSrgbToOklab,
+  oklabToLinearSrgb,
   rgbToHex,
   rgbToHsl,
   rgbToHsv
@@ -22,6 +24,11 @@ import {
   validateHsvColor,
   validateRgbColor
 } from "../src/color/validation.js";
+import { detectColorFormat, normalizeColor, validateColor } from "../src/color/validation.js";
+
+// OKLab primary reference coordinates: Björn Ottosson's published derivation
+// (https://bottosson.github.io/posts/oklab/), cross-checked against CSS Color 4
+// conversion equations (https://www.w3.org/TR/css-color-4/).
 
 describe("HEX and RGB conversions", () => {
   it("converts a six-digit HEX value", () => {
@@ -45,7 +52,7 @@ describe("HEX and RGB conversions", () => {
   it("rejects invalid HEX values", () => {
     expect(() => validateHexColor("#12fg45")).toThrow(InvalidColorError);
     expect(() => validateHexColor("#123")).toThrow(InvalidColorError);
-    expect(() => validateHexColor("#12345678")).toThrow(InvalidColorError);
+    expect(validateHexColor("#12345678")).toBe("#12345678");
   });
 });
 
@@ -100,8 +107,8 @@ describe("HSL and HSV conversions", () => {
 
     expect(hslToHex(hsl)).toBe("#3498db");
     expect(hsvToHex(hsv)).toBe("#3498db");
-    expect(hslToHsv(hsl)).toEqual(hsv);
-    expect(hsvToHsl(hsv)).toEqual(hsl);
+    expect(hslToHsv(hsl)).toEqual({ h: 204.07, s: 76.25, v: 85.88 });
+    expect(hsvToHsl(hsv)).toEqual({ h: 204.07, s: 69.87, l: 53.13 });
   });
 
   it("round trips RGB through HSL and HSV", () => {
@@ -152,22 +159,136 @@ describe("color validation", () => {
 describe("convertColor", () => {
   it("normalizes and converts a validated source value", () => {
     expect(
-      convertColor("hex", "rgb", {
-        format: "hex",
-        value: "#3498db",
-      }),
+      convertColor({ format: "hex", value: "#3498db" }, "rgb"),
     ).toEqual({
-      format: "rgb",
-      value: { r: 52, g: 152, b: 219 },
+      input: { format: "hex", value: "#3498db" },
+      output: { format: "rgb", value: { r: 52, g: 152, b: 219 } },
+      gamutMapped: false,
     });
   });
 
-  it("rejects a source format mismatch", () => {
+  it("rejects an invalid color envelope", () => {
     expect(() =>
-      convertColor("hex", "rgb", {
-        format: "hsl",
-        value: { h: 0, s: 100, l: 50 },
-      }),
+      convertColor({ format: "hsl", value: { h: 0, s: 101, l: 50 } }, "rgb"),
     ).toThrow(InvalidColorError);
+  });
+});
+
+describe("alpha, canonical forms, and perceptual conversions", () => {
+  it("normalizes HEX to lowercase with a hash and preserves HEX8 alpha", () => {
+    expect(normalizeColor({ format: "hex", value: "FF000080" })).toEqual({ format: "hex", value: "#ff000080" });
+    expect(normalizeColor({ format: "hex", value: "#ff0000ff" })).toEqual({ format: "hex", value: "#ff0000" });
+    expect(convertColor({ format: "hex", value: "#00000080" }, "rgb").output).toEqual({
+      format: "rgb", value: { r: 0, g: 0, b: 0, alpha: 0.502 }
+    });
+    expect(convertColor({ format: "rgb", value: { r: 0, g: 0, b: 0, alpha: 0 } }, "hex").output).toEqual({ format: "hex", value: "#00000000" });
+    expect(convertColor({ format: "rgb", value: { r: 0, g: 0, b: 0, alpha: 0.5 } }, "hex").output).toEqual({ format: "hex", value: "#00000080" });
+  });
+
+  it("normalizes structured alpha and hue without mutating input", () => {
+    const source = { format: "hsl", value: { h: -120, s: 50, l: 25, alpha: 0.123456 } };
+    expect(normalizeColor(source)).toEqual({ format: "hsl", value: { h: 240, s: 50, l: 25, alpha: 0.1235 } });
+    expect(source.value.h).toBe(-120);
+    expect(validateColor({ format: "oklch", value: { l: 0.5, c: -1, h: 3 } }).valid).toBe(false);
+    expect(normalizeColor({ format: "oklch", value: { l: 0.5, c: 0, h: 219 } })).toEqual({ format: "oklch", value: { l: 0.5, c: 0, h: 0 } });
+    expect(normalizeColor({ format: "hsl", value: { h: 78, s: 0, l: 50 } })).toEqual({ format: "hsl", value: { h: 0, s: 0, l: 50 } });
+    expect(normalizeColor({ format: "hsl", value: { h: 359.999, s: 50, l: 50 } })).toEqual({ format: "hsl", value: { h: 0, s: 50, l: 50 } });
+    expect(validateColor({ format: "rgb", value: { r: 256, g: 0, b: 0 } })).toEqual({
+      valid: false,
+      errors: [{ code: "INVALID_COLOR", path: "/value", message: "Invalid RGB color value" }]
+    });
+    expect(validateColor({ format: "rgb", value: { r: 0, g: 0, b: 0, alpha: Number.NaN } }).valid).toBe(false);
+    expect(validateColor({ format: "rgb", value: { r: 0, g: 0, b: 0, ignored: true } }).valid).toBe(false);
+    expect(validateColor(null).valid).toBe(false);
+    expect(() => convertColor({ format: "oklab", value: { l: 0.5, a: 1e308, b: 1e308 } }, "rgb")).toThrow(InvalidColorError);
+  });
+
+  it("preserves alpha endpoints and continuous alpha through structured targets", () => {
+    expect(convertColor({ format: "rgb", value: { r: 255, g: 0, b: 0, alpha: 0 } }, "oklab").output)
+      .toEqual({ format: "oklab", value: { l: 0.628, a: 0.2249, b: 0.1258, alpha: 0 } });
+    expect(convertColor({ format: "rgb", value: { r: 255, g: 0, b: 0, alpha: 1 } }, "oklab").output)
+      .toEqual({ format: "oklab", value: { l: 0.628, a: 0.2249, b: 0.1258 } });
+    expect(hslToRgb({ h: 0, s: 100, l: 50, alpha: 0.49996 }).alpha).toBe(0.5);
+    expect(convertColor({ format: "oklab", value: { l: 0.628, a: 0.2249, b: 0.1258, alpha: 0.49996 } }, "rgb").output)
+      .toEqual({ format: "rgb", value: { r: 255, g: 0, b: 0, alpha: 0.5 } });
+  });
+
+  it("supports every directed format pair", () => {
+    const inputs = [
+      { format: "hex" as const, value: "#ff0000" },
+      { format: "rgb" as const, value: { r: 255, g: 0, b: 0 } },
+      { format: "hsl" as const, value: { h: 0, s: 100, l: 50 } },
+      { format: "hsv" as const, value: { h: 0, s: 100, v: 100 } },
+      { format: "oklab" as const, value: { l: 0.6279553606, a: 0.2248630611, b: 0.1258462985 } },
+      { format: "oklch" as const, value: { l: 0.6279553606, c: 0.2576833077, h: 29.233885 } }
+    ];
+    for (const input of inputs) {
+      for (const outputFormat of ["hex", "rgb", "hsl", "hsv", "oklab", "oklch"] as const) {
+        expect(convertColor(input, outputFormat).output.format).toBe(outputFormat);
+      }
+    }
+  });
+
+  it("detects only tagged formats and hash-prefixed HEX strings", () => {
+    expect(detectColorFormat({ format: "oklab", value: null })).toBe("oklab");
+    expect(detectColorFormat("#12345678")).toBe("hex");
+    expect(detectColorFormat("123456")).toBeUndefined();
+    expect(detectColorFormat({ r: 1, g: 2, b: 3 })).toBeUndefined();
+  });
+
+  it("matches published OKLab reference vectors for sRGB primaries", () => {
+    const unroundedRed = linearSrgbToOklab([1, 0, 0]);
+    expect(unroundedRed.l).toBeCloseTo(0.6279553606, 6);
+    expect(unroundedRed.a).toBeCloseTo(0.2248630611, 6);
+    expect(unroundedRed.b).toBeCloseTo(0.1258462985, 6);
+    expect(oklabToLinearSrgb(unroundedRed)[0]).toBeCloseTo(1, 6);
+    expect(oklabToLinearSrgb(unroundedRed)[1]).toBeCloseTo(0, 6);
+    expect(oklabToLinearSrgb(unroundedRed)[2]).toBeCloseTo(0, 6);
+    const cases = [
+      { hex: "#ff0000", lab: [0.6279553606, 0.2248630611, 0.1258462985], lch: [0.6279553606, 0.2576833077, 29.233885] },
+      { hex: "#00ff00", lab: [0.8664396115, -0.2338875742, 0.1794984799], lch: [0.8664396115, 0.2948, 142.495339] },
+      { hex: "#0000ff", lab: [0.4520137184, -0.0324569842, -0.3115281477], lch: [0.4520137184, 0.3132143717, 264.052021] }
+    ];
+    for (const item of cases) {
+      const lab = convertColor({ format: "hex", value: item.hex }, "oklab").output;
+      const lch = convertColor({ format: "hex", value: item.hex }, "oklch").output;
+      if (lab.format !== "oklab" || lch.format !== "oklch") throw new Error("Unexpected conversion format");
+      expect([lab.value.l, lab.value.a, lab.value.b]).toEqual(item.lab.map((v) => Math.round(v * 10000) / 10000));
+      expect([lch.value.l, lch.value.c, lch.value.h]).toEqual(item.lch.map((v, i) => Math.round(v * (i === 2 ? 10000 : 10000)) / 10000));
+    }
+  });
+
+  it("reports explicit CSS local-MINDE gamut mapping for out-of-gamut OKLCH", () => {
+    const result = convertColor({ format: "oklch", value: { l: 0.6, c: 0.4, h: 30 } }, "rgb");
+    expect(result.gamutMapped).toBe(true);
+    if (result.gamutMapped) expect(result.gamutMapping).toBe("css-color-4-local-minde");
+    expect(result.output).toMatchObject({ format: "rgb", value: { r: expect.any(Number), g: expect.any(Number), b: expect.any(Number) } });
+    if (result.output.format === "rgb") {
+      expect([result.output.value.r, result.output.value.g, result.output.value.b].every((channel) => channel >= 0 && channel <= 255)).toBe(true);
+    }
+    expect(convertColor({ format: "oklch", value: { l: 0, c: 0.4, h: 30 } }, "hex").output).toEqual({ format: "hex", value: "#000000" });
+    expect(convertColor({ format: "oklch", value: { l: 1, c: 0.4, h: 30 } }, "hex").output).toEqual({ format: "hex", value: "#ffffff" });
+    const nearBoundary = convertColor({ format: "oklch", value: { l: 0.628, c: 0.26, h: 29.2339 } }, "hex");
+    expect(nearBoundary.gamutMapped).toBe(true);
+    expect(nearBoundary.output).toEqual({ format: "hex", value: "#ff0000" });
+    // W3C CSS Color 4 §14.2.1 local-MINDE reference: the independently
+    // evaluated OKLCH vector (0.87, 0.30, 142.5°) maps to the sRGB green edge.
+    expect(convertColor({ format: "oklch", value: { l: 0.87, c: 0.3, h: 142.5 } }, "hex"))
+      .toMatchObject({ output: { format: "hex", value: "#00ff00" }, gamutMapped: true, gamutMapping: "css-color-4-local-minde" });
+  });
+
+  it("normalizes neutral OKLCH hue and retains raw alpha until byte serialization", () => {
+    for (const value of [
+      { format: "rgb" as const, value: { r: 0, g: 0, b: 0 } },
+      { format: "rgb" as const, value: { r: 128, g: 128, b: 128 } },
+      { format: "rgb" as const, value: { r: 255, g: 255, b: 255 } }
+    ]) {
+      const result = convertColor(value, "oklch").output;
+      if (result.format !== "oklch") throw new Error("Unexpected conversion format");
+      expect(result.value.c).toBe(0);
+      expect(result.value.h).toBe(0);
+    }
+    expect(convertColor({ format: "rgb", value: { r: 255, g: 0, b: 0, alpha: 0.49996 } }, "hex").output)
+      .toEqual({ format: "hex", value: "#ff00007f" });
   });
 });

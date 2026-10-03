@@ -16,7 +16,7 @@ src/color/{types,validation,conversion,contrast,palette,tokens}.ts
 src/routes/*.ts → src/app.ts → src/server.ts
 ```
 
-The color modules are largely framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. Current conversions route through integer sRGB RGB; palettes use HSL; tokens handle one color. The package has no public barrel or declarations, and the app has no OpenAPI/build/deployment layer.
+The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The Phase 2 engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes still use HSL; tokens handle one color. The package has no public barrel or declarations, and the app has no OpenAPI/deployment layer.
 
 ## Target architecture
 

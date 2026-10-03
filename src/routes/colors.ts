@@ -38,13 +38,11 @@ export async function colorRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    if (!isColorFormat(request.body.from)
-      || !isColorFormat(request.body.to)
-      || request.body.from === request.body.to) {
+    if (!isColorFormat(request.body.from) || !isColorFormat(request.body.to)) {
       return reply.code(400).send({
         error: {
           code: "UNSUPPORTED_CONVERSION",
-          message: "Supported conversions are between HEX, RGB, HSL, and HSV"
+          message: "Supported formats are HEX, RGB, HSL, HSV, OKLab, and OKLCH"
         }
       });
     }
@@ -53,24 +51,14 @@ export async function colorRoutes(app: FastifyInstance): Promise<void> {
       const from: ColorFormat = request.body.from;
       const to: ColorFormat = request.body.to;
       const input = validateColorValue(from, request.body.value);
-      const output = convertColor(from, to, input);
-
-      return {
-        input: {
-          format: input.format,
-          value: input.value
-        },
-        output: {
-          format: output.format,
-          value: output.value
-        }
-      };
+      return convertColor(input, to);
     } catch (error: unknown) {
       if (error instanceof InvalidColorError) {
         return reply.code(400).send({
           error: {
-            code: error.code,
-            message: error.message
+          code: error.code,
+          message: error.message,
+          issues: error.issues
           }
         });
       }

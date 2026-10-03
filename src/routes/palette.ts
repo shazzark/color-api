@@ -48,13 +48,13 @@ function parseBaseColor(value: unknown): ColorValue {
 }
 
 function toHsl(value: ColorValue) {
-  const rgb = convertColor(value.format, "rgb", value);
+  const rgb = convertColor(value, "rgb").output;
 
   if (rgb.format !== "rgb") {
     throw new InvalidColorError("Unable to normalize base color to RGB");
   }
 
-  const hsl = convertColor("rgb", "hsl", rgb);
+  const hsl = convertColor(rgb, "hsl").output;
 
   if (hsl.format !== "hsl") {
     throw new InvalidColorError("Unable to normalize base color to HSL");
@@ -67,7 +67,7 @@ function toOutputColor(
   value: ColorValue,
   outputFormat: ColorFormat
 ): ColorValue {
-  return convertColor(value.format, outputFormat, value);
+  return convertColor(value, outputFormat).output;
 }
 
 export async function paletteRoutes(app: FastifyInstance): Promise<void> {

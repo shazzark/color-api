@@ -45,17 +45,17 @@ The inspected repository currently has a Fastify server and separate `src/color/
 
 - `GET /health`
 - `POST /v1/colors/convert`
-- `POST /v1/colors/batch/convert` (staged Stage 7 work)
+- `POST /v1/colors/batch/convert` (Stage 7 recovery complete; checkpoint `16b7122`)
 - `POST /v1/colors/contrast`
 - `POST /v1/colors/palette`
 - `POST /v1/colors/tokens`
-- HEX, RGB, HSL, HSV validation and conversion; all 12 directed conversions
+- HEX/HEX8, RGB/RGBA, HSL/HSLA, HSV+A, OKLab+A, and OKLCH+A validation and conversion
 - WCAG 2.x relative luminance and text contrast results
 - Five deterministic fixed HSL palette strategies
 - Single-color CSS custom-property tokens
 - Synchronous, ordered, atomic batch conversion of 1–100 colors
 
-The current conversion path uses integer sRGB RGB as its intermediate, which quantizes HSL/HSV round trips. It has no alpha, OKLab/OKLCH, package entry point, public deployment, OpenAPI contract, or CI workflow. The Stage 7 changes are staged and still need the recovery/checkpoint work recorded in `task.md`.
+Phase 2 implements full-precision transforms, alpha-aware normalization, OKLab/OKLCH conversion, and explicit CSS Color 4 local-MINDE sRGB gamut mapping in the framework-independent domain layer. Package exports, public deployment, OpenAPI, and CI remain in later phases. Stage 7 recovery is complete and checkpointed; see `task.md`.
 
 ## Scope and roadmap
 
@@ -178,4 +178,4 @@ The current conversion path uses integer sRGB RGB as its intermediate, which qua
 
 ## Release strategy
 
-Complete Stage 7 recovery first, then implement architecture-dependent color contracts and math, derived operations/accessibility, serialization, package/API surfaces, CI/docs, and deployment. Keep commits focused and checkpointed. The release is not complete until deployment health smoke tests succeed; package publication requires its own artifact/consumer verification.
+Stage 7 recovery and the Phase 1 contract plan are complete. Continue with Phase 2 color math, then derived operations/accessibility, serialization, package/API surfaces, CI/docs, and deployment. Keep commits focused and checkpointed. The release is not complete until deployment health smoke tests succeed; package publication requires its own artifact/consumer verification.

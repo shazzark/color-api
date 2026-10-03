@@ -34,19 +34,23 @@ describe("batch conversion API endpoint", () => {
       results: [
         {
           input: { format: "hex", value: "#3498db" },
-          output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } }
+          output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } },
+          gamutMapped: false
         },
         {
           input: { format: "rgb", value: { r: 231, g: 76, b: 60 } },
-          output: { format: "hsl", value: { h: 5.61, s: 78.08, l: 57.06 } }
+          output: { format: "hsl", value: { h: 5.61, s: 78.08, l: 57.06 } },
+          gamutMapped: false
         },
         {
           input: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } },
-          output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } }
+          output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } },
+          gamutMapped: false
         },
         {
           input: { format: "hsv", value: { h: 204.07, s: 76.26, v: 85.88 } },
-          output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } }
+          output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.13 } },
+          gamutMapped: false
         }
       ]
     });
@@ -68,11 +72,13 @@ describe("batch conversion API endpoint", () => {
       results: [
         {
           input: { format: "rgb", value: { r: 52, g: 152, b: 219 } },
-          output: { format: "hex", value: "#3498db" }
+          output: { format: "hex", value: "#3498db" },
+          gamutMapped: false
         },
         {
           input: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } },
-          output: { format: "hex", value: "#3498db" }
+          output: { format: "hex", value: "#3498db" },
+          gamutMapped: false
         }
       ]
     });
@@ -107,8 +113,8 @@ describe("batch conversion API endpoint", () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
       results: [
-        { input: colors[0], output: outputs[0] },
-        { input: colors[1], output: outputs[1] }
+        { input: colors[0], output: outputs[0], gamutMapped: false },
+        { input: colors[1], output: outputs[1], gamutMapped: false }
       ]
     });
   });
@@ -177,13 +183,16 @@ describe("batch conversion API endpoint", () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       error: {
         code: "INVALID_COLOR",
         message: "Invalid color value",
         index: 1
       }
     });
+    expect(response.json().error.issues).toEqual([
+      { code: "INVALID_COLOR", path: "/colors/1/value", message: "Invalid color value", index: 1 }
+    ]);
   });
 
   it.each([
@@ -233,9 +242,12 @@ describe("batch conversion API endpoint", () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       error: { code: "INVALID_COLOR", message, index }
     });
+    expect(response.json().error.issues).toEqual([
+      { code: "INVALID_COLOR", path: `/colors/${index}/value`, message, index }
+    ]);
     expect(response.json()).not.toHaveProperty("results");
   });
 });

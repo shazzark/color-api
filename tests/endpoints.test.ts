@@ -74,7 +74,7 @@ describe("API endpoints", () => {
       from: "hsl",
       to: "hsv",
       value: { h: 204.07, s: 69.87, l: 53.14 },
-      output: { format: "hsv", value: { h: 204.07, s: 76.26, v: 85.88 } }
+      output: { format: "hsv", value: { h: 204.07, s: 76.25, v: 85.88 } }
     },
     {
       from: "hsv",
@@ -92,7 +92,7 @@ describe("API endpoints", () => {
       from: "hsv",
       to: "hsl",
       value: { h: 204.07, s: 76.26, v: 85.88 },
-      output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.14 } }
+      output: { format: "hsl", value: { h: 204.07, s: 69.87, l: 53.13 } }
     }
   ])("converts $from to $to", async ({ from, to, value, output }) => {
     const response = await app.inject({
@@ -104,7 +104,8 @@ describe("API endpoints", () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
       input: { format: from, value },
-      output
+      output,
+      gamutMapped: false
     });
   });
 
@@ -137,12 +138,18 @@ describe("API endpoints", () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.json()).toEqual({
+    expect(response.json()).toMatchObject({
       error: { code: "INVALID_COLOR", message }
     });
+    const path = from === "rgb" && typeof value === "object" && value !== null && !("b" in value)
+      ? "/value/b"
+      : from === "rgb" && typeof value === "object" && value !== null && "r" in value && value.r === 256
+        ? "/value"
+        : "/value";
+    expect(response.json().error.issues).toEqual([{ code: "INVALID_COLOR", path, message }]);
   });
 
-  it("rejects unsupported formats and same-format conversions", async () => {
+  it("rejects unsupported formats and normalizes same-format conversions", async () => {
     const unsupported = await app.inject({
       method: "POST",
       url: "/v1/colors/convert",
@@ -155,13 +162,32 @@ describe("API endpoints", () => {
     });
 
     expect(unsupported.statusCode).toBe(400);
-    expect(sameFormat.statusCode).toBe(400);
+    expect(sameFormat.statusCode).toBe(200);
     expect(unsupported.json()).toEqual({
       error: {
         code: "UNSUPPORTED_CONVERSION",
-        message: "Supported conversions are between HEX, RGB, HSL, and HSV"
+        message: "Supported formats are HEX, RGB, HSL, HSV, OKLab, and OKLCH"
       }
     });
-    expect(sameFormat.json()).toEqual(unsupported.json());
+    expect(sameFormat.json()).toEqual({
+      input: { format: "rgb", value: { r: 0, g: 0, b: 0 } },
+      output: { format: "rgb", value: { r: 0, g: 0, b: 0 } },
+      gamutMapped: false
+    });
+  });
+
+  it.each([
+    { from: "hex", to: "oklab", value: "#ff000080", output: { format: "oklab", value: { l: 0.628, a: 0.2249, b: 0.1258, alpha: 0.502 } } },
+    { from: "oklab", to: "oklch", value: { l: 0.628, a: 0.2249, b: 0.1258, alpha: 0.25 }, output: { format: "oklch", value: { l: 0.628, c: 0.2577, h: 29.2209, alpha: 0.25 } } },
+    { from: "oklch", to: "hex", value: { l: 0.6, c: 0.4, h: 30 }, output: { format: "hex", value: "#f70000" }, gamutMapped: true }
+  ])("converts Phase 2 $from to $to values through the API", async ({ from, to, value, output, gamutMapped = false }) => {
+    const response = await app.inject({ method: "POST", url: "/v1/colors/convert", payload: { from, to, value } });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      input: { format: from, value },
+      output,
+      gamutMapped,
+      ...(gamutMapped ? { gamutMapping: "css-color-4-local-minde" } : {})
+    });
   });
 });
