@@ -50,6 +50,10 @@ Dependabot opens weekly dependency update pull requests; dependency audit feeds
 are not required PR gates. Release validation is a manual workflow and does not
 publish the still-private package.
 
+See [deployment notes](docs/deployment.md) for the host comparison and initial
+Cloud Run recommendation. Public deployment still requires an authorized cloud
+project, billing approval, and a domain for HTTPS.
+
 ## REST API reference
 
 When the server is running, open [`/docs`](http://127.0.0.1:3000/docs) for the
@@ -176,11 +180,15 @@ The server listens on port `3000` and binds to `0.0.0.0` by default. Set
 `RATE_LIMIT_MAX` (per window), `RATE_LIMIT_WINDOW_MS`, `REQUEST_TIMEOUT_MS`, and
 `CONNECTION_TIMEOUT_MS` configure transport bounds. `CORS_ORIGINS` is a
 comma-separated list of exact HTTP(S) origins; credentials are not enabled.
-The in-process anonymous rate limiter uses the socket IP because forwarded
-headers are not trusted. It is per process and is a fallback for local or
-single-process use; a public multi-instance deployment must enforce a shared
-limit at its trusted edge. `/health` is a liveness check; this stateless service
-has no dependency-based readiness check.
+The in-process anonymous rate limiter uses the socket IP by default; forwarded
+headers are not trusted unless explicitly configured. It is per process and is
+a fallback for local or single-process use; a public multi-instance deployment
+must enforce a shared limit at its trusted edge. Set
+`RATE_LIMIT_CLIENT_IP_HEADER` only when the trusted proxy replaces that header
+and untrusted callers cannot reach the service. Cloud Run internal ingress
+sources are trusted too and can bypass the public edge policy, so constrain
+internal network paths and project/workload access. `/health` is a liveness
+check; this stateless service has no dependency-based readiness check.
 
 ## API examples
 

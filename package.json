@@ -36,6 +36,7 @@
     "package:tarball-smoke": "node scripts/package-tarball-smoke.mjs",
     "release:stage": "node scripts/stage-production.mjs",
     "release:smoke": "node scripts/release-smoke.mjs",
+    "container:smoke": "node scripts/container-smoke.mjs",
     "perf:baseline": "node scripts/perf-baseline.mjs",
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/check-openapi.mjs",

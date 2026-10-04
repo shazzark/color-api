@@ -5,6 +5,7 @@ export interface ApiConfig {
   corsOrigins: readonly string[];
   rateLimitMax: number;
   rateLimitWindowMs: number;
+  rateLimitClientIpHeader: string | undefined;
   requestTimeoutMs: number;
   connectionTimeoutMs: number;
 }
@@ -42,6 +43,15 @@ function parseCorsOrigins(raw: string | undefined): string[] {
   return [...new Set(origins)];
 }
 
+function parseRateLimitClientIpHeader(raw: string | undefined): string | undefined {
+  if (raw === undefined || raw.trim() === "") return undefined;
+  const name = raw.trim().toLowerCase();
+  if (!/^[!#$%&'*+.^_`|~0-9a-z-]+$/.test(name)) {
+    throw new Error("RATE_LIMIT_CLIENT_IP_HEADER must be a valid HTTP header name");
+  }
+  return name;
+}
+
 export function readApiConfig(env: Environment = process.env): ApiConfig {
   const host = env.HOST ?? "0.0.0.0";
   if (host.trim() === "" || host !== host.trim() || /\s/.test(host)) throw new Error("HOST must be a valid bind host");
@@ -52,6 +62,7 @@ export function readApiConfig(env: Environment = process.env): ApiConfig {
     corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
     rateLimitMax: boundedInteger(env, "RATE_LIMIT_MAX", 120, 1, 10000),
     rateLimitWindowMs: boundedInteger(env, "RATE_LIMIT_WINDOW_MS", 60000, 1000, 3600000),
+    rateLimitClientIpHeader: parseRateLimitClientIpHeader(env.RATE_LIMIT_CLIENT_IP_HEADER),
     requestTimeoutMs: boundedInteger(env, "REQUEST_TIMEOUT_MS", 30000, 1000, 120000),
     connectionTimeoutMs: boundedInteger(env, "CONNECTION_TIMEOUT_MS", 10000, 1000, 120000)
   };

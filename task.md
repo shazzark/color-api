@@ -353,15 +353,16 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Select a suitable host at execution time, deploy the API, and prove the public endpoint works.
 
-**STATUS:** NOT STARTED
+**STATUS:** IN PROGRESS
 
 **DEPENDENCIES:** Phases 7–9.
 
 **TASK CHECKLIST:**
 
-- [ ] Compare suitable Node/Fastify hosting options briefly against cost, simplicity, regional availability, environment/secrets, logs, rate limiting, and health checks.
-- [ ] Recommend a provider; ask user only if account, credential, billing, or provider authorization is required.
-- [ ] Keep application architecture portable; add provider-specific config only in deployment files/docs.
+- [x] Compare Cloud Run, Render, and Railway against cost, simplicity, regional availability, environment/secrets, logs, rate limiting, and health checks.
+- [x] Recommend Cloud Run in Johannesburg behind a load balancer and Cloud Armor for proximity to Nigerian users and a shared public per-client edge rate limit; document that internal Cloud Run ingress callers are trusted and can bypass Cloud Armor.
+- [x] Keep application architecture portable; add provider-specific configuration only in the Docker build and deployment documentation. Docker defaults to port 8080 and CI includes an image-level smoke.
+- [x] Document required internal workload/network governance, header replacement, edge throttling, cost estimates, rollback, and public deployment steps without credentials.
 - [ ] Configure environment values/secrets without committing credentials.
 - [ ] Deploy production build and configure custom API URL if available.
 - [ ] Reach public `/health` (and readiness if implemented) and smoke-test representative conversion, alpha, accessibility, batch, and error operations.
@@ -374,11 +375,11 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Local production smoke plus live public HTTP smoke and bounded concurrent check; verify actual response URLs/statuses.
 
-**VERIFICATION COMMANDS:** `npm run build`; production server smoke command; public `curl` checks recorded in deployment notes.
+**VERIFICATION COMMANDS:** Focused hardening/OpenAPI tests (11 passed); `npm test` (225 tests, 14 files); `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations); `npm run release:smoke` (health, OpenAPI, alpha conversion, accessibility, batch, safe errors, and 20 concurrent requests); `git diff --check`. Docker image smoke is wired into CI but could not run locally because Docker is not installed. Public `curl` checks remain pending real deployment.
 
 **DOCUMENTATION UPDATES:** Publish API URL, environment/deploy instructions, limits, and incident/rollback steps.
 
-**GIT CHECKPOINT:** Deployment config/documentation checkpoint; no secret values in Git.
+**GIT CHECKPOINT:** Deployment-preparation checkpoint records portable container configuration, host research, and trust assumptions; no secret values in Git. Phase remains in progress until provider authorization, a billing-enabled project, HTTPS domain, and public deployment are available.
 
 **DEFINITION OF DONE:** Public API is reachable at its real URL and representative endpoints pass smoke checks. “Deployment ready” alone does not complete this phase.
 

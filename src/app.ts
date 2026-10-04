@@ -1,6 +1,7 @@
 import Fastify, { LogController } from "fastify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { randomUUID } from "node:crypto";
+import { isIP } from "node:net";
 import { readApiConfig, type ApiConfig } from "./config.js";
 import { InvalidColorError, InvalidRequestError, isColorFormat } from "./color/validation.js";
 import { batchRoutes } from "./routes/batch.js";
@@ -78,7 +79,12 @@ export function buildApp(config: ApiConfig = readApiConfig()) {
     }
     requestsSinceCleanup += 1;
 
-    const key = request.ip;
+    const configuredClientIp = config.rateLimitClientIpHeader === undefined
+      ? undefined
+      : request.headers[config.rateLimitClientIpHeader];
+    const key = typeof configuredClientIp === "string" && isIP(configuredClientIp) !== 0
+      ? configuredClientIp.toLowerCase()
+      : request.ip;
     const current = rateWindows.get(key);
     const window = current === undefined || now - current.start >= config.rateLimitWindowMs
       ? { start: now, count: 0 }
