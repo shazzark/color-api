@@ -353,7 +353,7 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Select a suitable host at execution time, deploy the API, and prove the public endpoint works.
 
-**STATUS:** IN PROGRESS
+**STATUS:** COMPLETE — 2026-10-04
 
 **DEPENDENCIES:** Phases 7–9.
 
@@ -363,13 +363,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 - [x] Select Render for the low-traffic initial release; Frankfurt is the nearest listed region. Keep the prepared Cloud Run option documented and its Docker assets intact.
 - [x] Add a Render Blueprint that uses the existing production Docker build/start path, health endpoint, one free instance, and the explicit 120-per-minute process limiter.
 - [x] Accept free-tier spin-down/cold starts for the initial public/portfolio release; document always-on upgrade as the next step if real usage justifies it.
-- [x] Configure the Render-overwritten `CF-Connecting-IP` value for the existing limiter; retain socket-IP fallback and document that `X-Forwarded-For` is caller-spoofable.
+- [x] Configure `CF-Connecting-IP` as the Render edge client-IP input for the existing limiter per provider guidance; retain socket-IP fallback and document that `X-Forwarded-For` is caller-spoofable. The live forged-header probe was rejected by Cloudflare before forwarding.
 - [x] Document Render environment defaults, manual dashboard tasks, plan/cost, CORS allowlist setup, TLS/custom domain, logs, and rollback without credentials.
-- [ ] Configure environment values/secrets without committing credentials.
-- [ ] Deploy production build and configure custom API URL if available.
-- [ ] Reach public `/health` (and readiness if implemented) and smoke-test representative conversion, alpha, accessibility, batch, and error operations.
-- [ ] Check CORS/rate/body limits and confirm logs/request IDs without leaking payloads/secrets.
-- [ ] Record rollback/redeploy instructions and operational limits.
+- [x] Configure the Blueprint environment values without committing credentials; the API requires no application secrets.
+- [x] Deploy the production build to `https://color-api-9qdz.onrender.com`; the default Render hostname is the initial public URL, so no custom domain is required.
+- [x] Reach public `/health`, OpenAPI, and docs; live-smoke conversion, alpha, accessibility, batch, and safe error operations.
+- [x] Check CORS, rate limiting, body limits, request IDs, and payload-safe application logging. No browser origins are configured; unapproved origins are denied. Render dashboard logs were not directly accessible, so logging was verified from the deployed source behavior and production-bundle canary smoke.
+- [x] Record rollback/redeploy instructions and operational limits in `docs/deployment.md`.
 
 **SUBAGENTS TO USE:** Security/reliability reviewer; deployment reviewer; independent public API smoke tester.
 
@@ -377,13 +377,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Local production smoke plus live public HTTP smoke and bounded concurrent check; verify actual response URLs/statuses.
 
-**VERIFICATION COMMANDS:** After the Render Free plan update: `npm test` (225 tests, 14 files); `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations); `npm run release:smoke` (health, OpenAPI, alpha conversion, accessibility, batch, safe errors, and 20 concurrent requests); Render Blueprint YAML parsed and free-plan/port/health/rate-limit settings asserted with the repository's `js-yaml`; `git diff --check`. Docker image smoke is wired into CI but could not run locally because Docker is not installed. Public `curl` checks remain pending Render deployment.
+**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations); `npm run release:smoke` locally and with `PUBLIC_API_URL=https://color-api-9qdz.onrender.com`; Render Blueprint YAML parsed and free-plan/port/health/rate-limit settings asserted with the repository's `js-yaml`; `git diff --check`. Live checks verified health, OpenAPI/docs, representative operations, 20 concurrent conversions, safe validation/transport errors, 65,536-byte body limit, request IDs, CORS denial/default behavior, the 120-per-minute `429`, HTTPS redirect, and Cloudflare rejection of a forged `CF-Connecting-IP`. Docker image smoke is wired into CI but could not run locally because Docker is not installed. The live response did not include common browser security headers; see deployment notes.
 
 **DOCUMENTATION UPDATES:** Publish API URL, environment/deploy instructions, limits, and incident/rollback steps.
 
-**GIT CHECKPOINT:** Render deployment configuration/docs checkpoint; preserve prior Cloud Run checkpoint `ad6e12d`. No credentials in Git. Phase remains in progress until Render service setup, public HTTPS deployment, and live smoke checks pass.
+**GIT CHECKPOINT:** Render deployment-preparation checkpoint `8dae17f` is preserved; this verified production URL and status update is the focused Phase 10 completion checkpoint. The Cloud Run preparation checkpoint `ad6e12d` is also preserved. No credentials in Git. Do not push automatically.
 
-**DEFINITION OF DONE:** Public API is reachable at its real URL and representative endpoints pass smoke checks. “Deployment ready” alone does not complete this phase.
+**DEFINITION OF DONE:** Complete. The public API is reachable at its real HTTPS URL and representative endpoints, operational limits, and transport errors passed live smoke checks. See `docs/deployment.md` for observed CORS/security-header/logging limitations and rollback guidance.
 
 ## Phase 11 — Final independent QA, package publication, and public release
 

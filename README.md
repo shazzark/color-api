@@ -50,10 +50,11 @@ Dependabot opens weekly dependency update pull requests; dependency audit feeds
 are not required PR gates. Release validation is a manual workflow and does not
 publish the still-private package.
 
-See [deployment notes](docs/deployment.md) for the Render Blueprint and
-preserved Cloud Run alternative. Public deployment still requires repository
-access through Render; browser clients also require their exact origins in
-`CORS_ORIGINS`.
+The public API is available at <https://color-api-9qdz.onrender.com>. See the
+[deployment notes](docs/deployment.md) for its Render Free limits, live smoke
+results, and the preserved Cloud Run alternative. Browser clients require
+their exact origins in `CORS_ORIGINS`; no browser origins are currently
+configured.
 
 ## REST API reference
 

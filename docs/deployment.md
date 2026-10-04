@@ -77,6 +77,48 @@ IDs, safe errors, and logs without payloads or secrets. The in-memory counter
 resets when the process restarts; Render deploys/restarts and rate-limit resets
 are operational characteristics, not a durable quota system.
 
+### Live production verification
+
+The initial public deployment is <https://color-api-9qdz.onrender.com>.
+Production smoke checks passed on 2026-10-04:
+
+- `/health` returned `200` with `{"status":"ok"}`; HTTP requests redirected to
+  HTTPS with `301`.
+- `/openapi.json` returned the OpenAPI 3.1 contract, and `/docs` returned the
+  interactive reference page (`200`, `text/html`).
+- The release smoke passed alpha-aware conversion, WCAG contrast, batch
+  conversion, and safe invalid-color errors. Twenty simultaneous conversion
+  requests also returned `200`.
+- Unknown routes returned the stable `NOT_FOUND` envelope. Malformed JSON,
+  unsupported media type, and a body exceeding 65,536 bytes returned `400
+  INVALID_REQUEST`, `415 UNSUPPORTED_MEDIA_TYPE`, and `413 PAYLOAD_TOO_LARGE`.
+- Responses included distinct `x-request-id` values. Ordinary API requests
+  advertised the configured limit of 120 per minute; a bounded run returned
+  119 `404` responses followed by `429 RATE_LIMITED` with `Retry-After`.
+- An unapproved browser preflight returned `403 CORS_ORIGIN_DENIED`; a
+  preflight without an `Origin` returned `204`. There are currently no approved
+  browser origins configured, so browser clients must not expect cross-origin
+  access until their exact origins are added to `CORS_ORIGINS`.
+- A request attempting to supply `CF-Connecting-IP` received a Cloudflare
+  `403` before the application, with no application rate-limit headers. This
+  confirms the public edge rejects that spoof attempt; it does not independently
+  demonstrate the value Render would forward on an accepted request.
+
+The checked production bundle disables Fastify's automatic request logs and
+logs only method, route, and status for completed requests. Its release smoke
+sent a payload canary and confirmed it did not appear in application logs. The
+Render dashboard log stream itself was not available to this workspace for
+direct inspection. The process-local limiter and the free-tier cold-start
+behavior remain as described above.
+
+The HTTPS response did not include `Strict-Transport-Security`,
+`Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`,
+`Referrer-Policy`, `Permissions-Policy`, or `X-Powered-By`.
+HTTP-to-HTTPS redirection was verified, but it is not HSTS. These are observed
+response properties, not configured guarantees. The API sets JSON content
+types and uses no cookies or authenticated browser session; review the header
+policy before adding browser-facing product pages or session-based features.
+
 ## Preserved alternative: Google Cloud Run
 
 For a possible later migration, use Cloud Run in `africa-south1` (Johannesburg),
