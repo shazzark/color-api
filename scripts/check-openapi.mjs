@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import AjvModule from "ajv";
 import { createConfig, lintFromString } from "@redocly/openapi-core";
-import { buildApp } from "../dist/src/app.js";
-import { OPENAPI_SPEC, runtimeBodySchema } from "../dist/src/openapi.js";
+import { buildApp } from "../dist/server/app.js";
+import { OPENAPI_SPEC, runtimeBodySchema } from "../dist/server/openapi.js";
 
 const contract = JSON.parse(await readFile(new URL("../openapi.json", import.meta.url), "utf8"));
 if (JSON.stringify(contract) !== JSON.stringify(OPENAPI_SPEC)) {

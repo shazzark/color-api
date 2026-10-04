@@ -7,7 +7,7 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 - Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, multi-color serializers, health endpoint, and domain generation/manipulation/scales.
 - Batch conversion is committed in checkpoint `16b7122`; preserve its implementation.
 - Current tests are in fourteen files and cover conversion, contrast, palette, token serialization, route parity, batch, domain operations, API hardening, and OpenAPI contract parity. Vitest uses `forks`.
-- CI and public deployment remain; Phase 8 OpenAPI and developer documentation are complete. Package exports/declarations, multi-color serializers, Phase 4 generation/manipulation/scale routes, and Phase 7 API hardening are implemented and checkpointed.
+- Phase 9 CI/release checks are complete and checkpointed; public deployment remains. Package exports/declarations, multi-color serializers, Phase 4 generation/manipulation/scale routes, and Phase 7 API hardening are implemented and checkpointed.
 - Do not mark prior behavior complete without rerunning the required verification in the recovery phase.
 
 ## Phase 0 — Stage 7 recovery and Git hygiene
@@ -319,34 +319,35 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Make quality checks repeatable and release artifacts trustworthy without oversized infrastructure.
 
-**STATUS:** NOT STARTED
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phases 2–8.
 
 **TASK CHECKLIST:**
 
-- [ ] Add GitHub Actions CI using clean install, tests, typecheck, build, package consumer check, and OpenAPI contract validation.
-- [ ] Pin/document supported Node LTS versions and run matrix only where package support warrants it.
-- [ ] Separate production server/package outputs and ensure generated files are ignored/handled intentionally.
-- [ ] Add dependency update/security review automation; do not make unstable external audit feeds a flaky PR gate.
-- [ ] Add release smoke workflow for built artifact and deployment health.
-- [ ] Establish measured basic API/package performance baselines and set limits only from evidence.
-- [ ] Add optional lightweight pre-release concurrent smoke test; no permanent load framework unless targets require it.
-- [ ] Review secrets/log redaction and npm publish provenance/permissions if supported by selected release flow.
+- [x] Add GitHub Actions CI using clean install, tests, typecheck, build, package consumer check, and OpenAPI contract validation.
+- [x] Pin/document supported Node LTS versions and run matrix only where package support warrants it.
+- [x] Separate production server/package outputs and ensure generated files are ignored/handled intentionally.
+- [x] Stage the publishable package with dependency-free metadata and verify the actual tarball in isolated ESM and TypeScript consumers.
+- [x] Add dependency update/security review automation; do not make unstable external audit feeds a flaky PR gate.
+- [x] Add release smoke workflow for built artifact and deployment health.
+- [x] Establish measured basic API/package performance baselines and set limits only from evidence.
+- [x] Add optional lightweight pre-release concurrent smoke test; no permanent load framework unless targets require it.
+- [x] Review secrets/log redaction and npm publish provenance/permissions if supported by selected release flow.
 
 **SUBAGENTS TO USE:** Security/reliability reviewer; QA/CI reviewer; package release reviewer.
 
 **SKILLS TO USE:** None presently relevant; inspect a provider/release skill only if one is selected and available.
 
-**TESTS REQUIRED:** CI pipeline itself on clean checkout, production artifact import, tests/typecheck/build, OpenAPI validation, package contents, smoke script.
+**TESTS REQUIRED:** CI pipeline itself on clean checkout, production artifact import, actual packed-tarball ESM and declaration consumer, tests/typecheck/build, OpenAPI validation, package contents, smoke script.
 
-**VERIFICATION COMMANDS:** `npm ci`; `npm test`; `npm run typecheck`; `npm run build`; `npm pack --dry-run`.
+**VERIFICATION COMMANDS:** `npm ci` (107 packages, 0 vulnerabilities); `npm test` (224 tests, 14 files); `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations); `npm run package:types`; `npm run package:smoke`; `npm run package:stage`; `npm run package:contents` (19 files, 23,225 packed / 87,717 unpacked bytes); `npm run package:tarball-smoke` (actual tarball ESM import and declaration compile, no Fastify dependency); `npm run release:stage`; `npm run release:smoke` (production-only install and 20 concurrent requests); `npm run perf:baseline`; `npm audit --omit=dev` (0 vulnerabilities); `git diff --check`. Local verification ran on Node v22.16.0/win32-x64. Baseline: Intel i5-1135G7, 20 warmups/250 sequential samples, package `convertColor` p50 0.046 ms/p95 0.086 ms/max 0.260 ms; loopback API p50 2.405 ms/p95 4.038 ms/max 12.562 ms, 371.51 requests/s. This is a local informational baseline, not a service guarantee or CI threshold.
 
-**DOCUMENTATION UPDATES:** Document CI, Node support, dependency review, build and release checks.
+**DOCUMENTATION UPDATES:** README and architecture document Node 22/24 support, clean CI checks, weekly Dependabot updates, separate server/package outputs and manifests, actual tarball consumer verification, production-only server dependency install and smoke. This task record includes the measured non-gating local baseline.
 
-**GIT CHECKPOINT:** Focused CI and release hygiene checkpoint.
+**GIT CHECKPOINT:** Focused CI and release hygiene checkpoint committed after independent review and complete diff inspection.
 
-**DEFINITION OF DONE:** A clean checkout can reproduce all required checks and produce a verified, bounded release artifact.
+**DEFINITION OF DONE:** A clean checkout reproduces all required checks, consumes the actual packed package tarball as a Node and TypeScript consumer, and produces a verified production bundle. The server bundle passes health, representative endpoint, safe-error, log-canary, and concurrent-request smoke checks; uploaded artifact excludes installed dependencies and includes the lockfile for reproducible production installation. Independent security, QA, and package reviews found no remaining blockers; checkpoint is recorded after final diff review.
 
 ## Phase 10 — Host selection and public API deployment
 

@@ -8,9 +8,11 @@ validation live in framework-independent domain modules shared by API routes.
 The root package exports only framework-independent color operations and types
 from `src/index.ts`. It emits ESM and TypeScript declarations under
 `dist/package/`; the Fastify app stays outside that export graph. Supported
-server runtime is Node.js 20.19 or newer. The package is currently private and
-has not been published. After an authorized release, consumers can install it
-with `npm install color-api` and use named exports:
+runtime support targets maintained Node.js LTS 22.x (22.12.0 or newer) and
+24.x; CI tests both lines. `.nvmrc` pins the local default to Node 24.21.0. The
+package is currently private and has not been published. After an authorized
+release, consumers can install it with `npm install color-api` and use named
+exports:
 
 ```ts
 import { convertColor, generateColors, type ColorValue } from "color-api";
@@ -20,12 +22,33 @@ const generated = generateColors(5, { seed: "brand-system" });
 const color: ColorValue = converted.output;
 ```
 
-Run `npm run build`, `npm run package:types`, and `npm run package:smoke` to
-verify declarations and Node ESM resolution. `npm pack --dry-run` previews the
-publish artifact. The `prepublishOnly` check runs build, unit tests, declaration
-consumer checks, and the built-package smoke. See [CHANGELOG.md](CHANGELOG.md)
-for the SemVer policy. The built ESM package passed the browser smoke in Chrome
-154 on Windows. Other browser engines have not been independently verified.
+Run `npm run build`, `npm run package:types`, `npm run package:smoke`,
+`npm run package:stage`, `npm run package:contents`, and
+`npm run package:tarball-smoke` to verify declarations, Node ESM resolution, and
+the actual staged `.tgz`. The staged package manifest has no server dependencies.
+The production server emits separately to
+`dist/server/`; package source files stay under `dist/package/`. Run
+`npm run release:stage` followed by `npm run release:smoke`. The first stages the
+server and lockfile into `dist/release-bundle/`; the second installs only
+production dependencies there and checks the bundle's health and representative
+endpoints plus a bounded 20-request concurrent burst. It confirms request values
+are absent from logs and can check a deployed API when `PUBLIC_API_URL` is set.
+The manual release workflow uploads the same smoke-tested bundle with runtime
+dependencies omitted; install them using `npm ci --omit=dev` before starting the
+server. `npm run package:tarball-smoke` installs the actual `.tgz` into an
+isolated consumer and verifies its ESM exports and declarations.
+`npm run perf:baseline` reports local request latency and throughput without
+imposing an unmeasured performance threshold. The root package's `prepublishOnly`
+check runs build, unit tests, declaration consumer checks, and the built-package
+smoke. See [CHANGELOG.md](CHANGELOG.md) for the SemVer policy. The built ESM
+package passed the browser smoke in Chrome 154 on Windows. Other browser engines
+have not been independently verified.
+
+GitHub Actions runs clean-install tests, typecheck, builds, OpenAPI validation,
+package consumer/artifact checks, and production-server smoke on Node 22 and 24.
+Dependabot opens weekly dependency update pull requests; dependency audit feeds
+are not required PR gates. Release validation is a manual workflow and does not
+publish the still-private package.
 
 ## REST API reference
 

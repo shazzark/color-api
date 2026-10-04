@@ -1,0 +1,46 @@
+name: Release smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: Optional deployed API origin for a bounded health and endpoint smoke
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: git diff --exit-code -- openapi.json
+      - run: npm run openapi:check
+      - run: npm run package:types
+      - run: npm run package:smoke
+      - run: npm run package:stage
+      - run: npm run package:contents
+      - run: npm run package:tarball-smoke
+      - run: npm run release:stage
+      - run: npm run release:smoke
+        env:
+          PUBLIC_API_URL: ${{ inputs.api_base_url }}
+      - run: npm run perf:baseline
+      - uses: actions/upload-artifact@v4
+        with:
+          name: color-api-production-server-node24
+          path: |
+            dist/release-bundle/**
+            !dist/release-bundle/node_modules/**
+          if-no-files-found: error
+          retention-days: 7

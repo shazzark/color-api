@@ -19,17 +19,24 @@
   ],
   "sideEffects": false,
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.12.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.package.json && npm run openapi:generate",
+    "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.package.json && npm run openapi:generate",
+    "build:server": "tsc -p tsconfig.server.json",
     "build:package": "tsc -p tsconfig.package.json",
     "dev": "tsx watch src/server.ts",
-    "start": "node dist/src/server.js",
+    "start": "node dist/server/server.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "package:types": "tsc -p tsconfig.consumer.json --noEmit",
     "package:smoke": "node scripts/package-smoke.mjs",
+    "package:contents": "node scripts/check-package-contents.mjs",
+    "package:stage": "node scripts/stage-package.mjs",
+    "package:tarball-smoke": "node scripts/package-tarball-smoke.mjs",
+    "release:stage": "node scripts/stage-production.mjs",
+    "release:smoke": "node scripts/release-smoke.mjs",
+    "perf:baseline": "node scripts/perf-baseline.mjs",
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/check-openapi.mjs",
     "browser:smoke:serve": "node scripts/browser-smoke-server.mjs",
@@ -44,6 +51,6 @@
     "ajv": "^8.20.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
-    "vitest": "^3.1.0"
+    "vitest": "^5.0.3"
   }
 }
