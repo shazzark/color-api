@@ -27,7 +27,91 @@ consumer checks, and the built-package smoke. See [CHANGELOG.md](CHANGELOG.md)
 for the SemVer policy. The built ESM package passed the browser smoke in Chrome
 154 on Windows. Other browser engines have not been independently verified.
 
-## Supported conversions
+## REST API reference
+
+When the server is running, open [`/docs`](http://127.0.0.1:3000/docs) for the
+interactive API explorer or [`/openapi.json`](http://127.0.0.1:3000/openapi.json)
+for the OpenAPI 3.1 contract. The contract describes the request schemas,
+examples, response shapes, errors, operation limits, and transport assumptions.
+Fastify compiles those request schemas, while route handlers remain authoritative
+for domain validation and stable error mapping. Contract checks compile all
+request and response schemas, submit documented examples to the handlers, and
+compare the generated artifact with the registered route inventory.
+
+API v1 is not publicly released yet, so its request and response shapes may
+change before its first release. After release, incompatible changes will use
+a new major path such as `/v2`; deprecated operations will include a documented
+migration period.
+
+The anonymous rate limit defaults to 120 requests per socket IP per minute;
+health and OPTIONS preflight requests do not count. JSON request bodies default
+to 65,536 bytes (configurable up to 1 MiB). Set `CORS_ORIGINS` to a comma
+separated list of exact HTTP(S) origins; wildcard and credentialed CORS are not
+supported. Rejected preflights return `CORS_ORIGIN_DENIED`.
+
+```js
+const response = await fetch("http://127.0.0.1:3000/v1/colors/convert", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ from: "hex", to: "oklch", value: "#3498db" })
+});
+
+const result = await response.json();
+if (!response.ok) {
+  // Example: { error: { code: "INVALID_COLOR", message: "...", issues: [...] } }
+  throw new Error(`${result.error.code}: ${result.error.message}`);
+}
+console.log(result.output);
+```
+
+The API preserves alpha and reports sRGB gamut mapping explicitly:
+
+```json
+{
+  "from": "hex",
+  "to": "rgb",
+  "value": "#ff000080"
+}
+```
+
+```json
+{
+  "input": { "format": "hex", "value": "#ff000080" },
+  "output": { "format": "rgb", "value": { "r": 255, "g": 0, "b": 0, "alpha": 0.502 } },
+  "gamutMapped": false
+}
+```
+
+An out-of-sRGB OKLCH input converted to RGB returns `gamutMapped: true` and
+`gamutMapping: "css-color-4-local-minde"`. Transparent contrast requires an
+opaque backdrop; non-text suggestions must identify the evaluated object or
+boundary, for example:
+
+```json
+{
+  "foreground": { "format": "hex", "value": "#222222" },
+  "background": { "format": "hex", "value": "#ffffff" },
+  "criterion": "wcag-2.2-1.4.11",
+  "context": "icon boundary"
+}
+```
+
+Errors use a stable envelope. Validation issues carry JSON Pointer paths, and
+batch conversion adds the failing zero-based `index`:
+
+```json
+{
+  "error": {
+    "code": "INVALID_COLOR",
+    "message": "Invalid RGB color value",
+    "issues": [
+      { "code": "INVALID_COLOR", "path": "/value/r", "message": "Invalid RGB color value" }
+    ]
+  }
+}
+```
+
+### Supported routes
 
 The API provides:
 
@@ -43,6 +127,8 @@ The API provides:
 - `POST /v1/colors/analyze`, `/distance`, and `/contrast/suggestions`
 - `POST /v1/colors/tokens/serialize` for ordered multi-color serializers
 
+### Supported color formats
+
 The engine accepts six tagged formats: `hex`, `rgb`, `hsl`, `hsv`, `oklab`,
 and `oklch`. All six support alpha where structured, and HEX accepts six- or
 eight-digit values (`#rrggbb` / `#rrggbbaa`). Conversion supports every pair;
@@ -52,7 +138,8 @@ omitted from structured output.
 HSL/HSV and OKLab/OKLCH conversions preserve floating-point intermediates.
 Public HSL/HSV values use two decimal places; OKLab/OKLCH and structured alpha
 use four. sRGB-bounded targets use CSS Color 4 local-MINDE gamut mapping when
-needed and return `gamutMapped` plus the `css-color-4-local-minde` identifier.
+needed. Every conversion reports `gamutMapped`; only mapped results include the
+`gamutMapping: "css-color-4-local-minde"` identifier.
 
 ## Setup
 
@@ -259,7 +346,7 @@ definition (at least 24 CSS px regular or about 18.67 CSS px bold).
 
 ## Value rules
 
-- HEX accepts exactly six hexadecimal digits, with an optional leading `#`.
+- HEX accepts six or eight hexadecimal digits, with an optional leading `#`.
 - RGB channels `r`, `g`, and `b` are integers from `0` through `255`.
 - HSL uses hue `h` in degrees, saturation `s` from `0` through `100`, and
   lightness `l` from `0` through `100`.

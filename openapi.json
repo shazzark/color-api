@@ -1,0 +1,4934 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "Color API",
+    "version": "1.0.0",
+    "description": "Versioned, anonymous API for deterministic color operations. The API is not yet publicly released; `/v1` request or response shapes may evolve before the first release. After public release, backward-incompatible changes use a new major API path; deprecated operations receive a documented migration period. JSON bodies default to 65,536 bytes and can be configured from 1,024 to 1,048,576 bytes. The in-process rate limit defaults to 120 requests per socket IP per 60 seconds; health and OPTIONS requests are excluded. Forwarded client-IP headers are not trusted. CORS allows only configured exact HTTP(S) origins and does not enable credentials.",
+    "contact": {
+      "name": "Color API maintainers"
+    }
+  },
+  "x-cors-preflight": {
+    "route": "OPTIONS /*",
+    "allowedStatus": 204,
+    "rejectedStatus": 403,
+    "rejectedResponse": {
+      "$ref": "#/components/schemas/ErrorEnvelope"
+    },
+    "description": "An allowed or origin-free preflight returns 204. An origin outside the configured exact-origin allowlist returns 403 with CORS_ORIGIN_DENIED."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current server origin"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Colors",
+      "description": "Stateless color operations."
+    },
+    {
+      "name": "Service",
+      "description": "Service health and API documentation."
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Check liveness",
+        "description": "Returns liveness only; no dependency-based readiness check is needed for this stateless service.",
+        "tags": [
+          "Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "Service process is responding.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "const": "ok"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "status": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "getOpenApi",
+        "summary": "Get the OpenAPI contract",
+        "description": "Returns this OpenAPI 3.1 document.",
+        "tags": [
+          "Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "openapi",
+                    "info",
+                    "paths",
+                    "components"
+                  ],
+                  "properties": {
+                    "openapi": {
+                      "const": "3.1.0"
+                    },
+                    "info": {
+                      "type": "object"
+                    },
+                    "paths": {
+                      "type": "object"
+                    },
+                    "components": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs": {
+      "get": {
+        "operationId": "getDocs",
+        "summary": "Open interactive API reference",
+        "description": "Serves a lightweight API explorer generated from this OpenAPI document.",
+        "tags": [
+          "Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "Interactive API reference HTML.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/convert": {
+      "post": {
+        "operationId": "convertColor",
+        "summary": "Convert or normalize a color",
+        "description": "Converts between the six supported formats. `value` must match `from`. Same-format conversion performs canonical normalization. sRGB-bounded outputs use CSS Color 4 local-MINDE when required.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to",
+                      "value"
+                    ],
+                    "properties": {
+                      "from": {
+                        "const": "hex"
+                      },
+                      "to": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      },
+                      "value": {
+                        "type": "string",
+                        "pattern": "^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$",
+                        "description": "Six or eight hexadecimal digits, optionally prefixed by #."
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to",
+                      "value"
+                    ],
+                    "properties": {
+                      "from": {
+                        "const": "rgb"
+                      },
+                      "to": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      },
+                      "value": {
+                        "type": "object",
+                        "required": [
+                          "r",
+                          "g",
+                          "b"
+                        ],
+                        "properties": {
+                          "r": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 255
+                          },
+                          "g": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 255
+                          },
+                          "b": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 255
+                          },
+                          "alpha": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Optional opacity; omitted means fully opaque."
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to",
+                      "value"
+                    ],
+                    "properties": {
+                      "from": {
+                        "const": "hsl"
+                      },
+                      "to": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      },
+                      "value": {
+                        "type": "object",
+                        "required": [
+                          "h",
+                          "s",
+                          "l"
+                        ],
+                        "properties": {
+                          "h": {
+                            "type": "number"
+                          },
+                          "s": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "l": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "alpha": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Optional opacity; omitted means fully opaque."
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to",
+                      "value"
+                    ],
+                    "properties": {
+                      "from": {
+                        "const": "hsv"
+                      },
+                      "to": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      },
+                      "value": {
+                        "type": "object",
+                        "required": [
+                          "h",
+                          "s",
+                          "v"
+                        ],
+                        "properties": {
+                          "h": {
+                            "type": "number"
+                          },
+                          "s": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "v": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "alpha": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Optional opacity; omitted means fully opaque."
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to",
+                      "value"
+                    ],
+                    "properties": {
+                      "from": {
+                        "const": "oklab"
+                      },
+                      "to": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      },
+                      "value": {
+                        "type": "object",
+                        "required": [
+                          "l",
+                          "a",
+                          "b"
+                        ],
+                        "properties": {
+                          "l": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "a": {
+                            "type": "number"
+                          },
+                          "b": {
+                            "type": "number"
+                          },
+                          "alpha": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Optional opacity; omitted means fully opaque."
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "from",
+                      "to",
+                      "value"
+                    ],
+                    "properties": {
+                      "from": {
+                        "const": "oklch"
+                      },
+                      "to": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      },
+                      "value": {
+                        "type": "object",
+                        "required": [
+                          "l",
+                          "c",
+                          "h"
+                        ],
+                        "properties": {
+                          "l": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "c": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "h": {
+                            "type": "number"
+                          },
+                          "alpha": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Optional opacity; omitted means fully opaque."
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                ]
+              },
+              "example": {
+                "from": "hex",
+                "to": "rgb",
+                "value": "#3498db"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColorConversionResult"
+                },
+                "example": {
+                  "input": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  },
+                  "output": {
+                    "format": "rgb",
+                    "value": {
+                      "r": 52,
+                      "g": 152,
+                      "b": 219
+                    }
+                  },
+                  "gamutMapped": false
+                },
+                "examples": {
+                  "inGamut": {
+                    "summary": "In-gamut conversion",
+                    "value": {
+                      "input": {
+                        "format": "hex",
+                        "value": "#3498db"
+                      },
+                      "output": {
+                        "format": "rgb",
+                        "value": {
+                          "r": 52,
+                          "g": 152,
+                          "b": 219
+                        }
+                      },
+                      "gamutMapped": false
+                    }
+                  },
+                  "gamutMapped": {
+                    "summary": "Out-of-gamut OKLCH mapped to sRGB",
+                    "value": {
+                      "input": {
+                        "format": "oklch",
+                        "value": {
+                          "l": 0.7,
+                          "c": 0.4,
+                          "h": 30
+                        }
+                      },
+                      "output": {
+                        "format": "rgb",
+                        "value": {
+                          "r": 255,
+                          "g": 111,
+                          "b": 91
+                        }
+                      },
+                      "gamutMapped": true,
+                      "gamutMapping": "css-color-4-local-minde"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/batch/convert": {
+      "post": {
+        "operationId": "batchConvertColors",
+        "summary": "Convert a batch",
+        "description": "Converts 1–100 mixed-format colors atomically and preserves order. One output format applies to all entries; invalid color errors include a zero-based index.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "colors"
+                ],
+                "properties": {
+                  "colors": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "items": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    }
+                  },
+                  "outputFormat": {
+                    "type": "string",
+                    "enum": [
+                      "hex",
+                      "rgb",
+                      "hsl",
+                      "hsv",
+                      "oklab",
+                      "oklch"
+                    ]
+                  }
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "colors": [
+                  {
+                    "format": "hex",
+                    "value": "#3498db"
+                  },
+                  {
+                    "format": "rgb",
+                    "value": {
+                      "r": 231,
+                      "g": 76,
+                      "b": 60
+                    }
+                  }
+                ],
+                "outputFormat": "hsl"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "results"
+                  ],
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ColorConversionResult"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "results": [
+                    {
+                      "input": {
+                        "format": "hex",
+                        "value": "#3498db"
+                      },
+                      "output": {
+                        "format": "hsl",
+                        "value": {
+                          "h": 204.07,
+                          "s": 69.87,
+                          "l": 53.14
+                        }
+                      },
+                      "gamutMapped": false
+                    },
+                    {
+                      "input": {
+                        "format": "rgb",
+                        "value": {
+                          "r": 231,
+                          "g": 76,
+                          "b": 60
+                        }
+                      },
+                      "output": {
+                        "format": "hsl",
+                        "value": {
+                          "h": 6,
+                          "s": 78.69,
+                          "l": 57.25
+                        }
+                      },
+                      "gamutMapped": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/contrast": {
+      "post": {
+        "operationId": "analyzeContrast",
+        "summary": "Evaluate contrast",
+        "description": "Evaluates one foreground/background pair against WCAG 2.2. Transparent colors require enough opaque canvas context. Non-text checks use SC 1.4.11 and require a named context; textSize is invalid for non-text checks.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "textSize": {
+                        "type": "string",
+                        "enum": [
+                          "normal",
+                          "large"
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "required": [
+                        "criterion"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "criterion"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "criterion": {
+                        "const": "wcag-2.2-1.4.3"
+                      },
+                      "textSize": {
+                        "type": "string",
+                        "enum": [
+                          "normal",
+                          "large"
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "criterion",
+                      "context"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "criterion": {
+                        "const": "wcag-2.2-1.4.11"
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "required": [
+                        "textSize"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "foreground": {
+                  "format": "hex",
+                  "value": "#ffffff"
+                },
+                "background": {
+                  "format": "hex",
+                  "value": "#000000"
+                },
+                "criterion": "wcag-2.2-1.4.3",
+                "textSize": "normal"
+              },
+              "examples": {
+                "transparentText": {
+                  "summary": "Transparent foreground with explicit canvas",
+                  "value": {
+                    "foreground": {
+                      "format": "hex",
+                      "value": "#ffffff80"
+                    },
+                    "background": {
+                      "format": "hex",
+                      "value": "#000000"
+                    },
+                    "canvas": {
+                      "format": "hex",
+                      "value": "#ffffff"
+                    },
+                    "criterion": "wcag-2.2-1.4.3",
+                    "textSize": "normal"
+                  }
+                },
+                "nonTextBoundary": {
+                  "summary": "Named WCAG non-text boundary",
+                  "value": {
+                    "foreground": {
+                      "format": "hex",
+                      "value": "#000000"
+                    },
+                    "background": {
+                      "format": "hex",
+                      "value": "#ffffff"
+                    },
+                    "criterion": "wcag-2.2-1.4.11",
+                    "context": "icon boundary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "contrastRatio",
+                    "rawContrastRatio",
+                    "criterion",
+                    "threshold",
+                    "passesCriterion",
+                    "compositing",
+                    "foreground",
+                    "background",
+                    "effectiveForeground",
+                    "effectiveBackground",
+                    "effectiveSrgb"
+                  ],
+                  "properties": {
+                    "contrastRatio": {
+                      "type": "number"
+                    },
+                    "rawContrastRatio": {
+                      "type": "number"
+                    },
+                    "wcag": {
+                      "type": "object",
+                      "required": [
+                        "normalText",
+                        "largeText"
+                      ],
+                      "properties": {
+                        "normalText": {
+                          "type": "object",
+                          "required": [
+                            "aa",
+                            "aaa"
+                          ],
+                          "properties": {
+                            "aa": {
+                              "type": "boolean"
+                            },
+                            "aaa": {
+                              "type": "boolean"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "largeText": {
+                          "type": "object",
+                          "required": [
+                            "aa",
+                            "aaa"
+                          ],
+                          "properties": {
+                            "aa": {
+                              "type": "boolean"
+                            },
+                            "aaa": {
+                              "type": "boolean"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "criterion": {
+                      "type": "string",
+                      "enum": [
+                        "wcag-2.2-1.4.3",
+                        "wcag-2.2-1.4.11"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "number"
+                    },
+                    "passesCriterion": {
+                      "type": "boolean"
+                    },
+                    "textSize": {
+                      "type": "string",
+                      "enum": [
+                        "normal",
+                        "large"
+                      ]
+                    },
+                    "context": {
+                      "type": "string"
+                    },
+                    "compositing": {
+                      "const": "css-srgb-source-over"
+                    },
+                    "foreground": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "background": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "effectiveForeground": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "effectiveBackground": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "effectiveSrgb": {
+                      "type": "object",
+                      "required": [
+                        "foreground",
+                        "background"
+                      ],
+                      "properties": {
+                        "foreground": {
+                          "type": "object",
+                          "required": [
+                            "r",
+                            "g",
+                            "b"
+                          ],
+                          "properties": {
+                            "r": {
+                              "type": "number"
+                            },
+                            "g": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "background": {
+                          "type": "object",
+                          "required": [
+                            "r",
+                            "g",
+                            "b"
+                          ],
+                          "properties": {
+                            "r": {
+                              "type": "number"
+                            },
+                            "g": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "canvas": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "contrastRatio": 21,
+                  "rawContrastRatio": 21,
+                  "wcag": {
+                    "normalText": {
+                      "aa": true,
+                      "aaa": true
+                    },
+                    "largeText": {
+                      "aa": true,
+                      "aaa": true
+                    }
+                  },
+                  "criterion": "wcag-2.2-1.4.3",
+                  "threshold": 4.5,
+                  "passesCriterion": true,
+                  "textSize": "normal",
+                  "compositing": "css-srgb-source-over",
+                  "foreground": {
+                    "format": "hex",
+                    "value": "#ffffff"
+                  },
+                  "background": {
+                    "format": "hex",
+                    "value": "#000000"
+                  },
+                  "effectiveForeground": {
+                    "format": "rgb",
+                    "value": {
+                      "r": 255,
+                      "g": 255,
+                      "b": 255
+                    }
+                  },
+                  "effectiveBackground": {
+                    "format": "rgb",
+                    "value": {
+                      "r": 0,
+                      "g": 0,
+                      "b": 0
+                    }
+                  },
+                  "effectiveSrgb": {
+                    "foreground": {
+                      "r": 1,
+                      "g": 1,
+                      "b": 1
+                    },
+                    "background": {
+                      "r": 0,
+                      "g": 0,
+                      "b": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/palette": {
+      "post": {
+        "operationId": "generatePalette",
+        "summary": "Generate a harmony palette",
+        "description": "Creates complementary, analogous, triadic, tetradic, split-complementary, or monochromatic colors. Analogous count is 2–12; other strategies have fixed sizes.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "base",
+                      "strategy"
+                    ],
+                    "properties": {
+                      "base": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "strategy": {
+                        "const": "analogous"
+                      },
+                      "count": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 12
+                      },
+                      "outputFormat": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "base",
+                      "strategy"
+                    ],
+                    "properties": {
+                      "base": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "strategy": {
+                        "type": "string",
+                        "enum": [
+                          "complementary",
+                          "triadic",
+                          "tetradic",
+                          "split-complementary",
+                          "monochromatic"
+                        ]
+                      },
+                      "outputFormat": {
+                        "type": "string",
+                        "enum": [
+                          "hex",
+                          "rgb",
+                          "hsl",
+                          "hsv",
+                          "oklab",
+                          "oklch"
+                        ]
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "required": [
+                        "count"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "base": {
+                  "format": "hex",
+                  "value": "#3498db"
+                },
+                "strategy": "analogous",
+                "count": 5,
+                "outputFormat": "hex"
+              },
+              "examples": {
+                "structuredOutput": {
+                  "summary": "Structured OKLCH palette",
+                  "value": {
+                    "base": {
+                      "format": "rgb",
+                      "value": {
+                        "r": 52,
+                        "g": 152,
+                        "b": 219
+                      }
+                    },
+                    "strategy": "analogous",
+                    "count": 5,
+                    "outputFormat": "oklch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "base",
+                    "strategy",
+                    "outputFormat",
+                    "colors"
+                  ],
+                  "properties": {
+                    "base": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "strategy": {
+                      "type": "string",
+                      "enum": [
+                        "complementary",
+                        "analogous",
+                        "triadic",
+                        "tetradic",
+                        "split-complementary",
+                        "monochromatic"
+                      ]
+                    },
+                    "outputFormat": {
+                      "type": "string",
+                      "enum": [
+                        "hex",
+                        "rgb",
+                        "hsl",
+                        "hsv",
+                        "oklab",
+                        "oklch"
+                      ]
+                    },
+                    "colors": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "base": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  },
+                  "strategy": "analogous",
+                  "outputFormat": "hex",
+                  "colors": [
+                    {
+                      "format": "hex",
+                      "value": "#34dbca"
+                    },
+                    {
+                      "format": "hex",
+                      "value": "#34c2db"
+                    },
+                    {
+                      "format": "hex",
+                      "value": "#3498db"
+                    },
+                    {
+                      "format": "hex",
+                      "value": "#346edb"
+                    },
+                    {
+                      "format": "hex",
+                      "value": "#3445db"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/tokens": {
+      "post": {
+        "operationId": "createColorToken",
+        "summary": "Create a single color token",
+        "description": "Creates a validated CSS custom-property token. Names match ^[a-z][a-z0-9-]*$.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "color"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*$"
+                  },
+                  "color": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "outputFormat": {
+                    "type": "string",
+                    "enum": [
+                      "hex",
+                      "rgb",
+                      "hsl",
+                      "hsv",
+                      "oklab",
+                      "oklch"
+                    ]
+                  }
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "name": "brand",
+                "color": {
+                  "format": "hex",
+                  "value": "#3498db"
+                },
+                "outputFormat": "hex"
+              },
+              "examples": {
+                "structuredOutput": {
+                  "summary": "Structured RGB token",
+                  "value": {
+                    "name": "brand",
+                    "color": {
+                      "format": "hex",
+                      "value": "#3498db"
+                    },
+                    "outputFormat": "rgb"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "token",
+                    "css"
+                  ],
+                  "properties": {
+                    "token": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "color",
+                        "cssVariable",
+                        "cssValue"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9-]*$"
+                        },
+                        "color": {
+                          "$ref": "#/components/schemas/ColorValue"
+                        },
+                        "cssVariable": {
+                          "type": "string",
+                          "pattern": "^--color-[a-z][a-z0-9-]*$"
+                        },
+                        "cssValue": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "css": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "token": {
+                    "name": "brand",
+                    "color": {
+                      "format": "hex",
+                      "value": "#3498db"
+                    },
+                    "cssVariable": "--color-brand",
+                    "cssValue": "#3498db"
+                  },
+                  "css": ":root {\n  --color-brand: #3498db;\n}"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/validate": {
+      "post": {
+        "operationId": "validateColor",
+        "summary": "Validate a color",
+        "description": "Accepts any color value and returns a non-throwing validity result with structured JSON Pointer issues.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "color"
+                ],
+                "properties": {
+                  "color": {}
+                },
+                "additionalProperties": true
+              },
+              "example": {
+                "color": {
+                  "format": "hex",
+                  "value": "#3498db"
+                }
+              },
+              "examples": {
+                "invalid": {
+                  "summary": "Invalid color reports validation issues",
+                  "value": {
+                    "color": {
+                      "format": "rgb",
+                      "value": {
+                        "r": 300,
+                        "g": 0,
+                        "b": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "valid",
+                        "color"
+                      ],
+                      "properties": {
+                        "valid": {
+                          "const": true
+                        },
+                        "color": {
+                          "$ref": "#/components/schemas/ColorValue"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "valid",
+                        "errors"
+                      ],
+                      "properties": {
+                        "valid": {
+                          "const": false
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "code",
+                              "path",
+                              "message"
+                            ],
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "path": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "index": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "example": {
+                  "valid": true,
+                  "color": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/normalize": {
+      "post": {
+        "operationId": "normalizeColor",
+        "summary": "Normalize a color",
+        "description": "Validates and returns canonical normalized color data.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "color"
+                ],
+                "properties": {
+                  "color": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "color": {
+                  "format": "hex",
+                  "value": "#AABBCC"
+                }
+              },
+              "examples": {
+                "structured": {
+                  "summary": "Normalize structured OKLCH",
+                  "value": {
+                    "color": {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.62,
+                        "c": 0.14,
+                        "h": 250
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ColorValue"
+                },
+                "example": {
+                  "format": "hex",
+                  "value": "#aabbcc"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/generate": {
+      "post": {
+        "operationId": "generateColors",
+        "summary": "Generate colors",
+        "description": "Generates 1–100 deterministic or nondeterministic OKLCH colors. REST count is capped at 100 and string seeds at 128 characters. Seeded output identifies mulberry32-v1; unseeded output identifies Math.random.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "count"
+                ],
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "seed": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 128
+                      },
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    ]
+                  },
+                  "constraints": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {
+                      "lightness": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "chroma": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 0.4
+                        }
+                      },
+                      "hue": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 360
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "count": 3,
+                "seed": "brand-system"
+              },
+              "examples": {
+                "unseeded": {
+                  "summary": "Non-reproducible generation",
+                  "value": {
+                    "count": 3
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "algorithm",
+                        "seed",
+                        "colors"
+                      ],
+                      "properties": {
+                        "algorithm": {
+                          "const": "mulberry32-v1"
+                        },
+                        "seed": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "integer"
+                            }
+                          ]
+                        },
+                        "colors": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ColorValue"
+                          }
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "algorithm",
+                        "colors"
+                      ],
+                      "properties": {
+                        "algorithm": {
+                          "const": "Math.random"
+                        },
+                        "colors": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ColorValue"
+                          }
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "example": {
+                  "algorithm": "mulberry32-v1",
+                  "seed": "brand-system",
+                  "colors": [
+                    {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.6,
+                        "c": 0.1,
+                        "h": 120
+                      }
+                    }
+                  ]
+                },
+                "examples": {
+                  "seeded": {
+                    "summary": "Reproducible seeded result",
+                    "value": {
+                      "algorithm": "mulberry32-v1",
+                      "seed": "brand-system",
+                      "colors": [
+                        {
+                          "format": "oklch",
+                          "value": {
+                            "l": 0.6,
+                            "c": 0.1,
+                            "h": 120
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "unseeded": {
+                    "summary": "Unseeded result",
+                    "value": {
+                      "algorithm": "Math.random",
+                      "colors": [
+                        {
+                          "format": "oklch",
+                          "value": {
+                            "l": 0.5,
+                            "c": 0.12,
+                            "h": 180
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/manipulate": {
+      "post": {
+        "operationId": "manipulateColor",
+        "summary": "Manipulate a color",
+        "description": "Applies one named operation: rotateHue, adjustLightness, adjustChroma, adjustSaturation, adjustAlpha, grayscale, or invert. Amount ranges are validated by the operation.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "operation",
+                      "color",
+                      "amount"
+                    ],
+                    "properties": {
+                      "operation": {
+                        "type": "string",
+                        "enum": [
+                          "rotateHue",
+                          "adjustLightness",
+                          "adjustChroma",
+                          "adjustSaturation"
+                        ]
+                      },
+                      "color": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "amount": {
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "operation",
+                      "color",
+                      "alpha"
+                    ],
+                    "properties": {
+                      "operation": {
+                        "const": "adjustAlpha"
+                      },
+                      "color": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "alpha": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Optional opacity; omitted means fully opaque."
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "operation",
+                      "color"
+                    ],
+                    "properties": {
+                      "operation": {
+                        "type": "string",
+                        "enum": [
+                          "grayscale",
+                          "invert"
+                        ]
+                      },
+                      "color": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "example": {
+                "operation": "adjustLightness",
+                "color": {
+                  "format": "hex",
+                  "value": "#3498db"
+                },
+                "amount": 0.1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "operation",
+                    "output"
+                  ],
+                  "properties": {
+                    "operation": {
+                      "type": "string",
+                      "enum": [
+                        "rotateHue",
+                        "adjustLightness",
+                        "adjustChroma",
+                        "adjustSaturation",
+                        "adjustAlpha",
+                        "grayscale",
+                        "invert"
+                      ]
+                    },
+                    "output": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "operation": "adjustLightness",
+                  "output": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/mix": {
+      "post": {
+        "operationId": "mixColors",
+        "summary": "Interpolate two colors",
+        "description": "Mixes in premultiplied OKLab or encoded sRGB. Weight is in [0,1]. This is interpolation, distinct from source-over compositing.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "first",
+                  "second"
+                ],
+                "properties": {
+                  "first": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "second": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "space": {
+                    "type": "string",
+                    "enum": [
+                      "oklab",
+                      "srgb"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "first": {
+                  "format": "hex",
+                  "value": "#3498db"
+                },
+                "second": {
+                  "format": "hex",
+                  "value": "#e74c3c"
+                },
+                "weight": 0.5,
+                "space": "oklab"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "output"
+                  ],
+                  "properties": {
+                    "output": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "output": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/composite": {
+      "post": {
+        "operationId": "compositeColors",
+        "summary": "Composite colors",
+        "description": "Composites foreground over background with css-srgb-source-over; a translucent background requires an opaque canvas.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "foreground",
+                  "background"
+                ],
+                "properties": {
+                  "foreground": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "background": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "canvas": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "foreground": {
+                  "format": "hex",
+                  "value": "#ff000080"
+                },
+                "background": {
+                  "format": "hex",
+                  "value": "#ffffff"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "output"
+                  ],
+                  "properties": {
+                    "output": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "output": {
+                    "format": "rgb",
+                    "value": {
+                      "r": 255,
+                      "g": 127,
+                      "b": 127
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/scales/oklch": {
+      "post": {
+        "operationId": "generateOklchScale",
+        "summary": "Generate an OKLCH scale",
+        "description": "Samples 2–10 ordered stops at 2–101 evenly spaced positions. Stops must span 0 to 1 with strictly increasing positions, non-decreasing lightness, and equal alpha across stops.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "stops",
+                  "count"
+                ],
+                "properties": {
+                  "stops": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 10,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "position",
+                        "color"
+                      ],
+                      "properties": {
+                        "position": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "color": {
+                          "$ref": "#/components/schemas/ColorValue"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 101
+                  },
+                  "outputFormat": {
+                    "type": "string",
+                    "enum": [
+                      "hex",
+                      "rgb",
+                      "hsl",
+                      "hsv",
+                      "oklab",
+                      "oklch"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "stops": [
+                  {
+                    "position": 0,
+                    "color": {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.4,
+                        "c": 0.1,
+                        "h": 250
+                      }
+                    }
+                  },
+                  {
+                    "position": 1,
+                    "color": {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.8,
+                        "c": 0.1,
+                        "h": 250
+                      }
+                    }
+                  }
+                ],
+                "count": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PositionedConversionResult"
+                  }
+                },
+                "example": [
+                  {
+                    "input": {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.4,
+                        "c": 0.1,
+                        "h": 250
+                      }
+                    },
+                    "output": {
+                      "format": "hex",
+                      "value": "#124a7b"
+                    },
+                    "gamutMapped": false,
+                    "position": 0
+                  },
+                  {
+                    "input": {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.6,
+                        "c": 0.1,
+                        "h": 250
+                      }
+                    },
+                    "output": {
+                      "format": "hex",
+                      "value": "#4f84ba"
+                    },
+                    "gamutMapped": false,
+                    "position": 0.5
+                  },
+                  {
+                    "input": {
+                      "format": "oklch",
+                      "value": {
+                        "l": 0.8,
+                        "c": 0.1,
+                        "h": 250
+                      }
+                    },
+                    "output": {
+                      "format": "hex",
+                      "value": "#8cc3fc"
+                    },
+                    "gamutMapped": false,
+                    "position": 1
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/scales/variants": {
+      "post": {
+        "operationId": "generateColorVariants",
+        "summary": "Generate shades, tints, or tones",
+        "description": "Returns 2–101 ordered variants. Count defaults to 5.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "color",
+                  "kind"
+                ],
+                "properties": {
+                  "color": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "shades",
+                      "tints",
+                      "tones"
+                    ]
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 101
+                  },
+                  "outputFormat": {
+                    "type": "string",
+                    "enum": [
+                      "hex",
+                      "rgb",
+                      "hsl",
+                      "hsv",
+                      "oklab",
+                      "oklch"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "color": {
+                  "format": "hex",
+                  "value": "#3498db"
+                },
+                "kind": "shades",
+                "count": 5
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "results"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "shades",
+                        "tints",
+                        "tones"
+                      ]
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ColorConversionResult"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "kind": "shades",
+                  "results": [
+                    {
+                      "input": {
+                        "format": "oklch",
+                        "value": {
+                          "l": 0.6531,
+                          "c": 0.1347,
+                          "h": 242.6867
+                        }
+                      },
+                      "output": {
+                        "format": "hex",
+                        "value": "#3498db"
+                      },
+                      "gamutMapped": false
+                    },
+                    {
+                      "input": {
+                        "format": "oklch",
+                        "value": {
+                          "l": 0.4898,
+                          "c": 0.101,
+                          "h": 242.6867
+                        }
+                      },
+                      "output": {
+                        "format": "hex",
+                        "value": "#206695"
+                      },
+                      "gamutMapped": false
+                    },
+                    {
+                      "input": {
+                        "format": "oklch",
+                        "value": {
+                          "l": 0.3265,
+                          "c": 0.0674,
+                          "h": 242.6867
+                        }
+                      },
+                      "output": {
+                        "format": "hex",
+                        "value": "#0e3854"
+                      },
+                      "gamutMapped": false
+                    },
+                    {
+                      "input": {
+                        "format": "oklch",
+                        "value": {
+                          "l": 0.1633,
+                          "c": 0.0337,
+                          "h": 242.6867
+                        }
+                      },
+                      "output": {
+                        "format": "hex",
+                        "value": "#020f1b"
+                      },
+                      "gamutMapped": false
+                    },
+                    {
+                      "input": {
+                        "format": "oklch",
+                        "value": {
+                          "l": 0,
+                          "c": 0,
+                          "h": 0
+                        }
+                      },
+                      "output": {
+                        "format": "hex",
+                        "value": "#000000"
+                      },
+                      "gamutMapped": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/analyze": {
+      "post": {
+        "operationId": "analyzeColor",
+        "summary": "Analyze a color",
+        "description": "Returns relative luminance, light/dark heuristic, hue, saturation/chroma where defined, and normalized color data.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "color"
+                ],
+                "properties": {
+                  "color": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "color": {
+                  "format": "hex",
+                  "value": "#3498db"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "color",
+                    "relativeLuminance",
+                    "isLight",
+                    "isDark"
+                  ],
+                  "properties": {
+                    "color": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "relativeLuminance": {
+                      "type": "number"
+                    },
+                    "isLight": {
+                      "type": "boolean"
+                    },
+                    "isDark": {
+                      "type": "boolean"
+                    },
+                    "hue": {
+                      "type": "number"
+                    },
+                    "saturation": {
+                      "type": "number"
+                    },
+                    "chroma": {
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "color": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  },
+                  "isLight": false,
+                  "isDark": true,
+                  "relativeLuminance": 0.28
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/distance": {
+      "post": {
+        "operationId": "measureColorDistance",
+        "summary": "Measure color distance",
+        "description": "Returns deltaEOK, Euclidean distance in OKLab; no universal similarity threshold is implied.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "first",
+                  "second"
+                ],
+                "properties": {
+                  "first": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  },
+                  "second": {
+                    "$ref": "#/components/schemas/ColorValue"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "first": {
+                  "format": "hex",
+                  "value": "#3498db"
+                },
+                "second": {
+                  "format": "hex",
+                  "value": "#e74c3c"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "metric",
+                    "distance"
+                  ],
+                  "properties": {
+                    "metric": {
+                      "type": "string"
+                    },
+                    "distance": {
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "metric": "deltaEOK",
+                  "distance": 0.2
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/contrast/suggestions": {
+      "post": {
+        "operationId": "suggestContrastingColors",
+        "summary": "Suggest foreground colors",
+        "description": "Searches deterministic OKLCH lightness directions and verifies mapped/composited candidates against the requested WCAG criterion and context. Non-text suggestions require context and forbid textSize. Allowed thresholds are 4.5 or 7 for normal text, 3 or 4.5 for large text, and 3 for non-text.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "enum": [
+                          4.5,
+                          7
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "criterion"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "textSize"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "criterion"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "criterion": {
+                        "const": "wcag-2.2-1.4.3"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "enum": [
+                          4.5,
+                          7
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "required": [
+                        "textSize"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "textSize"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "textSize": {
+                        "const": "normal"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "enum": [
+                          4.5,
+                          7
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "required": [
+                        "criterion"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "textSize"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "textSize": {
+                        "const": "large"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "enum": [
+                          3,
+                          4.5
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true,
+                    "not": {
+                      "required": [
+                        "criterion"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "criterion",
+                      "textSize"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "criterion": {
+                        "const": "wcag-2.2-1.4.3"
+                      },
+                      "textSize": {
+                        "const": "normal"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "enum": [
+                          4.5,
+                          7
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "criterion",
+                      "textSize"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "criterion": {
+                        "const": "wcag-2.2-1.4.3"
+                      },
+                      "textSize": {
+                        "const": "large"
+                      },
+                      "threshold": {
+                        "type": "number",
+                        "enum": [
+                          3,
+                          4.5
+                        ]
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "foreground",
+                      "background",
+                      "criterion",
+                      "context"
+                    ],
+                    "properties": {
+                      "foreground": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "background": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      },
+                      "criterion": {
+                        "const": "wcag-2.2-1.4.11"
+                      },
+                      "context": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "threshold": {
+                        "const": 3
+                      },
+                      "canvas": {
+                        "$ref": "#/components/schemas/ColorValue"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "example": {
+                "foreground": {
+                  "format": "hex",
+                  "value": "#777777"
+                },
+                "background": {
+                  "format": "hex",
+                  "value": "#ffffff"
+                },
+                "criterion": "wcag-2.2-1.4.3",
+                "textSize": "normal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "candidates",
+                    "criterion",
+                    "threshold",
+                    "background",
+                    "iterationsPerDirection"
+                  ],
+                  "properties": {
+                    "candidates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "direction",
+                          "color",
+                          "contrastRatio",
+                          "deltaEOK",
+                          "gamutMapped"
+                        ],
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "lighter",
+                              "darker"
+                            ]
+                          },
+                          "color": {
+                            "$ref": "#/components/schemas/ColorValue"
+                          },
+                          "contrastRatio": {
+                            "type": "number"
+                          },
+                          "deltaEOK": {
+                            "type": "number"
+                          },
+                          "gamutMapped": {
+                            "type": "boolean"
+                          },
+                          "gamutMapping": {
+                            "const": "css-color-4-local-minde"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "criterion": {
+                      "type": "string",
+                      "enum": [
+                        "wcag-2.2-1.4.3",
+                        "wcag-2.2-1.4.11"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "number"
+                    },
+                    "context": {
+                      "type": "string"
+                    },
+                    "textSize": {
+                      "type": "string",
+                      "enum": [
+                        "normal",
+                        "large"
+                      ]
+                    },
+                    "background": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "canvas": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    },
+                    "iterationsPerDirection": {
+                      "type": "integer",
+                      "const": 24
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "example": {
+                  "criterion": "wcag-2.2-1.4.3",
+                  "threshold": 4.5,
+                  "candidates": [],
+                  "background": {
+                    "format": "hex",
+                    "value": "#ffffff"
+                  },
+                  "iterationsPerDirection": 24
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/colors/tokens/serialize": {
+      "post": {
+        "operationId": "serializeDesignTokens",
+        "summary": "Serialize multiple color tokens",
+        "description": "Serializes 1–100 ordered safe token names as CSS, SCSS, JSON, JavaScript, TypeScript, Tailwind data, objects, or design-token documents.",
+        "tags": [
+          "Colors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tokens",
+                  "format"
+                ],
+                "properties": {
+                  "tokens": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "maxProperties": 100,
+                    "propertyNames": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9-]*$"
+                    },
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/ColorValue"
+                    }
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "css",
+                      "scss",
+                      "json",
+                      "javascript",
+                      "typescript",
+                      "tailwind",
+                      "object",
+                      "document"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "example": {
+                "tokens": {
+                  "brand": {
+                    "format": "hex",
+                    "value": "#3498db"
+                  }
+                },
+                "format": "css"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "css"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "scss"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "json"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "javascript"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "typescript"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "tailwind"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "object"
+                        },
+                        "content": {
+                          "type": "object"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "format",
+                        "content"
+                      ],
+                      "properties": {
+                        "format": {
+                          "const": "document"
+                        },
+                        "content": {
+                          "type": "object"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "example": {
+                  "format": "css",
+                  "content": ":root {\n  --color-brand: #3498db;\n}"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or color. The code and message are stable; issues and index are present for applicable validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                },
+                "example": {
+                  "error": {
+                    "code": "INVALID_COLOR",
+                    "message": "Invalid RGB color value",
+                    "issues": [
+                      {
+                        "code": "INVALID_COLOR",
+                        "path": "/value/r",
+                        "message": "Invalid RGB color value"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the configured limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported request media type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Anonymous request rate limit exceeded. Includes Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the current rate window resets.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server failure; internal details are not exposed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ColorValue": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "format",
+              "value"
+            ],
+            "properties": {
+              "format": {
+                "const": "hex"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$",
+                "description": "Six or eight hexadecimal digits, optionally prefixed by #."
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "format",
+              "value"
+            ],
+            "properties": {
+              "format": {
+                "const": "rgb"
+              },
+              "value": {
+                "type": "object",
+                "required": [
+                  "r",
+                  "g",
+                  "b"
+                ],
+                "properties": {
+                  "r": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  },
+                  "g": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  },
+                  "b": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  },
+                  "alpha": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Optional opacity; omitted means fully opaque."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "format",
+              "value"
+            ],
+            "properties": {
+              "format": {
+                "const": "hsl"
+              },
+              "value": {
+                "type": "object",
+                "required": [
+                  "h",
+                  "s",
+                  "l"
+                ],
+                "properties": {
+                  "h": {
+                    "type": "number"
+                  },
+                  "s": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "l": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "alpha": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Optional opacity; omitted means fully opaque."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "format",
+              "value"
+            ],
+            "properties": {
+              "format": {
+                "const": "hsv"
+              },
+              "value": {
+                "type": "object",
+                "required": [
+                  "h",
+                  "s",
+                  "v"
+                ],
+                "properties": {
+                  "h": {
+                    "type": "number"
+                  },
+                  "s": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "v": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "alpha": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Optional opacity; omitted means fully opaque."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "format",
+              "value"
+            ],
+            "properties": {
+              "format": {
+                "const": "oklab"
+              },
+              "value": {
+                "type": "object",
+                "required": [
+                  "l",
+                  "a",
+                  "b"
+                ],
+                "properties": {
+                  "l": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "a": {
+                    "type": "number"
+                  },
+                  "b": {
+                    "type": "number"
+                  },
+                  "alpha": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Optional opacity; omitted means fully opaque."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "format",
+              "value"
+            ],
+            "properties": {
+              "format": {
+                "const": "oklch"
+              },
+              "value": {
+                "type": "object",
+                "required": [
+                  "l",
+                  "c",
+                  "h"
+                ],
+                "properties": {
+                  "l": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "c": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "h": {
+                    "type": "number"
+                  },
+                  "alpha": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Optional opacity; omitted means fully opaque."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ColorConversionResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "input",
+              "output",
+              "gamutMapped"
+            ],
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ColorValue"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ColorValue"
+              },
+              "gamutMapped": {
+                "const": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "input",
+              "output",
+              "gamutMapped",
+              "gamutMapping"
+            ],
+            "properties": {
+              "input": {
+                "$ref": "#/components/schemas/ColorValue"
+              },
+              "output": {
+                "$ref": "#/components/schemas/ColorValue"
+              },
+              "gamutMapped": {
+                "const": true
+              },
+              "gamutMapping": {
+                "const": "css-color-4-local-minde"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PositionedConversionResult": {
+        "type": "object",
+        "required": [
+          "input",
+          "output",
+          "gamutMapped",
+          "position"
+        ],
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/ColorValue"
+          },
+          "output": {
+            "$ref": "#/components/schemas/ColorValue"
+          },
+          "gamutMapped": {
+            "type": "boolean"
+          },
+          "gamutMapping": {
+            "const": "css-color-4-local-minde"
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "INVALID_REQUEST",
+                  "INVALID_COLOR",
+                  "UNSUPPORTED_CONVERSION",
+                  "NOT_FOUND",
+                  "PAYLOAD_TOO_LARGE",
+                  "UNSUPPORTED_MEDIA_TYPE",
+                  "RATE_LIMITED",
+                  "CORS_ORIGIN_DENIED",
+                  "INTERNAL_ERROR"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "path",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

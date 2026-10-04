@@ -2,16 +2,22 @@ import Fastify, { LogController } from "fastify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { randomUUID } from "node:crypto";
 import { readApiConfig, type ApiConfig } from "./config.js";
-import { InvalidColorError, InvalidRequestError } from "./color/validation.js";
+import { InvalidColorError, InvalidRequestError, isColorFormat } from "./color/validation.js";
 import { batchRoutes } from "./routes/batch.js";
 import { colorRoutes } from "./routes/colors.js";
 import { contrastRoutes } from "./routes/contrast.js";
 import { healthRoutes } from "./routes/health.js";
 import { paletteRoutes } from "./routes/palette.js";
 import { operationRoutes } from "./routes/operations.js";
+import { documentationRoutes } from "./routes/documentation.js";
 import { tokenRoutes } from "./routes/tokens.js";
+import { OPENAPI_SPEC, runtimeBodySchema } from "./openapi.js";
 
 interface RateWindow { start: number; count: number }
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 function setCorsHeaders(request: FastifyRequest, reply: FastifyReply, config: ApiConfig): void {
   const origin = request.headers.origin;
@@ -29,6 +35,7 @@ export function buildApp(config: ApiConfig = readApiConfig()) {
     logController: new LogController({ disableRequestLogging: true }),
     bodyLimit: config.bodyLimitBytes,
     trustProxy: false,
+    ajv: { customOptions: { coerceTypes: false, useDefaults: false, removeAdditional: false } },
     requestTimeout: config.requestTimeoutMs,
     connectionTimeout: config.connectionTimeoutMs,
     requestIdHeader: false,
@@ -36,6 +43,25 @@ export function buildApp(config: ApiConfig = readApiConfig()) {
   });
   const rateWindows = new Map<string, RateWindow>();
   let requestsSinceCleanup = 0;
+
+  app.addHook("onRoute", (route) => {
+    const method = typeof route.method === "string" && route.method.toLowerCase() === "post"
+      ? "post"
+      : typeof route.method === "string" && route.method.toLowerCase() === "get"
+        ? "get"
+        : undefined;
+    if (method === undefined) return;
+    if (OPENAPI_SPEC.paths[route.url]?.[method] === undefined) {
+      if (route.url.startsWith("/test/")) return;
+      throw new Error(`Route ${method.toUpperCase()} ${route.url} is missing from the OpenAPI contract`);
+    }
+    const body = runtimeBodySchema(route.url, method);
+    if (method === "post" && body === undefined) throw new Error(`Route ${route.url} has no OpenAPI request schema`);
+    if (body !== undefined) {
+      route.schema = { ...route.schema, body };
+      route.attachValidation = true;
+    }
+  });
 
   app.addHook("onRequest", async (request, reply) => {
     setCorsHeaders(request, reply, config);
@@ -126,6 +152,7 @@ export function buildApp(config: ApiConfig = readApiConfig()) {
   app.register(paletteRoutes);
   app.register(tokenRoutes);
   app.register(operationRoutes);
+  app.register(documentationRoutes);
 
   return app;
 }

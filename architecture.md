@@ -11,12 +11,14 @@
 ## Current architecture
 
 ```text
-src/color/{types,validation,conversion,contrast,palette,tokens}.ts
+src/color/{types,validation,conversion,contrast,palette,operations,tokens}.ts
                     ↑
 src/routes/*.ts → src/app.ts → src/server.ts
 ```
 
-The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes use HSL harmony strategies and OKLCH perceptual operations; token serializers handle single colors, ordered sets, and generated scales. The package barrel and declarations exclude Fastify. API configuration bounds requests, uses exact-origin CORS, request IDs, stable error envelopes, and a process-local IP rate limiter; public multi-instance deployment requires a shared trusted edge limit. OpenAPI is planned for Phase 8.
+The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes use HSL harmony strategies and OKLCH perceptual operations; token serializers handle single colors, ordered sets, and generated scales. The package barrel and declarations exclude Fastify. API configuration bounds requests, uses exact-origin CORS, request IDs, stable error envelopes, and a process-local IP rate limiter; public multi-instance deployment requires a shared trusted edge limit.
+
+`src/openapi.ts` is the OpenAPI 3.1 source of truth. `buildApp()` resolves and compiles its request schemas with Fastify; route handlers remain authoritative for domain validation and stable error mapping. App registration rejects undocumented public GET/POST routes (the test-only `/test/` namespace is excluded). `npm run build` emits the checked-in `openapi.json` artifact; `/openapi.json` serves the source object, and `/docs` presents an interactive API explorer from that same object. `npm run openapi:check` validates the document with Redocly, compiles all request and response schemas, and compares the generated artifact and operations with registered routes. Tests inject the documented request examples through the handlers and validate the returned bodies against the response schemas.
 
 ## Target architecture
 

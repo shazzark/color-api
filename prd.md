@@ -44,6 +44,7 @@ Primary users are frontend and full-stack developers, UI engineers, design-syste
 The inspected repository currently has a Fastify server and separate `src/color/` domain modules. It supports:
 
 - `GET /health`
+- `GET /docs` interactive API reference and `GET /openapi.json` machine-readable contract
 - `POST /v1/colors/convert`
 - `POST /v1/colors/batch/convert` (Stage 7 recovery complete; checkpoint `16b7122`)
 - `POST /v1/colors/contrast`
@@ -56,7 +57,7 @@ The inspected repository currently has a Fastify server and separate `src/color/
 - Single-color CSS custom-property tokens and domain serializers for ordered multi-color CSS/SCSS, structured JSON, JavaScript/TypeScript objects, and Tailwind-compatible data
 - Synchronous, ordered, atomic batch conversion of 1–100 colors
 
-Phase 2 implements full-precision transforms, alpha-aware normalization, OKLab/OKLCH conversion, and explicit CSS Color 4 local-MINDE sRGB gamut mapping in the framework-independent domain layer. Phase 3 adds context-specific WCAG evaluation and color analysis. Phase 4 adds deterministic generation, manipulation, and scales in the domain layer. Package exports, public deployment, OpenAPI, and CI remain in later phases. Stage 7 recovery is complete and checkpointed; see `task.md`.
+Phase 2 implements full-precision transforms, alpha-aware normalization, OKLab/OKLCH conversion, and explicit CSS Color 4 local-MINDE sRGB gamut mapping in the framework-independent domain layer. Phase 3 adds context-specific WCAG evaluation and color analysis. Phase 4 adds deterministic generation, manipulation, and scales in the domain layer. Package exports, Phase 7 REST API hardening, and Phase 8 OpenAPI/developer documentation are checkpointed. The OpenAPI contract drives request schemas and backs the reference UI; CI and public deployment remain in later phases. See `task.md` for current phase status.
 
 ## Scope and roadmap
 
@@ -181,4 +182,4 @@ Automatic semantic light/dark role assignment is deferred. Current scale and con
 
 ## Release strategy
 
-Stage 7 recovery and the Phase 1 contract plan are complete. Continue with Phase 2 color math, then derived operations/accessibility, serialization, package/API surfaces, CI/docs, and deployment. Keep commits focused and checkpointed. The release is not complete until deployment health smoke tests succeed; package publication requires its own artifact/consumer verification.
+Phases 0–8 are complete and checkpointed. Continue with CI/release checks, deployment, and final release review in task order. Keep commits focused and checkpointed. The release is not complete until deployment health smoke tests succeed; package publication requires its own artifact/consumer verification.

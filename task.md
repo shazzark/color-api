@@ -6,8 +6,8 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 - Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, multi-color serializers, health endpoint, and domain generation/manipulation/scales.
 - Batch conversion is committed in checkpoint `16b7122`; preserve its implementation.
-- Current tests are in thirteen files and cover conversion, contrast, palette, token serialization, route parity, batch, domain operations, and API hardening. Vitest uses `forks`.
-- OpenAPI, CI, and public deployment remain; package exports/declarations, multi-color serializers, and Phase 4 generation/manipulation/scale routes are implemented and checkpointed.
+- Current tests are in fourteen files and cover conversion, contrast, palette, token serialization, route parity, batch, domain operations, API hardening, and OpenAPI contract parity. Vitest uses `forks`.
+- CI and public deployment remain; Phase 8 OpenAPI and developer documentation are complete. Package exports/declarations, multi-color serializers, Phase 4 generation/manipulation/scale routes, and Phase 7 API hardening are implemented and checkpointed.
 - Do not mark prior behavior complete without rerunning the required verification in the recovery phase.
 
 ## Phase 0 — Stage 7 recovery and Git hygiene
@@ -287,19 +287,19 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Make the package and REST API discoverable and contract-driven.
 
-**STATUS:** NOT STARTED
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phase 7 API contracts.
 
 **TASK CHECKLIST:**
 
-- [ ] Add OpenAPI 3 specification covering every public route/schema/error/limit.
-- [ ] Ensure runtime route schemas and OpenAPI do not drift; add contract validation in CI.
-- [ ] Add readable API reference and lightweight interactive Swagger UI or equivalent from the same spec.
-- [ ] Add curl and JavaScript fetch examples plus package examples.
-- [ ] Include complete request, success response, validation, error, alpha, gamut, and accessibility-context examples.
-- [ ] Document API version/deprecation, anonymous limits, CORS, and local deployment use.
-- [ ] Defer Postman collection.
+- [x] Add OpenAPI 3 specification covering every public route/schema/error/limit.
+- [x] Ensure runtime route schemas and OpenAPI do not drift; add a contract check that validates the generated artifact and registered routes.
+- [x] Add readable API reference and lightweight interactive API explorer from the same spec.
+- [x] Add curl and JavaScript fetch examples plus package examples.
+- [x] Include complete request, success response, validation, error, alpha, gamut, and accessibility-context examples.
+- [x] Document API version/deprecation, anonymous limits, CORS, and local deployment use.
+- [x] Defer Postman collection.
 
 **SUBAGENTS TO USE:** Developer-experience reviewer; API contract reviewer; QA reviewer.
 
@@ -307,7 +307,7 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** OpenAPI schema validation, route/spec contract check, documentation example smoke tests where practical.
 
-**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`; OpenAPI validation command documented by chosen tooling.
+**VERIFICATION COMMANDS:** `npm test` (224 tests, 14 files); focused OpenAPI contract tests (7 passed); `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations, Redocly lint); `git diff --check`. Documented request examples validate against their schemas and execute through handlers; normalize/palette/token include structured-format requests; malformed validation input returns the documented false-result shape; palette, scale, and variant response examples match handler output. CORS preflight 403 is represented in the OpenAPI transport extension. The route guard and regression tests reject undocumented public GET/POST routes outside the test-only namespace. Independent API, developer-experience, and QA reviews found and resolved polymorphic response schemas, token-name constraints, palette count validation, stale examples, explorer ref rendering, and CORS error coverage.
 
 **DOCUMENTATION UPDATES:** Keep README concise and link the API/package reference and examples.
 

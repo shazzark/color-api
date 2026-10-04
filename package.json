@@ -12,11 +12,17 @@
       "import": "./dist/package/index.js"
     }
   },
-  "files": ["dist/package", "README.md", "CHANGELOG.md"],
+  "files": [
+    "dist/package",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "sideEffects": false,
-  "engines": { "node": ">=20.19.0" },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.package.json",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.package.json && npm run openapi:generate",
     "build:package": "tsc -p tsconfig.package.json",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/src/server.js",
@@ -24,6 +30,8 @@
     "typecheck": "tsc --noEmit",
     "package:types": "tsc -p tsconfig.consumer.json --noEmit",
     "package:smoke": "node scripts/package-smoke.mjs",
+    "openapi:generate": "node scripts/generate-openapi.mjs",
+    "openapi:check": "node scripts/check-openapi.mjs",
     "browser:smoke:serve": "node scripts/browser-smoke-server.mjs",
     "prepublishOnly": "npm run build && npm test && npm run package:types && npm run package:smoke"
   },
@@ -31,7 +39,9 @@
     "fastify": "^5.4.0"
   },
   "devDependencies": {
+    "@redocly/openapi-core": "^2.57.0",
     "@types/node": "^22.15.0",
+    "ajv": "^8.20.0",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "vitest": "^3.1.0"
