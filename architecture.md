@@ -16,7 +16,7 @@ src/color/{types,validation,conversion,contrast,palette,tokens}.ts
 src/routes/*.ts → src/app.ts → src/server.ts
 ```
 
-The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The Phase 2 engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes use HSL harmony strategies and OKLCH perceptual operations; token serializers handle single colors, ordered sets, and generated scales. The package has no public barrel or declarations, and the app has no OpenAPI/deployment layer.
+The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes use HSL harmony strategies and OKLCH perceptual operations; token serializers handle single colors, ordered sets, and generated scales. The package barrel and declarations exclude Fastify. API configuration bounds requests, uses exact-origin CORS, request IDs, stable error envelopes, and a process-local IP rate limiter; public multi-instance deployment requires a shared trusted edge limit. OpenAPI is planned for Phase 8.
 
 ## Target architecture
 

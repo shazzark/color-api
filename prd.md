@@ -52,7 +52,7 @@ The inspected repository currently has a Fastify server and separate `src/color/
 - HEX/HEX8, RGB/RGBA, HSL/HSLA, HSV+A, OKLab+A, and OKLCH+A validation and conversion
 - WCAG 2.2 text contrast, contextual SC 1.4.11 non-text checks, explicit source-over compositing context, color metrics, deltaEOK, and deterministic foreground suggestions
 - Six deterministic HSL harmony strategies, including tetradic and configurable analogous counts
-- Seeded/unseeded bounded OKLCH generation, OKLCH manipulation and mixing, and stop-based perceptual scales in the domain layer; REST routes and public package exports follow in later phases
+- Seeded/unseeded bounded OKLCH generation, manipulation, mixing, and stop-based perceptual scales are available through the domain package and versioned REST routes
 - Single-color CSS custom-property tokens and domain serializers for ordered multi-color CSS/SCSS, structured JSON, JavaScript/TypeScript objects, and Tailwind-compatible data
 - Synchronous, ordered, atomic batch conversion of 1–100 colors
 

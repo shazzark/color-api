@@ -37,6 +37,11 @@ The API provides:
 - `POST /v1/colors/palette` for deterministic palette generation
 - `POST /v1/colors/tokens` for single-color CSS custom-property tokens
 - `POST /v1/colors/batch/convert` for synchronous batch conversion
+- `POST /v1/colors/validate` and `/normalize`
+- `POST /v1/colors/generate`, `/manipulate`, `/mix`, and `/composite`
+- `POST /v1/colors/scales/oklch` and `/scales/variants`
+- `POST /v1/colors/analyze`, `/distance`, and `/contrast/suggestions`
+- `POST /v1/colors/tokens/serialize` for ordered multi-color serializers
 
 The engine accepts six tagged formats: `hex`, `rgb`, `hsl`, `hsv`, `oklab`,
 and `oklch`. All six support alpha where structured, and HEX accepts six- or
@@ -56,8 +61,16 @@ npm install
 npm run dev
 ```
 
-The server listens on `http://127.0.0.1:3000` by default. Set `PORT` or
-`HOST` to change the bind address.
+The server listens on port `3000` and binds to `0.0.0.0` by default. Set
+`PORT` or `HOST` to change the bind address. `BODY_LIMIT_BYTES` (1 KiB–1 MiB),
+`RATE_LIMIT_MAX` (per window), `RATE_LIMIT_WINDOW_MS`, `REQUEST_TIMEOUT_MS`, and
+`CONNECTION_TIMEOUT_MS` configure transport bounds. `CORS_ORIGINS` is a
+comma-separated list of exact HTTP(S) origins; credentials are not enabled.
+The in-process anonymous rate limiter uses the socket IP because forwarded
+headers are not trusted. It is per process and is a fallback for local or
+single-process use; a public multi-instance deployment must enforce a shared
+limit at its trusted edge. `/health` is a liveness check; this stateless service
+has no dependency-based readiness check.
 
 ## API examples
 
@@ -343,7 +356,11 @@ lightness between `0` and `100`, their lightness values are
 
 The framework-independent domain also provides generation and manipulation
 operations. These are implemented under `src/color/operations.ts`; the package
-exports these operations, and REST routes follow in Phase 7.
+exports these operations. REST generation is capped at 100 colors per request;
+seed strings are capped at 128 characters. REST scale endpoints return at most
+101 entries, and batch conversion and multi-color token serialization accept
+at most 100 items. The default JSON request body limit is 64 KiB (configurable
+up to 1 MiB). Invalid route inputs return HTTP 400 with a stable error object.
 
 `generateColors(count, { seed, constraints })` returns 1–1000 OKLCH colors.
 Seeded calls return `algorithm: "mulberry32-v1"`; string seeds use 32-bit

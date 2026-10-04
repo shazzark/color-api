@@ -6,8 +6,8 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 - Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, multi-color serializers, health endpoint, and domain generation/manipulation/scales.
 - Batch conversion is committed in checkpoint `16b7122`; preserve its implementation.
-- Current tests are in ten files and cover conversion, contrast, palette, token serialization, route, batch, and domain operations. Vitest uses `forks`.
-- No package exports/declarations, OpenAPI, CI, public deployment, multi-color design outputs, or public API routes for Phase 4 generation/manipulation/scales exist yet.
+- Current tests are in thirteen files and cover conversion, contrast, palette, token serialization, route parity, batch, domain operations, and API hardening. Vitest uses `forks`.
+- OpenAPI, CI, and public deployment remain; package exports/declarations, multi-color serializers, and Phase 4 generation/manipulation/scale routes are implemented and checkpointed.
 - Do not mark prior behavior complete without rerunning the required verification in the recovery phase.
 
 ## Phase 0 — Stage 7 recovery and Git hygiene
@@ -251,23 +251,23 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Expose approved engine functions as a coherent, safe, bounded public API.
 
-**STATUS:** NOT STARTED
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phases 1–6.
 
 **TASK CHECKLIST:**
 
-- [ ] Map package operations to justified versioned routes; do not add batch endpoints for symmetry alone.
-- [ ] Make single conversion same-format requests normalize consistently with package and batch semantics.
-- [ ] Define validation, normalize, generation, scales, manipulation, analysis, accessibility, token, and justified batch contracts.
-- [ ] Centralize HTTP error mapping for domain errors, malformed JSON, unsupported media types, not found, oversized bodies, rate limits, and internal failures.
-- [ ] Add request body, batch, generation, and output limits.
-- [ ] Add anonymous configurable rate limiting at one trusted layer and document proxy/client IP assumptions.
-- [ ] Add configurable browser CORS suitable for public website usage; no credentialed wildcard.
-- [ ] Validate environment config and deployment-compatible host/port at startup.
-- [ ] Add safe structured logging/request IDs and graceful SIGTERM/SIGINT close.
-- [ ] Keep liveness and readiness semantics simple and accurate.
-- [ ] Keep future API key/quota extension at HTTP boundary only.
+- [x] Map package operations to justified versioned routes; do not add batch endpoints for symmetry alone.
+- [x] Make single conversion same-format requests normalize consistently with package and batch semantics.
+- [x] Define validation, normalize, generation, scales, manipulation, analysis, accessibility, token, and justified batch contracts.
+- [x] Centralize HTTP error mapping for domain errors, malformed JSON, unsupported media types, not found, oversized bodies, rate limits, and internal failures.
+- [x] Add request body, batch, generation, and output limits.
+- [x] Add anonymous configurable rate limiting at one trusted layer and document proxy/client IP assumptions.
+- [x] Add configurable browser CORS suitable for public website usage; no credentialed wildcard.
+- [x] Validate environment config and deployment-compatible host/port at startup.
+- [x] Add safe structured logging/request IDs and graceful SIGTERM/SIGINT close.
+- [x] Keep liveness and readiness semantics simple and accurate.
+- [x] Keep future API key/quota extension at HTTP boundary only.
 
 **SUBAGENTS TO USE:** API architecture reviewer; security/reliability reviewer; independent penetration/input-boundary reviewer.
 
@@ -275,7 +275,7 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Route parity with package, stable envelopes/status, malformed body/content type, 404, limits, CORS preflight/origins, rate limit, request IDs, safe internal errors, shutdown/config validation.
 
-**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`; local production-server smoke check.
+**VERIFICATION COMMANDS:** `npm test` (217 tests, 13 files); `npm run typecheck`; `npm run build`; built `GET /health` returned `{"status":"ok"}` and `POST /v1/colors/normalize` normalized `#AABBCC` to `#aabbcc`; built server accepted the SIGTERM shutdown handler and exited cleanly. `git diff --check` passed. Vitest needed elevated filesystem access because esbuild could not load its config in the restricted sandbox. Independent API architecture review found no route/domain boundary issues; security/reliability review found no critical exploit and confirmed documented process-local rate-limit assumptions.
 
 **DOCUMENTATION UPDATES:** Update API examples, errors, limits, CORS/rate policy, health/readiness and configuration docs.
 
