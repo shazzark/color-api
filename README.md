@@ -3,6 +3,30 @@
 A deterministic color engine and versioned Fastify API. The color math and
 validation live in framework-independent domain modules shared by API routes.
 
+## ESM package
+
+The root package exports only framework-independent color operations and types
+from `src/index.ts`. It emits ESM and TypeScript declarations under
+`dist/package/`; the Fastify app stays outside that export graph. Supported
+server runtime is Node.js 20.19 or newer. The package is currently private and
+has not been published. After an authorized release, consumers can install it
+with `npm install color-api` and use named exports:
+
+```ts
+import { convertColor, generateColors, type ColorValue } from "color-api";
+
+const converted = convertColor({ format: "hex", value: "#3498db" }, "oklch");
+const generated = generateColors(5, { seed: "brand-system" });
+const color: ColorValue = converted.output;
+```
+
+Run `npm run build`, `npm run package:types`, and `npm run package:smoke` to
+verify declarations and Node ESM resolution. `npm pack --dry-run` previews the
+publish artifact. The `prepublishOnly` check runs build, unit tests, declaration
+consumer checks, and the built-package smoke. See [CHANGELOG.md](CHANGELOG.md)
+for the SemVer policy. The built ESM package passed the browser smoke in Chrome
+154 on Windows. Other browser engines have not been independently verified.
+
 ## Supported conversions
 
 The API provides:
@@ -318,8 +342,8 @@ lightness between `0` and `100`, their lightness values are
 ### Domain generation and manipulation operations
 
 The framework-independent domain also provides generation and manipulation
-operations. These are implemented under `src/color/operations.ts`; the public
-package exports are added in Phase 6, and REST routes are added in Phase 7.
+operations. These are implemented under `src/color/operations.ts`; the package
+exports these operations, and REST routes follow in Phase 7.
 
 `generateColors(count, { seed, constraints })` returns 1–1000 OKLCH colors.
 Seeded calls return `algorithm: "mulberry32-v1"`; string seeds use 32-bit

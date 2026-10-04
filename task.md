@@ -217,21 +217,21 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Turn the pure engine into a consumable ESM package and verify built artifacts in Node and browsers.
 
-**STATUS:** NOT STARTED
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phases 1–5.
 
 **TASK CHECKLIST:**
 
-- [ ] Add public named-export barrel for domain functions and types only.
-- [ ] Separate package TypeScript build from server/tests and emit declarations.
-- [ ] Configure ESM exports, package files, Node engine range, metadata, and side-effect-free exports.
-- [ ] Verify tree-shakeable module boundaries and absence of Fastify from package graph.
-- [ ] Add built-output Node consumer tests and typed usage fixture.
-- [ ] Add an actual browser compatibility test before claiming browser support.
-- [ ] Inspect `npm pack --dry-run`, artifact file list, and size.
-- [ ] Write package README/quickstart/examples and SemVer/changelog policy.
-- [ ] Prepare npm publishing workflow; do not publish until release review and credentials/authorization.
+- [x] Add public named-export barrel for domain functions and types only.
+- [x] Separate package TypeScript build from server/tests and emit declarations.
+- [x] Configure ESM exports, package files, Node engine range, metadata, and side-effect-free exports.
+- [x] Verify tree-shakeable module boundaries and absence of Fastify from package graph.
+- [x] Add built-output Node consumer tests and typed usage fixture.
+- [x] Add an actual browser compatibility test before claiming browser support.
+- [x] Inspect `npm pack --dry-run`, artifact file list, and size.
+- [x] Write package README/quickstart/examples and SemVer/changelog policy.
+- [x] Prepare npm publishing workflow; do not publish until release review and credentials/authorization.
 
 **SUBAGENTS TO USE:** Package architecture reviewer; browser compatibility reviewer; independent consumer DX reviewer.
 
@@ -239,13 +239,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Public export contract, Node import, TypeScript declaration consumption, actual browser execution, package content/size inspection, no Fastify dependency leak.
 
-**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`; `npm pack --dry-run`.
+**VERIFICATION COMMANDS:** `npm test` (208 tests, 11 files); `npm run typecheck`; `npm run build`; `npm run package:types`; `npm run package:smoke`; `npm pack --dry-run --json` (19 files; 21,307 packed / 82,740 unpacked bytes); browser smoke on Chrome 154 / Windows passed (`oklch`, `gamutMapped: false`, two seeded colors); `git diff --check`. Browser exercise used the emitted `dist/package` ESM modules over local HTTP, not a bundle.
 
 **DOCUMENTATION UPDATES:** Package usage guide, supported runtimes, examples, versioning and release policy.
 
 **GIT CHECKPOINT:** Package build/export checkpoint; public publication is a separate release action.
 
-**DEFINITION OF DONE:** Built package is usable by supported Node consumers and verified in a browser environment, with only intended artifacts and complete declarations.
+**DEFINITION OF DONE:** Built package resolves through its ESM export map for Node and TypeScript consumers, is verified in a browser environment, includes only intended artifacts, and has complete declarations. Package remains `private` until release review and user authorization; it has not been published.
 
 ## Phase 7 — REST API parity and public hardening
 

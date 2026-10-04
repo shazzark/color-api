@@ -2,14 +2,30 @@
   "name": "color-api",
   "version": "1.0.0",
   "private": true,
-  "description": "A learning project for color validation and conversion.",
+  "description": "Deterministic color conversion, analysis, generation, and design token tools.",
   "type": "module",
+  "main": "./dist/package/index.js",
+  "types": "./dist/package/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/package/index.d.ts",
+      "import": "./dist/package/index.js"
+    }
+  },
+  "files": ["dist/package", "README.md", "CHANGELOG.md"],
+  "sideEffects": false,
+  "engines": { "node": ">=20.19.0" },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.package.json",
+    "build:package": "tsc -p tsconfig.package.json",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/src/server.js",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "package:types": "tsc -p tsconfig.consumer.json --noEmit",
+    "package:smoke": "node scripts/package-smoke.mjs",
+    "browser:smoke:serve": "node scripts/browser-smoke-server.mjs",
+    "prepublishOnly": "npm run build && npm test && npm run package:types && npm run package:smoke"
   },
   "dependencies": {
     "fastify": "^5.4.0"
