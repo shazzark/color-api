@@ -4,9 +4,9 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 ## Current baseline
 
-- Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, one-color CSS tokens, health endpoint. Phase 4 adds domain generation, manipulation, and scales.
-- Stage 7 batch conversion source/tests and related docs are staged. Treat as existing user work; do not recreate or overwrite it.
-- Current tests are in nine files and cover existing conversion, contrast, palette, token, route, and batch behavior. Vitest uses `forks`.
+- Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, multi-color serializers, health endpoint, and domain generation/manipulation/scales.
+- Batch conversion is committed in checkpoint `16b7122`; preserve its implementation.
+- Current tests are in ten files and cover conversion, contrast, palette, token serialization, route, batch, and domain operations. Vitest uses `forks`.
 - No package exports/declarations, OpenAPI, CI, public deployment, multi-color design outputs, or public API routes for Phase 4 generation/manipulation/scales exist yet.
 - Do not mark prior behavior complete without rerunning the required verification in the recovery phase.
 
@@ -184,20 +184,20 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Serialize tokens and generated scales into useful framework-light developer formats.
 
-**STATUS:** NOT STARTED
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phases 2–4.
 
 **TASK CHECKLIST:**
 
-- [ ] Preserve and generalize CSS custom-property serialization to ordered multi-color tokens/scales.
-- [ ] Add structured JSON design-token output with a documented stable shape.
-- [ ] Add JavaScript object and TypeScript-friendly typed object forms.
-- [ ] Add simple Tailwind-compatible data/config output without Tailwind runtime/version coupling.
-- [ ] Add SCSS variables only if the serializer stays small and safe.
-- [ ] Validate token keys before CSS/SCSS interpolation and reject unsafe names.
-- [ ] Evaluate light/dark theme generation using existing deterministic scales and contrast checks; defer automatic role assignment if it needs a large policy engine.
-- [ ] Ensure serialization contains no hidden file or framework side effects.
+- [x] Preserve and generalize CSS custom-property serialization to ordered multi-color tokens/scales.
+- [x] Add structured JSON design-token output with a documented stable shape.
+- [x] Add JavaScript object and TypeScript-friendly typed object forms.
+- [x] Add simple Tailwind-compatible data/config output without Tailwind runtime/version coupling.
+- [x] Add SCSS variables as a small validated serializer.
+- [x] Validate token keys before CSS/SCSS interpolation and reject unsafe names.
+- [x] Evaluate light/dark theme generation using existing deterministic scales and contrast checks; defer automatic role assignment until a product role policy exists.
+- [x] Ensure serialization contains no hidden file or framework side effects.
 
 **SUBAGENTS TO USE:** Developer-experience reviewer; package reviewer; security reviewer for serialization safety.
 
@@ -205,13 +205,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Deterministic serializers, escaping/unsafe names, alpha output, ordering, JSON shape, typed-object compile fixture, Tailwind shape, scale outputs, theme contrast if theme generation is included.
 
-**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`.
+**VERIFICATION COMMANDS:** `npm test` (207 tests, 10 files); `npm run typecheck`; `npm run build`; `git diff --check`. Independent DX, package, and security reviews found and helped close single-token CSS injection paths; no framework dependency was introduced.
 
 **DOCUMENTATION UPDATES:** Add output schemas/examples and any deferred theme items to `prd.md`/`task.md`.
 
-**GIT CHECKPOINT:** Focused serializer/output checkpoint.
+**GIT CHECKPOINT:** Focused serializer/output checkpoint after full verification and independent review.
 
-**DEFINITION OF DONE:** Outputs are deterministic, safe, version-agnostic where promised, and usable without framework dependencies.
+**DEFINITION OF DONE:** Outputs are deterministic, safe, version-agnostic where promised, and usable without framework dependencies. Light/dark role assignment is documented as deferred because current operations do not define semantic roles or a product policy. Phase 5 is complete and checkpointed.
 
 ## Phase 6 — Public package build and browser compatibility
 

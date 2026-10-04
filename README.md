@@ -395,6 +395,41 @@ The endpoint supports all six color formats. Structured token values preserve
 alpha; CSS serialization uses HEX8 for translucent HEX and modern CSS color
 syntax for OKLab/OKLCH.
 
+### Multi-color design tokens
+
+The framework-independent serializer accepts an ordered object keyed by names
+matching `^[a-z][a-z0-9-]*$`. It validates and normalizes each color before
+writing output, preserves key order, and rejects unsafe names before placing
+them in CSS or SCSS.
+
+```ts
+const colors = {
+  brand: { format: "hex", value: "#3498db" },
+  "surface-muted": { format: "oklch", value: { l: 0.92, c: 0.02, h: 250 } }
+};
+
+createCssVariablesBlock(colors);
+createDesignTokenDocument(colors);
+createTailwindColorData(colors);
+```
+
+`createCssVariablesBlock` returns ordered `:root` declarations. The versioned
+JSON shape is `{ "schemaVersion": 1, "colors": { name: { "$type": "color",
+"$value": ColorValue, "cssValue": string } } }`. `createColorObject` returns
+a fresh `Record<string, ColorValue>` suitable for TypeScript consumers;
+`serializeJavaScriptObject` and `serializeTypeScriptObject` emit corresponding
+module source, with the typed form using `satisfies Record<string, ColorValue>`.
+`createTailwindColorData` returns plain `{ theme: { extend: { colors } } }`
+data and does not import or couple to a Tailwind version. `serializeScssVariables`
+is also available and follows the same token-name validation. Alpha is retained
+in structured values and CSS-compatible color strings.
+`createScaleTokenMap(scaleResults, "brand-scale")` adapts ordered scale
+conversion results into `brand-scale-1`, `brand-scale-2`, and subsequent keys
+for the same serializers.
+
+Automatic light/dark semantic role assignment remains deferred; it needs a
+separate role policy beyond deterministic scale generation and contrast checks.
+
 ### Batch conversion
 
 Use `POST /v1/colors/batch/convert` to convert between 1 and 100 colors in a

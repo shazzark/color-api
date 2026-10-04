@@ -16,7 +16,7 @@ src/color/{types,validation,conversion,contrast,palette,tokens}.ts
 src/routes/*.ts → src/app.ts → src/server.ts
 ```
 
-The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The Phase 2 engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes still use HSL; tokens handle one color. The package has no public barrel or declarations, and the app has no OpenAPI/deployment layer.
+The color modules are framework-independent. Routes perform request parsing and response shaping. `buildApp()` constructs Fastify and `server.ts` starts it. The Phase 2 engine validates and normalizes six color formats, preserves structured alpha, converts through full-precision sRGB/OKLab math, and reports CSS Color 4 local-MINDE mapping for sRGB-bounded outputs. Palettes use HSL harmony strategies and OKLCH perceptual operations; token serializers handle single colors, ordered sets, and generated scales. The package has no public barrel or declarations, and the app has no OpenAPI/deployment layer.
 
 ## Target architecture
 
@@ -109,6 +109,13 @@ Do not add workspaces/monorepo until there are multiple independently released p
 - Keep the existing harmony palette hue relationships in HSL for compatibility and preserve base alpha; use OKLCH for perceptual scales, shades, tints, and tones. Shades order from base to black; tints from base to white; tones reduce chroma at fixed lightness. Scales accept 2–10 stops spanning normalized positions 0 and 1, require non-decreasing lightness and one shared alpha across stops to prevent transparent-stop color bleed, sample 2–101 evenly spaced positions, and report per-output gamut mapping.
 - Manipulation functions state their operation space (e.g. OKLCH lightness/chroma/hue or encoded sRGB invert). Mix/blend distinguish interpolation from alpha compositing and declare their math. Avoid ambiguous unqualified `lighten`/`saturate` semantics.
 - Lightness adjustments clamp OKLCH L to `[0,1]`; chroma adjustments clamp C to zero or higher; saturation adjustment is a relative change to OKLCH chroma; hue rotation wraps OKLCH hue; grayscale sets chroma to zero while preserving lightness; invert complements encoded sRGB channels after mapping to sRGB. `mix` is interpolation in OKLab or encoded sRGB with premultiplied alpha; compositing is a separate `compositeColors` source-over operation. These definitions are not interchangeable, and the API avoids the ambiguous name `blend`.
+
+## Design-token serialization
+
+- Multi-color serializers accept ordered name-to-`ColorValue` objects, validate names with the existing lowercase kebab-case token rule, normalize every color, and preserve insertion order. No arbitrary CSS fragments or caller-provided property names are interpolated.
+- The stable JSON document uses `schemaVersion: 1` and a `colors` map whose entries contain `$type: "color"`, normalized `$value: ColorValue`, and browser-facing `cssValue`. This is the Color API's documented schema, not a claim of conformance to an external token standard.
+- CSS custom properties, SCSS variables, JavaScript/TypeScript module source, and Tailwind-compatible data are pure deterministic serializers. Tailwind output is plain theme data and has no runtime/version dependency. Structured values retain format and alpha; CSS values preserve alpha using HEX8 or CSS alpha syntax as appropriate.
+- Automatic light/dark semantic role assignment is deferred until a product policy defines roles and contrast targets; scale generation alone must not imply semantic or accessibility roles.
 
 ## Analysis and accessibility
 
