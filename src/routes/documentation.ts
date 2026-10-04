@@ -6,7 +6,7 @@ const documentationHtml = `<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Color API reference</title>
+  <title>ChromaForge API reference</title>
   <style>
     body{font:16px/1.5 system-ui,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;color:#18212f}
     h1{margin-bottom:.25rem} .muted{color:#536174} main{display:grid;grid-template-columns:minmax(220px,1fr) 2fr;gap:2rem;margin-top:2rem}
@@ -16,8 +16,8 @@ const documentationHtml = `<!doctype html>
   </style>
 </head>
 <body>
-  <h1>Color API</h1>
-  <p class="muted">Interactive reference generated from the <a href="/openapi.json">OpenAPI 3.1 contract</a>. API version 1 is not yet publicly released.</p>
+  <h1>ChromaForge API</h1>
+  <p class="muted">Interactive reference generated from the <a href="/openapi.json">OpenAPI 3.1 contract</a>. The service is deployed for verification; API version 1 is not formally released.</p>
   <main>
     <section><label for="operation">Operation</label><select id="operation"></select><p id="description" class="muted"></p><details><summary>Request schema</summary><pre id="requestSchema"></pre></details><details><summary>Success response schema</summary><pre id="responseSchema"></pre></details><details><summary>Success response examples</summary><pre id="responseExamples"></pre></details><details><summary>Responses and errors</summary><pre id="responseCodes"></pre></details></section>
     <section><label for="example">Request example</label><select id="example"></select><label for="request">JSON request body</label><textarea id="request" spellcheck="false"></textarea><button id="send">Try it</button><h2>Response <span id="status"></span></h2><pre id="response">Choose an operation and send a request.</pre></section>

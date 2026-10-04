@@ -108,6 +108,7 @@ describe("multi-color design token outputs", () => {
     expect(createTailwindColorData(colors)).toEqual({ theme: { extend: { colors: { brand: "#123456", "surface-muted": "rgb(10 20 30 / 0.5)" } } } });
     expect(serializeJavaScriptObject(colors)).toContain('"surface-muted"');
     expect(serializeTypeScriptObject(colors)).toContain('satisfies Record<string, ColorValue>');
+    expect(serializeTypeScriptObject(colors)).toContain('from "chromaforge"');
     expect(serializeScssVariables(colors)).toBe("$color-brand: #123456;\n$color-surface-muted: rgb(10 20 30 / 0.5);");
   });
 

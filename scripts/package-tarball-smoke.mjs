@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
 const packageRoot = resolve(repositoryRoot, "dist/npm-package");
-const workRoot = await mkdtemp(join(tmpdir(), "color-api-package-consumer-"));
+const workRoot = await mkdtemp(join(tmpdir(), "chromaforge-package-consumer-"));
 const safeTempRoot = resolve(tmpdir());
 if (!resolve(workRoot).startsWith(`${safeTempRoot}${sep}`)) throw new Error("Package consumer directory escaped the OS temp directory");
 const npmCli = process.env.npm_execpath;
@@ -26,10 +26,14 @@ try {
     ...npmOptions,
     cwd: workRoot
   });
-  const installedManifest = JSON.parse(await readFile(join(workRoot, "node_modules/color-api/package.json"), "utf8"));
+  const installedManifest = JSON.parse(await readFile(join(workRoot, "node_modules/chromaforge/package.json"), "utf8"));
+  assert.equal(installedManifest.name, "chromaforge");
+  assert.equal(installedManifest.version, "1.0.0");
+  assert.equal(installedManifest.license, "MIT");
+  assert.equal(installedManifest.author, "Daniel Nnam Chidozie");
   assert.equal(installedManifest.dependencies?.fastify, undefined, "published package must not install the HTTP server dependency");
 
-  const consumerScript = `import assert from "node:assert/strict";\nimport { convertColor, generateColors } from "color-api";\nassert.equal(convertColor({ format: "hex", value: "#3498db" }, "rgb").output.format, "rgb");\nassert.equal(generateColors(2, { seed: "tarball-consumer" }).colors.length, 2);\n`;
+  const consumerScript = `import assert from "node:assert/strict";\nimport { convertColor, generateColors } from "chromaforge";\nassert.equal(convertColor({ format: "hex", value: "#3498db" }, "rgb").output.format, "rgb");\nassert.equal(generateColors(2, { seed: "tarball-consumer" }).colors.length, 2);\n`;
   const scriptPath = join(workRoot, "consumer.mjs");
   await writeFile(scriptPath, consumerScript);
   execFileSync(process.execPath, [scriptPath], { cwd: workRoot, stdio: "inherit" });

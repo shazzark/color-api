@@ -1,4 +1,4 @@
-# Color API Architecture
+# ChromaForge Architecture
 
 ## Architecture goals
 
@@ -70,7 +70,7 @@ Do not add workspaces/monorepo until there are multiple independently released p
 - `detectColorFormat(input)` is only a convenience: it recognizes a recognized explicit `format` tag even if its payload needs validation, or a hash-prefixed six/eight-digit HEX string; it returns `undefined` for ambiguous/unrecognized input. Format detection never proves validity. REST operations require an explicit color envelope and never infer RGB/HSL from arbitrary objects.
 - `convertColor(input, outputFormat)` accepts a complete color envelope. A same-format request is valid and means canonical normalization. It returns `ColorConversionResult = { input, output, gamutMapped: false } | { input, output, gamutMapped: true, gamutMapping: "css-color-4-local-minde" }`. `input` is normalized in its source format; `output` is normalized in its target format after any gamut mapping. This wrapper is shared by package and REST results, including each batch item.
 - Error types are pure domain errors, not Fastify-shaped exceptions. HTTP maps them to stable `INVALID_REQUEST`, `INVALID_COLOR`, `UNSUPPORTED_CONVERSION`, `UNSUPPORTED_MEDIA_TYPE`, `PAYLOAD_TOO_LARGE`, `RATE_LIMITED`, or `INTERNAL_ERROR` envelopes as applicable. Validation issue paths and batch `index` remain structured fields, not message parsing.
-- The API is not yet publicly released; its existing `/v1` request shapes may be changed now to use the shared color envelope and normalization semantics. Preserve `/v1` endpoint names where practical, but do not preserve inconsistent behavior at the cost of package/API parity.
+- The API service is publicly deployed for smoke testing, but the `/v1` contract is not formally released. Its request shapes may still be changed before the first formal release to use the shared color envelope and normalization semantics. Preserve `/v1` endpoint names where practical; do not preserve inconsistent behavior at the cost of package/API parity.
 
 ## Working representations, conversion, precision
 
@@ -115,7 +115,7 @@ Do not add workspaces/monorepo until there are multiple independently released p
 ## Design-token serialization
 
 - Multi-color serializers accept ordered name-to-`ColorValue` objects, validate names with the existing lowercase kebab-case token rule, normalize every color, and preserve insertion order. No arbitrary CSS fragments or caller-provided property names are interpolated.
-- The stable JSON document uses `schemaVersion: 1` and a `colors` map whose entries contain `$type: "color"`, normalized `$value: ColorValue`, and browser-facing `cssValue`. This is the Color API's documented schema, not a claim of conformance to an external token standard.
+- The stable JSON document uses `schemaVersion: 1` and a `colors` map whose entries contain `$type: "color"`, normalized `$value: ColorValue`, and browser-facing `cssValue`. This is ChromaForge's documented schema, not a claim of conformance to an external token standard.
 - CSS custom properties, SCSS variables, JavaScript/TypeScript module source, and Tailwind-compatible data are pure deterministic serializers. Tailwind output is plain theme data and has no runtime/version dependency. Structured values retain format and alpha; CSS values preserve alpha using HEX8 or CSS alpha syntax as appropriate.
 - Automatic light/dark semantic role assignment is deferred until a product policy defines roles and contrast targets; scale generation alone must not imply semantic or accessibility roles.
 
@@ -168,7 +168,7 @@ Do not add workspaces/monorepo until there are multiple independently released p
 - Keep liveness simple. Add readiness only if platform startup/dependencies need it; no external dependencies exist today.
 - Body and batch/output limits prevent resource abuse. No database, queue, worker, account system, or broad monitoring platform is needed.
 - CI runs reproducible install, tests, typecheck, and production build. Dependency audit/update workflows should be useful and reviewed, not flaky PR blockers.
-- Deployment stays host-neutral until the deployment phase selects a provider. A release requires reaching the public URL and passing smoke checks.
+- The domain and API remain host-independent; the initial production deployment uses Render and preserves the prepared Cloud Run alternative. A release requires reaching the public URL and passing smoke checks.
 - Establish basic API latency/throughput baselines before setting performance guarantees; defer ongoing load infrastructure absent need.
 
 ## Testing architecture

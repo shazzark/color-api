@@ -142,7 +142,7 @@ export function serializeJavaScriptObject(tokens: ColorTokenMap): string {
 }
 
 export function serializeTypeScriptObject(tokens: ColorTokenMap): string {
-  return `import type { ColorValue } from "color-api";\n\nexport const colors = ${JSON.stringify(createColorObject(tokens), null, 2)} satisfies Record<string, ColorValue>;\n`;
+  return `import type { ColorValue } from "chromaforge";\n\nexport const colors = ${JSON.stringify(createColorObject(tokens), null, 2)} satisfies Record<string, ColorValue>;\n`;
 }
 
 export function serializeScssVariables(tokens: ColorTokenMap): string {

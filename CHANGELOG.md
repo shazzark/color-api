@@ -1,13 +1,19 @@
-# Changelog
+# ChromaForge Changelog
 
 Changes to the public package follow Semantic Versioning once the first public
 release is authorized.
 
-## Unreleased
+## Unreleased — initial 1.0.0 preparation (not published)
 
-- Preparing the framework-independent ESM color package and declaration build.
-- The package remains private until package name, license, provenance, and
-  publication authorization are reviewed.
+- The selected public package identity is `chromaforge@1.0.0`, authored by
+  Daniel Nnam Chidozie and licensed under MIT.
+- The package has been prepared as a framework-independent ESM artifact with
+  declarations; it has not been published to npm.
+- The REST API is deployed at `https://color-api-9qdz.onrender.com` for
+  verification; its v1 contract remains pre-release until the owner releases it.
+- npm name availability, publisher permissions, and the provenance route must
+  be checked at the time of publication. Registry non-resolution is not a
+  reservation guarantee.
 
 ### Versioning policy
 

@@ -9,7 +9,7 @@ function docker(args) {
   return result.stdout.trim();
 }
 
-const tag = `color-api-smoke:${randomUUID()}`;
+const tag = `chromaforge-smoke:${randomUUID()}`;
 const port = process.env.CONTAINER_SMOKE_PORT ?? "18080";
 let container;
 let imageBuilt = false;

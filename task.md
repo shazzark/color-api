@@ -1,4 +1,4 @@
-# Color API Execution Plan
+# ChromaForge Execution Plan
 
 This is the execution source of truth. Work phase-by-phase, update checkboxes/status after review, and do not skip dependencies. `COMPLETE` means its definition of done and verification passed. A feature present in staged source is not a completed Git checkpoint until safely reviewed and recorded.
 
@@ -7,8 +7,8 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 - Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, multi-color serializers, health endpoint, and domain generation/manipulation/scales.
 - Batch conversion is committed in checkpoint `16b7122`; preserve its implementation.
 - Current tests are in fourteen files and cover conversion, contrast, palette, token serialization, route parity, batch, domain operations, API hardening, and OpenAPI contract parity. Vitest uses `forks`.
-- Phase 9 CI/release checks are complete and checkpointed; public deployment remains. Package exports/declarations, multi-color serializers, Phase 4 generation/manipulation/scale routes, and Phase 7 API hardening are implemented and checkpointed.
-- Do not mark prior behavior complete without rerunning the required verification in the recovery phase.
+- Phases 9–10 CI/release checks and public deployment are complete and checkpointed. The public API is at `https://color-api-9qdz.onrender.com`; the `chromaforge@1.0.0` MIT package is in final QA and has not been published.
+- Re-run all checks relevant to this release candidate; do not infer correctness from earlier checkpoint results alone.
 
 ## Phase 0 — Stage 7 recovery and Git hygiene
 
@@ -389,20 +389,21 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Verify cross-surface parity and release the package/API only after all prior definitions of done pass.
 
-**STATUS:** NOT STARTED
+**STATUS:** IN PROGRESS — pre-publication QA passed and a local checkpoint is pending; npm publication and published-artifact verification have not occurred.
 
 **DEPENDENCIES:** Phases 0–10.
 
 **TASK CHECKLIST:**
 
-- [ ] Run all checks from a clean checkout and inspect full Git diff/status.
-- [ ] Independently audit reference vectors, alpha, gamut, WCAG claims, HTTP errors, OpenAPI parity, and package exports.
-- [ ] Verify README/API/package examples against built package and public API.
-- [ ] Confirm public API deployment smoke test results and production limits.
-- [ ] Confirm package name, version, license, provenance/permissions, and publish credentials with user only where required.
-- [ ] Publish npm package if authorization and credentials are available; verify install/import from the published artifact.
-- [ ] Record changelog/release notes and ensure Git state is clean except intentional release artifacts.
-- [ ] Update `task.md` statuses and close deferred items accurately.
+- [x] Begin from a clean, synchronized `main` at `00e2fdf`; run a fresh `npm ci`, all applicable local release gates, and inspect the complete final Git diff/status.
+- [x] Obtain independent read-only reviews of reference-vector/color behavior, alpha/compositing/gamut, WCAG claims, HTTP errors, OpenAPI parity, package exports/types/browser compatibility, package contents/dependency boundaries, docs/DX, and release/security posture; no release-blocking findings were reported.
+- [x] Verify README/package examples against the built package and actual staged tarball; verify API examples and contracts against the public API smoke.
+- [x] Confirm the deployed API release smoke passes, including health, OpenAPI, alpha conversion, WCAG contrast, batch conversion, stable validation errors, and 20 bounded concurrent conversions. Earlier Phase 10 checks remain the evidence for live rate-limit, CORS, body-limit, request-ID, HTTPS, and provider-edge behavior.
+- [x] Set the release identity to `chromaforge@1.0.0`, MIT, author/copyright `Daniel Nnam Chidozie`; omit email; keep the existing repository and Render identifiers. The staged package excludes the root `private` flag and Fastify dependency and contains the license.
+- [x] Check the public registry: `npm view chromaforge` returned E404 on 2026-10-04. This means the name did not resolve then; it is not a reservation or permission guarantee. Publisher namespace permissions and provenance must be confirmed at publication time. No credentials were accessed or created.
+- [ ] Publish the npm package and verify install/import from the exact published artifact. This is deliberately outside this task; do not mark it complete.
+- [x] Record the initial release notes as unreleased preparation and keep publication/published-package verification explicitly pending.
+- [x] Synchronize Phase 11 progress with the checks actually run and preserve website/AI work as FUTURE.
 
 **SUBAGENTS TO USE:** Independent color science, API, security, package, DX, and QA reviewers; lead resolves findings.
 
@@ -410,13 +411,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Full unit/route/package/browser suite, CI, production build, deployed API smoke, public package consumer smoke.
 
-**VERIFICATION COMMANDS:** `npm ci`; `npm test`; `npm run typecheck`; `npm run build`; `npm pack --dry-run`; live API `curl` smoke; published package consumer install/import.
+**VERIFICATION COMMANDS:** `npm ci` (106 packages added); `npm test` (226 tests, 14 files); `npm run typecheck`; `npm run build` (server/package build and OpenAPI generation); `npm run openapi:check` (20 operations); `npm run package:types`; `npm run package:smoke`; `npm run package:stage`; `npm run package:contents` (20 files; 24,674 packed / 90,400 unpacked bytes); `npm pack --dry-run --json` from `dist/npm-package` (20 entries, 24,674 packed / 90,400 unpacked bytes, no bundled dependencies; `chromaforge-1.0.0.tgz`); `npm run package:tarball-smoke` (isolated ESM import and declaration consumer); Chrome headless real-browser smoke (`data-smoke="passed"`, OKLCH conversion and two seeded colors); `npm run release:stage`; `npm run release:smoke` (local production-only install and smoke passed; public API smoke passed on retry after a cold-start timeout); direct public `GET /health` returned 200; `npm view chromaforge` returned E404; GitHub Actions REST API reports CI success for the last pushed commit `00e2fdf` (does not include this local diff); `git diff --check`. `npm run container:smoke` could not run because Docker is not installed. Published-package consumer install/import is intentionally pending publication. The first sandbox release-smoke attempt failed to start its child process; the same harness passed outside the sandbox. The first public smoke attempt timed out on `/openapi.json` during cold start; the warmed retry passed.
 
 **DOCUMENTATION UPDATES:** Changelog, package/API release versions and public URLs, remaining NEXT/FUTURE items.
 
-**GIT CHECKPOINT:** Final reviewed release checkpoint; lead agent only performs Git mutations.
+**GIT CHECKPOINT:** Local, focused pre-publication release-preparation checkpoint after final review. Do not push, tag, create a public release, or publish the package during this preparation task.
 
-**DEFINITION OF DONE:** API is deployed and smoke-tested publicly; package is publicly installable if authorized; CI is green; package/API docs match actual behavior; no unresolved release-blocking review finding remains.
+**DEFINITION OF DONE:** Pre-publication QA is complete: the API is deployed and smoke-tested publicly; CI is green for the last pushed baseline; local package/API checks and independent reviews pass; no unresolved source/package release-blocking finding remains. The `chromaforge@1.0.0` candidate is prepared and ready for owner-controlled publication after npm confirms namespace permission and the selected provenance flow. The public Render hostname and repository URL intentionally retain their existing `color-api` identifiers; the live API docs will show the ChromaForge source branding only after a future authorized push/deploy. This preparation task stops before publication: Phase 11 remains in progress until the separately authorized publication and exact published-version consumer verification occur. Docker image smoke was not run because Docker is unavailable. HSTS/CSP absence and the documented limit of CF-Connecting-IP live verification are not blockers under current repository requirements; see deployment notes.
 
 ## Future work — website and AI
 

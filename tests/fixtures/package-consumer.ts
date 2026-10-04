@@ -1,8 +1,8 @@
 import {
   adjustAlpha, analyzeContrast, convertColor, createCssVariablesBlock,
   generateColors, generateHslPalette, generateOklchScale, normalizeColor
-} from "color-api";
-import type { ColorValue, ContrastOptions, OklchStop } from "color-api";
+} from "chromaforge";
+import type { ColorValue, ContrastOptions, OklchStop } from "chromaforge";
 
 const brand: ColorValue = normalizeColor({ format: "hex", value: "#3498db" });
 const foreground = adjustAlpha(brand, 0.8);

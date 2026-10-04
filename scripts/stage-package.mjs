@@ -12,6 +12,11 @@ const packageManifest = {
   name: rootPackage.name,
   version: rootPackage.version,
   description: rootPackage.description,
+  author: rootPackage.author,
+  license: rootPackage.license,
+  repository: rootPackage.repository,
+  bugs: rootPackage.bugs,
+  keywords: rootPackage.keywords,
   type: rootPackage.type,
   main: rootPackage.main,
   types: rootPackage.types,
@@ -26,5 +31,6 @@ await mkdir(packageRoot, { recursive: true });
 await cp(resolve(distRoot, "package"), resolve(packageRoot, "dist/package"), { recursive: true });
 await cp(resolve(repositoryRoot, "README.md"), resolve(packageRoot, "README.md"));
 await cp(resolve(repositoryRoot, "CHANGELOG.md"), resolve(packageRoot, "CHANGELOG.md"));
+await cp(resolve(repositoryRoot, "LICENSE"), resolve(packageRoot, "LICENSE"));
 await writeFile(resolve(packageRoot, "package.json"), `${JSON.stringify(packageManifest, null, 2)}\n`);
 console.log(`Staged framework-independent npm package at ${packageRoot}`);

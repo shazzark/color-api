@@ -1,8 +1,9 @@
-# Color API Product Requirements
+# ChromaForge Product Requirements
 
 ## Product identity
 
-- **Name:** Color API
+- **Name:** ChromaForge
+- **Public npm package:** `chromaforge` version `1.0.0`, MIT license. The package is in release preparation and is not published yet.
 - **Mission:** Provide developers with a dependable toolkit for color conversion, validation, analysis, accessibility, generation, manipulation, palettes, scales, and design-system output.
 - **Product surfaces:** A reusable JavaScript/TypeScript package and a public versioned REST API share one deterministic color engine. A website will follow this development cycle and consume those surfaces. AI-assisted workflows are future work.
 
@@ -57,7 +58,7 @@ The inspected repository currently has a Fastify server and separate `src/color/
 - Single-color CSS custom-property tokens and domain serializers for ordered multi-color CSS/SCSS, structured JSON, JavaScript/TypeScript objects, and Tailwind-compatible data
 - Synchronous, ordered, atomic batch conversion of 1–100 colors
 
-Phase 2 implements full-precision transforms, alpha-aware normalization, OKLab/OKLCH conversion, and explicit CSS Color 4 local-MINDE sRGB gamut mapping in the framework-independent domain layer. Phase 3 adds context-specific WCAG evaluation and color analysis. Phase 4 adds deterministic generation, manipulation, and scales in the domain layer. Package exports, Phase 7 REST API hardening, and Phase 8 OpenAPI/developer documentation are checkpointed. The OpenAPI contract drives request schemas and backs the reference UI; CI and public deployment remain in later phases. See `task.md` for current phase status.
+Phases 2–8 established the color engine, package exports, API hardening, and OpenAPI/developer documentation. Phase 9 CI/release checks and Phase 10 deployment are complete. The Render-hosted API is available at `https://color-api-9qdz.onrender.com`; final package QA and the authorized-but-not-yet-performed npm publication remain in Phase 11. See `task.md` for current phase status.
 
 ## Scope and roadmap
 
@@ -182,4 +183,4 @@ Automatic semantic light/dark role assignment is deferred. Current scale and con
 
 ## Release strategy
 
-Phases 0–8 are complete and checkpointed. Continue with CI/release checks, deployment, and final release review in task order. Keep commits focused and checkpointed. The release is not complete until deployment health smoke tests succeed; package publication requires its own artifact/consumer verification.
+Phases 0–10 are complete and checkpointed. Phase 11 completes final QA and prepares the `chromaforge@1.0.0` MIT package. The API deployment smoke has passed. Do not describe npm publication or registry consumer verification as complete until they have actually happened; publish only at the separately authorized release step. Keep commits focused and checkpointed.

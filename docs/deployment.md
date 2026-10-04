@@ -13,7 +13,7 @@ Nigeria.
 The Blueprint selects Render's Free web-service plan, so compute has $0 fixed
 monthly cost. Free services can spin down after 15 minutes without inbound
 traffic; cold starts are expected and can take about a minute. This is an
-accepted tradeoff for Color API's initial public/portfolio release while usage
+accepted tradeoff for ChromaForge's initial public/portfolio release while usage
 is low. If real usage justifies consistently warm responses, upgrading to the
 smallest always-on instance is the next hosting step. Review Render's current
 [pricing] and [Free service limits] before creating the service. Free usage has

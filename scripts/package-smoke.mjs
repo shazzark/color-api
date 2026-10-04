@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import * as api from "color-api";
+import * as api from "chromaforge";
 
 assert.equal(api.convertColor({ format: "hex", value: "#3498db" }, "rgb").output.format, "rgb");
 assert.equal(api.generateColors(2, { seed: "consumer" }).colors.length, 2);

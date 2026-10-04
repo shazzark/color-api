@@ -7,7 +7,7 @@ const packageRoot = resolve(fileURLToPath(new URL("../dist/package/", import.met
 const html = `<!doctype html>
 <meta charset="utf-8">
 <link rel="icon" href="data:,">
-<title>Color API browser package smoke</title>
+<title>ChromaForge browser package smoke</title>
 <output id="result">loading</output>
 <script type="module">
   import { convertColor, generateColors } from "/index.js";

@@ -1,8 +1,26 @@
 {
-  "name": "color-api",
+  "name": "chromaforge",
   "version": "1.0.0",
   "private": true,
-  "description": "Deterministic color conversion, analysis, generation, and design token tools.",
+  "description": "ChromaForge deterministic color conversion, analysis, generation, and design token tools.",
+  "author": "Daniel Nnam Chidozie",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shazzark/color-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shazzark/color-api/issues"
+  },
+  "keywords": [
+    "color",
+    "chromaforge",
+    "color-conversion",
+    "oklab",
+    "oklch",
+    "wcag",
+    "design-tokens"
+  ],
   "type": "module",
   "main": "./dist/package/index.js",
   "types": "./dist/package/index.d.ts",
@@ -15,7 +33,8 @@
   "files": [
     "dist/package",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "engines": {

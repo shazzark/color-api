@@ -1,7 +1,8 @@
-# Color API
+# ChromaForge
 
-A deterministic color engine and versioned Fastify API. The color math and
-validation live in framework-independent domain modules shared by API routes.
+ChromaForge is a deterministic color engine and versioned Fastify API. Color
+math and validation live in framework-independent domain modules shared by API
+routes.
 
 ## ESM package
 
@@ -10,12 +11,12 @@ from `src/index.ts`. It emits ESM and TypeScript declarations under
 `dist/package/`; the Fastify app stays outside that export graph. Supported
 runtime support targets maintained Node.js LTS 22.x (22.12.0 or newer) and
 24.x; CI tests both lines. `.nvmrc` pins the local default to Node 24.21.0. The
-package is currently private and has not been published. After an authorized
-release, consumers can install it with `npm install color-api` and use named
-exports:
+package is prepared as `chromaforge@1.0.0` under the MIT license, but has not
+been published. After publication, install it with `npm install chromaforge`
+and use named exports:
 
 ```ts
-import { convertColor, generateColors, type ColorValue } from "color-api";
+import { convertColor, generateColors, type ColorValue } from "chromaforge";
 
 const converted = convertColor({ format: "hex", value: "#3498db" }, "oklch");
 const generated = generateColors(5, { seed: "brand-system" });
@@ -25,7 +26,8 @@ const color: ColorValue = converted.output;
 Run `npm run build`, `npm run package:types`, `npm run package:smoke`,
 `npm run package:stage`, `npm run package:contents`, and
 `npm run package:tarball-smoke` to verify declarations, Node ESM resolution, and
-the actual staged `.tgz`. The staged package manifest has no server dependencies.
+the actual staged `.tgz`. The staged package manifest has no server dependencies
+and includes the MIT license and author metadata without a public email address.
 The production server emits separately to
 `dist/server/`; package source files stay under `dist/package/`. Run
 `npm run release:stage` followed by `npm run release:smoke`. The first stages the
@@ -48,9 +50,9 @@ GitHub Actions runs clean-install tests, typecheck, builds, OpenAPI validation,
 package consumer/artifact checks, and production-server smoke on Node 22 and 24.
 Dependabot opens weekly dependency update pull requests; dependency audit feeds
 are not required PR gates. Release validation is a manual workflow and does not
-publish the still-private package.
+publish the package.
 
-The public API is available at <https://color-api-9qdz.onrender.com>. See the
+The ChromaForge API is available at <https://color-api-9qdz.onrender.com>. See the
 [deployment notes](docs/deployment.md) for its Render Free limits, live smoke
 results, and the preserved Cloud Run alternative. Browser clients require
 their exact origins in `CORS_ORIGINS`; no browser origins are currently
@@ -67,10 +69,10 @@ for domain validation and stable error mapping. Contract checks compile all
 request and response schemas, submit documented examples to the handlers, and
 compare the generated artifact with the registered route inventory.
 
-API v1 is not publicly released yet, so its request and response shapes may
-change before its first release. After release, incompatible changes will use
-a new major path such as `/v2`; deprecated operations will include a documented
-migration period.
+The API is deployed for verification, but API v1 is not formally released yet,
+so its request and response shapes may change before release. After release,
+incompatible changes will use a new major path such as `/v2`; deprecated
+operations will include a documented migration period.
 
 The anonymous rate limit defaults to 120 requests per socket IP per minute;
 health and OPTIONS preflight requests do not count. JSON request bodies default

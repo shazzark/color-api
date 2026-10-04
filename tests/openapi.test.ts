@@ -34,6 +34,16 @@ describe("OpenAPI contract and runtime route schemas", () => {
   });
   afterAll(async () => { await app.close(); });
 
+  it("publishes the ChromaForge API identity without changing the versioned paths", async () => {
+    expect(OPENAPI_SPEC.info.title).toBe("ChromaForge API");
+    expect(OPENAPI_SPEC.info.version).toBe("1.0.0");
+    expect(Object.keys(OPENAPI_SPEC.paths)).toContain("/v1/colors/convert");
+    const docs = await app.inject({ method: "GET", url: "/docs" });
+    expect(docs.statusCode).toBe(200);
+    expect(docs.body).toContain("<title>ChromaForge API reference</title>");
+    expect(docs.body).toContain("<h1>ChromaForge API</h1>");
+  });
+
   it("registers every documented operation and accepts each documented request example", async () => {
     const ajv = new AjvModule.default({ allErrors: true, strict: false });
     for (const [path, methods] of Object.entries(OPENAPI_SPEC.paths)) {

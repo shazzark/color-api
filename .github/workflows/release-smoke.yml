@@ -38,7 +38,7 @@ jobs:
       - run: npm run perf:baseline
       - uses: actions/upload-artifact@v4
         with:
-          name: color-api-production-server-node24
+          name: chromaforge-production-server-node24
           path: |
             dist/release-bundle/**
             !dist/release-bundle/node_modules/**

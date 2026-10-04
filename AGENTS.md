@@ -2,7 +2,7 @@
 
 ## Project purpose
 
-Color API provides a deterministic, stateless color engine through a reusable ESM package and a versioned Fastify REST API. Read `prd.md` for product scope, `architecture.md` for technical boundaries, and `task.md` for current phase/status before major work.
+ChromaForge provides a deterministic, stateless color engine through the reusable `chromaforge` ESM package and a versioned Fastify REST API. Read `prd.md` for product scope, `architecture.md` for technical boundaries, and `task.md` for current phase/status before major work.
 
 ## Architecture boundaries
 

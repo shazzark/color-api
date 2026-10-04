@@ -268,10 +268,10 @@ export const OPENAPI_SPEC: OpenApiDocument = {
   openapi: "3.1.0",
   jsonSchemaDialect: "https://json-schema.org/draft/2020-12/schema",
   info: {
-    title: "Color API",
+    title: "ChromaForge API",
     version: "1.0.0",
-    description: "Versioned, anonymous API for deterministic color operations. The API is not yet publicly released; `/v1` request or response shapes may evolve before the first release. After public release, backward-incompatible changes use a new major API path; deprecated operations receive a documented migration period. JSON bodies default to 65,536 bytes and can be configured from 1,024 to 1,048,576 bytes. The in-process rate limit defaults to 120 requests per socket IP per 60 seconds; health and OPTIONS requests are excluded. Forwarded client-IP headers are ignored unless RATE_LIMIT_CLIENT_IP_HEADER explicitly selects one; only use that setting when trusted infrastructure overwrites the header and untrusted callers cannot reach the service. CORS allows only configured exact HTTP(S) origins and does not enable credentials.",
-    contact: { name: "Color API maintainers" }
+    description: "Versioned, anonymous API for deterministic ChromaForge color operations. This service is publicly deployed for verification, but API v1 is not formally released; its request or response shapes may evolve before the first release. After public release, backward-incompatible changes use a new major API path; deprecated operations receive a documented migration period. JSON bodies default to 65,536 bytes and can be configured from 1,024 to 1,048,576 bytes. The in-process rate limit defaults to 120 requests per socket IP per 60 seconds; health and OPTIONS requests are excluded. Forwarded client-IP headers are ignored unless RATE_LIMIT_CLIENT_IP_HEADER explicitly selects one; only use that setting when trusted infrastructure overwrites the header and untrusted callers cannot reach the service. CORS allows only configured exact HTTP(S) origins and does not enable credentials.",
+    contact: { name: "ChromaForge maintainers" }
   },
   "x-cors-preflight": { route: "OPTIONS /*", allowedStatus: 204, rejectedStatus: 403, rejectedResponse: errorRef, description: "An allowed or origin-free preflight returns 204. An origin outside the configured exact-origin allowlist returns 403 with CORS_ORIGIN_DENIED." },
   servers: [{ url: "/", description: "Current server origin" }],
