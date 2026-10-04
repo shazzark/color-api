@@ -360,9 +360,11 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 **TASK CHECKLIST:**
 
 - [x] Compare Cloud Run, Render, and Railway against cost, simplicity, regional availability, environment/secrets, logs, rate limiting, and health checks.
-- [x] Recommend Cloud Run in Johannesburg behind a load balancer and Cloud Armor for proximity to Nigerian users and a shared public per-client edge rate limit; document that internal Cloud Run ingress callers are trusted and can bypass Cloud Armor.
-- [x] Keep application architecture portable; add provider-specific configuration only in the Docker build and deployment documentation. Docker defaults to port 8080 and CI includes an image-level smoke.
-- [x] Document required internal workload/network governance, header replacement, edge throttling, cost estimates, rollback, and public deployment steps without credentials.
+- [x] Select Render for the low-traffic initial release; Frankfurt is the nearest listed region. Keep the prepared Cloud Run option documented and its Docker assets intact.
+- [x] Add a Render Blueprint that uses the existing production Docker build/start path, health endpoint, one free instance, and the explicit 120-per-minute process limiter.
+- [x] Accept free-tier spin-down/cold starts for the initial public/portfolio release; document always-on upgrade as the next step if real usage justifies it.
+- [x] Configure the Render-overwritten `CF-Connecting-IP` value for the existing limiter; retain socket-IP fallback and document that `X-Forwarded-For` is caller-spoofable.
+- [x] Document Render environment defaults, manual dashboard tasks, plan/cost, CORS allowlist setup, TLS/custom domain, logs, and rollback without credentials.
 - [ ] Configure environment values/secrets without committing credentials.
 - [ ] Deploy production build and configure custom API URL if available.
 - [ ] Reach public `/health` (and readiness if implemented) and smoke-test representative conversion, alpha, accessibility, batch, and error operations.
@@ -375,11 +377,11 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Local production smoke plus live public HTTP smoke and bounded concurrent check; verify actual response URLs/statuses.
 
-**VERIFICATION COMMANDS:** Focused hardening/OpenAPI tests (11 passed); `npm test` (225 tests, 14 files); `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations); `npm run release:smoke` (health, OpenAPI, alpha conversion, accessibility, batch, safe errors, and 20 concurrent requests); `git diff --check`. Docker image smoke is wired into CI but could not run locally because Docker is not installed. Public `curl` checks remain pending real deployment.
+**VERIFICATION COMMANDS:** After the Render Free plan update: `npm test` (225 tests, 14 files); `npm run typecheck`; `npm run build`; `npm run openapi:check` (20 operations); `npm run release:smoke` (health, OpenAPI, alpha conversion, accessibility, batch, safe errors, and 20 concurrent requests); Render Blueprint YAML parsed and free-plan/port/health/rate-limit settings asserted with the repository's `js-yaml`; `git diff --check`. Docker image smoke is wired into CI but could not run locally because Docker is not installed. Public `curl` checks remain pending Render deployment.
 
 **DOCUMENTATION UPDATES:** Publish API URL, environment/deploy instructions, limits, and incident/rollback steps.
 
-**GIT CHECKPOINT:** Deployment-preparation checkpoint records portable container configuration, host research, and trust assumptions; no secret values in Git. Phase remains in progress until provider authorization, a billing-enabled project, HTTPS domain, and public deployment are available.
+**GIT CHECKPOINT:** Render deployment configuration/docs checkpoint; preserve prior Cloud Run checkpoint `ad6e12d`. No credentials in Git. Phase remains in progress until Render service setup, public HTTPS deployment, and live smoke checks pass.
 
 **DEFINITION OF DONE:** Public API is reachable at its real URL and representative endpoints pass smoke checks. “Deployment ready” alone does not complete this phase.
 

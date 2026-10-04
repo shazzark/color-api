@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: color-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: checksPass
+    numInstances: 1
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: RATE_LIMIT_CLIENT_IP_HEADER
+        value: cf-connecting-ip
+      - key: RATE_LIMIT_MAX
+        value: "120"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "60000"
