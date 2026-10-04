@@ -51,11 +51,12 @@ The inspected repository currently has a Fastify server and separate `src/color/
 - `POST /v1/colors/tokens`
 - HEX/HEX8, RGB/RGBA, HSL/HSLA, HSV+A, OKLab+A, and OKLCH+A validation and conversion
 - WCAG 2.2 text contrast, contextual SC 1.4.11 non-text checks, explicit source-over compositing context, color metrics, deltaEOK, and deterministic foreground suggestions
-- Five deterministic fixed HSL palette strategies
+- Six deterministic HSL harmony strategies, including tetradic and configurable analogous counts
+- Seeded/unseeded bounded OKLCH generation, OKLCH manipulation and mixing, and stop-based perceptual scales in the domain layer; REST routes and public package exports follow in later phases
 - Single-color CSS custom-property tokens
 - Synchronous, ordered, atomic batch conversion of 1–100 colors
 
-Phase 2 implements full-precision transforms, alpha-aware normalization, OKLab/OKLCH conversion, and explicit CSS Color 4 local-MINDE sRGB gamut mapping in the framework-independent domain layer. Phase 3 adds context-specific WCAG evaluation and color analysis. Package exports, public deployment, OpenAPI, and CI remain in later phases. Stage 7 recovery is complete and checkpointed; see `task.md`.
+Phase 2 implements full-precision transforms, alpha-aware normalization, OKLab/OKLCH conversion, and explicit CSS Color 4 local-MINDE sRGB gamut mapping in the framework-independent domain layer. Phase 3 adds context-specific WCAG evaluation and color analysis. Phase 4 adds deterministic generation, manipulation, and scales in the domain layer. Package exports, public deployment, OpenAPI, and CI remain in later phases. Stage 7 recovery is complete and checkpointed; see `task.md`.
 
 ## Scope and roadmap
 

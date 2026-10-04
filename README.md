@@ -259,8 +259,11 @@ ratio is rounded to two decimal places only after threshold evaluation.
 Use `POST /v1/colors/palette` with a base color and one of the supported
 strategies. `outputFormat` is optional and defaults to `hex`.
 
-Supported strategies are `complementary`, `analogous`, `triadic`,
-`split-complementary`, and `monochromatic`.
+Supported strategies are `complementary`, `analogous`, `triadic`, `tetradic`,
+`split-complementary`, and `monochromatic`. Analogous palettes accept an
+optional `count` from 2 to 12 and distribute hues evenly across a 60-degree
+arc around the base hue. Other harmony strategies retain their defined fixed
+counts and ordering.
 
 ```json
 {
@@ -269,6 +272,7 @@ Supported strategies are `complementary`, `analogous`, `triadic`,
     "value": "#3498db"
   },
   "strategy": "analogous",
+  "count": 5,
   "outputFormat": "hex"
 }
 ```
@@ -300,15 +304,50 @@ Every generated color is returned as a discriminated color object:
 }
 ```
 
-Palette generation converts the validated base color to RGB, uses HSL for
+Palette generation normalizes the validated base to sRGB, uses HSL for
 palette mathematics, and converts each result to the requested output format.
-The fixed output sizes are 2 for complementary, 3 for analogous, triadic, and
-split-complementary, and 5 for monochromatic.
+Out-of-sRGB inputs are mapped during that normalization. Fixed output sizes
+are 2 for complementary, 3 for default analogous/triadic/split-complementary,
+4 for tetradic, and 5 for monochromatic. Analogous `count` changes its size.
 
 Monochromatic palettes preserve the base hue and saturation. For base
 lightness between `0` and `100`, their lightness values are
 `[0, l / 2, l, (l + 100) / 2, 100]`. At lightness `0` or `100`, the values are
 `[0, 25, 50, 75, 100]`.
+
+### Domain generation and manipulation operations
+
+The framework-independent domain also provides generation and manipulation
+operations. These are implemented under `src/color/operations.ts`; the public
+package exports are added in Phase 6, and REST routes are added in Phase 7.
+
+`generateColors(count, { seed, constraints })` returns 1–1000 OKLCH colors.
+Seeded calls return `algorithm: "mulberry32-v1"`; string seeds use 32-bit
+FNV-1a and integer seeds must be safe integers. Unseeded calls use
+`Math.random` and return `algorithm: "Math.random"`. Default ranges are L
+`[0,1]`, C `[0,0.4]`, and H `[0,360]`; hue 360 is equivalent to canonical hue
+0. Constraints can narrow each range.
+
+Manipulation functions name their operation space: `rotateHue`,
+`adjustLightness`, `adjustChroma`, and `adjustSaturation` operate in OKLCH;
+`grayscaleColor` sets chroma to zero; `invertColor` complements mapped encoded
+sRGB channels; `adjustAlpha` changes opacity while preserving the requested
+representation where possible. Lightness clamps to `[0,1]`, chroma clamps at
+zero, and saturation adjustment is a relative chroma delta (`0.5` adds 50%,
+`-1` removes all chroma).
+
+`mixColors(first, second, weight = 0.5, space = "oklab")` interpolates in
+premultiplied OKLab or encoded sRGB and returns a `ColorValue` in that space.
+`compositeColors(foreground, background, canvas?)` is a different operation:
+it performs encoded-sRGB `css-srgb-source-over` compositing and requires an
+opaque canvas when the background is translucent.
+
+`generateOklchScale(stops, count, outputFormat = "hex")` samples 2–10 ordered
+stops spanning positions 0 and 1, with non-decreasing lightness, at 2–101
+evenly spaced positions. Stops must share alpha. Each result includes its
+normalized position and conversion gamut-mapping metadata. `generateShades`,
+`generateTints`, and `generateTones` return conversion results in order: base
+to black, base to white, and base to a neutral at fixed lightness respectively.
 
 ### Create a color token
 

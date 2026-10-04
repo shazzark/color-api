@@ -32,6 +32,15 @@ const expectedStrategies: Array<{
     ]
   },
   {
+    strategy: "tetradic",
+    colors: [
+      { h: 350, s: 60, l: 40 },
+      { h: 80, s: 60, l: 40 },
+      { h: 170, s: 60, l: 40 },
+      { h: 260, s: 60, l: 40 }
+    ]
+  },
+  {
     strategy: "split-complementary",
     colors: [
       { h: 350, s: 60, l: 40 },
@@ -86,6 +95,11 @@ describe("generateHslPalette", () => {
       .toEqual([335, 5, 35]);
     expect(generateHslPalette({ h: 359, s: 40, l: 50 }, "triadic").map((color) => color.h))
       .toEqual([359, 119, 239]);
+  });
+
+  it("preserves alpha across hue and monochromatic palettes", () => {
+    expect(generateHslPalette({ h: 10, s: 50, l: 40, alpha: 0.4 }, "triadic").every((color) => color.alpha === 0.4)).toBe(true);
+    expect(generateHslPalette({ h: 10, s: 50, l: 40, alpha: 0.4 }, "monochromatic").every((color) => color.alpha === 0.4)).toBe(true);
   });
 
   it("preserves saturation and lightness for hue strategies", () => {

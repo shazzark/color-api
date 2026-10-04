@@ -18,6 +18,7 @@ describe("palette API endpoint", () => {
     "complementary",
     "analogous",
     "triadic",
+    "tetradic",
     "split-complementary",
     "monochromatic"
   ])("supports the %s strategy", async (strategy) => {
@@ -31,6 +32,7 @@ describe("palette API endpoint", () => {
     });
     const body = response.json();
     const expectedLength = strategy === "complementary" ? 2
+      : strategy === "tetradic" ? 4
       : strategy === "monochromatic" ? 5
         : 3;
 
@@ -44,6 +46,15 @@ describe("palette API endpoint", () => {
       && typeof color.value === "string"
       && /^#[\da-f]{6}$/.test(color.value)
     )).toBe(true);
+  });
+
+  it("accepts an analogous palette count", async () => {
+    const response = await app.inject({
+      method: "POST", url: "/v1/colors/palette",
+      payload: { base: { format: "hex", value: "#3498db" }, strategy: "analogous", count: 7 }
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().colors).toHaveLength(7);
   });
 
   it.each([
@@ -267,6 +278,26 @@ describe("palette API endpoint", () => {
       },
       code: "INVALID_REQUEST",
       message: "Invalid output format"
+    },
+    {
+      payload: { base: { format: "hex", value: "#ffffff" }, strategy: "analogous", count: 1 },
+      code: "INVALID_REQUEST",
+      message: "Analogous count must be an integer from 2 to 12"
+    },
+    {
+      payload: { base: { format: "hex", value: "#ffffff" }, strategy: "analogous", count: 13 },
+      code: "INVALID_REQUEST",
+      message: "Analogous count must be an integer from 2 to 12"
+    },
+    {
+      payload: { base: { format: "hex", value: "#ffffff" }, strategy: "analogous", count: 2.5 },
+      code: "INVALID_REQUEST",
+      message: "Analogous count must be an integer from 2 to 12"
+    },
+    {
+      payload: { base: { format: "hex", value: "#ffffff" }, strategy: "triadic", count: 3 },
+      code: "INVALID_REQUEST",
+      message: "count is only supported for analogous palettes"
     }
   ])("returns stable errors", async ({ payload, code, message }) => {
     const response = await app.inject({

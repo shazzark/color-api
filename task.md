@@ -4,10 +4,10 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 ## Current baseline
 
-- Existing core/API functionality: HEX/RGB/HSL/HSV validation and conversion, WCAG text contrast, five fixed palettes, one-color CSS tokens, health endpoint.
+- Existing core/API functionality: six-format alpha-aware validation/conversion, contextual WCAG 2.2 contrast, color analysis and suggestions, six harmony palettes, one-color CSS tokens, health endpoint. Phase 4 adds domain generation, manipulation, and scales.
 - Stage 7 batch conversion source/tests and related docs are staged. Treat as existing user work; do not recreate or overwrite it.
 - Current tests are in nine files and cover existing conversion, contrast, palette, token, route, and batch behavior. Vitest uses `forks`.
-- No package exports/declarations, OpenAPI, CI, public deployment, alpha, OKLab/OKLCH, scales, or expanded design outputs exist yet.
+- No package exports/declarations, OpenAPI, CI, public deployment, multi-color design outputs, or public API routes for Phase 4 generation/manipulation/scales exist yet.
 - Do not mark prior behavior complete without rerunning the required verification in the recovery phase.
 
 ## Phase 0 — Stage 7 recovery and Git hygiene
@@ -150,21 +150,21 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **OBJECTIVE:** Add deterministic operations useful for frontend and design-system work.
 
-**STATUS:** NOT STARTED
+**STATUS:** COMPLETE
 
 **DEPENDENCIES:** Phase 2; Phase 3 for accessibility-aware candidate checks.
 
 **TASK CHECKLIST:**
 
-- [ ] Implement seeded random color generation with documented/versioned PRNG and bounded constraints.
-- [ ] Support multiple generated colors while preserving seed reproducibility and order.
-- [ ] Define unseeded generation as explicitly nondeterministic.
-- [ ] Implement hue rotation, lightness/chroma/saturation adjustment, grayscale, invert, and alpha adjustment with named operation spaces.
-- [ ] Implement mix/interpolation and blend/compositing as distinct operations with explicit spaces and premultiplied-alpha behavior where needed.
-- [ ] Expand harmony palettes with tetradic and configurable offsets/counts where meaningful.
-- [ ] Implement monochromatic shades, tints, tones, and document differences/ordering.
-- [ ] Implement configurable deterministic OKLCH scales with stop semantics, monotonicity, and gamut mapping.
-- [ ] Keep simple fixed harmony strategies explicit; avoid registries and arbitrary plugin frameworks.
+- [x] Implement seeded random color generation with documented/versioned PRNG and bounded constraints.
+- [x] Support multiple generated colors while preserving seed reproducibility and order.
+- [x] Define unseeded generation as explicitly nondeterministic.
+- [x] Implement hue rotation, lightness/chroma/saturation adjustment, grayscale, invert, and alpha adjustment with named operation spaces.
+- [x] Implement mix/interpolation and blend/compositing as distinct operations with explicit spaces and premultiplied-alpha behavior where needed.
+- [x] Expand harmony palettes with tetradic and configurable offsets/counts where meaningful.
+- [x] Implement monochromatic shades, tints, tones, and document differences/ordering.
+- [x] Implement configurable deterministic OKLCH scales with stop semantics, monotonicity, and gamut mapping.
+- [x] Keep simple fixed harmony strategies explicit; avoid registries and arbitrary plugin frameworks.
 
 **SUBAGENTS TO USE:** Product reviewer; color-science reviewer; independent API usability reviewer.
 
@@ -172,13 +172,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TESTS REQUIRED:** Seed reproducibility/version vectors; constraint bounds; palette hue wrapping/counts; exact stop/order behavior; OKLCH scale monotonicity and gamut boundaries; manipulation reference values; mixing and alpha edge cases.
 
-**VERIFICATION COMMANDS:** `npm test`; `npm run typecheck`; `npm run build`.
+**VERIFICATION COMMANDS:** `npm test` (198 tests, 10 files); `npm run typecheck`; `npm run build`; `git diff --check`. Independent color-science review found and helped fix an 8-bit precision loss in encoded-sRGB inversion; API and product reviews found no remaining contract blocker.
 
 **DOCUMENTATION UPDATES:** Add operation examples and mathematical semantics to package/API docs; update roadmap and API types.
 
-**GIT CHECKPOINT:** Separate checkpoints for generation/manipulation and palette/scale if review size warrants.
+**GIT CHECKPOINT:** Phase 4 implementation checkpoint after final full-suite verification and diff review.
 
-**DEFINITION OF DONE:** Operations are deterministic when seeded, semantically explicit, bounded, and tested at boundaries and with reference values.
+**DEFINITION OF DONE:** Operations are deterministic when seeded, semantically explicit, bounded, and tested at boundaries and with reference values. Phase 4 is complete and checkpointed after independent review.
 
 ## Phase 5 — Multi-color design-system outputs
 

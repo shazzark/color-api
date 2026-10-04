@@ -236,3 +236,16 @@ export function colorToOklab(input: unknown): OklabColor {
   if (![raw.r, raw.g, raw.b, raw.alpha].every(Number.isFinite)) throw new InvalidColorError("Color conversion produced non-finite values");
   return { ...linearSrgbToOklab([raw.r, raw.g, raw.b]), ...(raw.alpha === 1 ? {} : { alpha: raw.alpha }) };
 }
+
+/** Converts full-precision encoded sRGB channels to a requested public format. */
+export function srgbChannelsToColor(
+  r: number, g: number, b: number, alpha: number, format: ColorFormat
+): ColorValue {
+  if (![r, g, b, alpha].every(Number.isFinite) || [r, g, b, alpha].some((value) => value < 0 || value > 1)) {
+    throw new InvalidColorError("sRGB channels and alpha must be in [0,1]");
+  }
+  if (!["hex", "rgb", "hsl", "hsv", "oklab", "oklch"].includes(format)) {
+    throw new InvalidColorError("Unsupported output color format");
+  }
+  return toPublic({ r: linearize(r), g: linearize(g), b: linearize(b), alpha }, format);
+}

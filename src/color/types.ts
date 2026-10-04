@@ -6,6 +6,7 @@ export type PaletteStrategy =
   | "complementary"
   | "analogous"
   | "triadic"
+  | "tetradic"
   | "split-complementary"
   | "monochromatic";
 

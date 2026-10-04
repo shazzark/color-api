@@ -15,6 +15,7 @@ import {
 interface PaletteRequest {
   base: unknown;
   strategy: string;
+  count?: unknown;
   outputFormat?: unknown;
 }
 
@@ -32,6 +33,7 @@ function isPaletteStrategy(value: string): value is PaletteStrategy {
   return value === "complementary"
     || value === "analogous"
     || value === "triadic"
+    || value === "tetradic"
     || value === "split-complementary"
     || value === "monochromatic";
 }
@@ -106,7 +108,14 @@ export async function paletteRoutes(app: FastifyInstance): Promise<void> {
 
     try {
       const base = parseBaseColor(request.body.base);
-      const palette = generateHslPalette(toHsl(base), request.body.strategy);
+      if (request.body.count !== undefined && request.body.strategy !== "analogous") {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "count is only supported for analogous palettes" } });
+      }
+      if (request.body.count !== undefined && (typeof request.body.count !== "number" || !Number.isInteger(request.body.count) || request.body.count < 2 || request.body.count > 12)) {
+        return reply.code(400).send({ error: { code: "INVALID_REQUEST", message: "Analogous count must be an integer from 2 to 12" } });
+      }
+      const count = request.body.count;
+      const palette = generateHslPalette(toHsl(base), request.body.strategy, count === undefined ? {} : { count });
       const colors = palette.map((hsl) => {
         const generated: ColorValue = { format: "hsl", value: hsl };
         const output = toOutputColor(generated, outputFormat);
