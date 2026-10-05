@@ -1,6 +1,6 @@
 {
   "name": "chromaforge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "ChromaForge deterministic color conversion, analysis, generation, and design token tools.",
   "author": "Daniel Nnam Chidozie",

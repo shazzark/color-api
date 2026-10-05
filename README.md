@@ -10,10 +10,9 @@ The root package exports only framework-independent color operations and types
 from `src/index.ts`. It emits ESM and TypeScript declarations under
 `dist/package/`; the Fastify app stays outside that export graph. Supported
 runtime support targets maintained Node.js LTS 22.x (22.12.0 or newer) and
-24.x; CI tests both lines. `.nvmrc` pins the local default to Node 24.21.0. The
-package is prepared as `chromaforge@1.0.0` under the MIT license, but has not
-been published. After publication, install it with `npm install chromaforge`
-and use named exports:
+24.x; CI tests both lines. `.nvmrc` pins the local default to Node 24.21.0.
+`chromaforge` is publicly available on npm under the MIT license. Install it
+with `npm install chromaforge` and use named exports:
 
 ```ts
 import { convertColor, generateColors, type ColorValue } from "chromaforge";
@@ -28,6 +27,10 @@ Run `npm run build`, `npm run package:types`, `npm run package:smoke`,
 `npm run package:tarball-smoke` to verify declarations, Node ESM resolution, and
 the actual staged `.tgz`. The staged package manifest has no server dependencies
 and includes the MIT license and author metadata without a public email address.
+The published `chromaforge@1.0.0` artifact was registry-verified and installed
+in a separate consumer directory; its ESM import exposed the expected public API.
+The 1.0.1 patch corrects release-status documentation only; it changes no runtime
+or API behavior.
 The production server emits separately to
 `dist/server/`; package source files stay under `dist/package/`. Run
 `npm run release:stage` followed by `npm run release:smoke`. The first stages the

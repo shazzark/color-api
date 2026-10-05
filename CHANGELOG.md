@@ -1,19 +1,29 @@
 # ChromaForge Changelog
 
-Changes to the public package follow Semantic Versioning once the first public
-release is authorized.
+Changes to the public package follow Semantic Versioning from the 1.0.0 release.
 
-## Unreleased — initial 1.0.0 preparation (not published)
+## 1.0.1 — Documentation patch
 
-- The selected public package identity is `chromaforge@1.0.0`, authored by
-  Daniel Nnam Chidozie and licensed under MIT.
-- The package has been prepared as a framework-independent ESM artifact with
-  declarations; it has not been published to npm.
-- The REST API is deployed at `https://color-api-9qdz.onrender.com` for
-  verification; its v1 contract remains pre-release until the owner releases it.
-- npm name availability, publisher permissions, and the provenance route must
-  be checked at the time of publication. Registry non-resolution is not a
-  reservation guarantee.
+- Correct the package README's release status and installation instructions.
+- Documentation and release metadata only; no public API or runtime behavior
+  changes.
+
+## 1.0.0 — 2026-10-04
+
+- First public release of the framework-independent ESM package and TypeScript
+  declarations as `chromaforge@1.0.0`, authored by Daniel Nnam Chidozie and
+  licensed under MIT.
+- Install with `npm install chromaforge`.
+- Registry metadata confirms the `latest` dist-tag points to `1.0.0`, the
+  package has no dependencies, and the published tarball matches the reviewed
+  artifact: SHA-1 `d6f94c034e5d9e8b584be99576d61fc70ccd3441`, SHA-512
+  `Q1NEfgAo6Q0Azyl4KWRdU2PsuEbvGyJaaDTmaFreRBnjfoOgkbU3f383A0MKOYc+lXJXaavy9hDtXn+OdQRyyQ==`
+  (90,400 unpacked bytes).
+- The exact published version was installed and imported successfully from a
+  separate consumer directory.
+- The REST API remains deployed at `https://color-api-9qdz.onrender.com` for
+  verification; API v1 remains pre-release and is not represented as part of
+  this npm package release.
 
 ### Versioning policy
 
