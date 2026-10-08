@@ -27,10 +27,10 @@ Run `npm run build`, `npm run package:types`, `npm run package:smoke`,
 `npm run package:tarball-smoke` to verify declarations, Node ESM resolution, and
 the actual staged `.tgz`. The staged package manifest has no server dependencies
 and includes the MIT license and author metadata without a public email address.
-The published `chromaforge@1.0.0` artifact was registry-verified and installed
-in a separate consumer directory; its ESM import exposed the expected public API.
-The 1.0.1 patch corrects release-status documentation only; it changes no runtime
-or API behavior.
+The published `chromaforge@1.0.1` artifact was registry-verified and installed
+in a separate consumer directory; its ESM import exposed 52 exports, including
+`convertColor`. This documentation patch changes no runtime behavior. The
+separately deployed REST API `/v1` contract remains pre-release.
 The production server emits separately to
 `dist/server/`; package source files stay under `dist/package/`. Run
 `npm run release:stage` followed by `npm run release:smoke`. The first stages the

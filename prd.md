@@ -3,7 +3,7 @@
 ## Product identity
 
 - **Name:** ChromaForge
-- **Public npm package:** `chromaforge`, MIT license. Version `1.0.0` was published on npm on 2026-10-04; documentation-only patch `1.0.1` is being prepared. See `CHANGELOG.md` for release history.
+- **Public npm package:** `chromaforge@1.0.1`, MIT license, published on npm. See `CHANGELOG.md` for release history.
 - **Mission:** Provide developers with a dependable toolkit for color conversion, validation, analysis, accessibility, generation, manipulation, palettes, scales, and design-system output.
 - **Product surfaces:** A reusable JavaScript/TypeScript package and a public versioned REST API share one deterministic color engine. A website will follow this development cycle and consume those surfaces. AI-assisted workflows are future work.
 
@@ -58,7 +58,7 @@ The inspected repository currently has a Fastify server and separate `src/color/
 - Single-color CSS custom-property tokens and domain serializers for ordered multi-color CSS/SCSS, structured JSON, JavaScript/TypeScript objects, and Tailwind-compatible data
 - Synchronous, ordered, atomic batch conversion of 1–100 colors
 
-Phases 2–8 established the color engine, package exports, API hardening, and OpenAPI/developer documentation. Phase 9 CI/release checks and Phase 10 deployment are complete. ChromaForge `1.0.0` was published to npm on 2026-10-04; the documentation-only `1.0.1` patch candidate is being prepared and has not been published. The Render-hosted API is available at `https://color-api-9qdz.onrender.com` for verification; its `/v1` API contract remains pre-release. See `task.md` for current phase status.
+Phases 2–8 established the color engine, package exports, API hardening, and OpenAPI/developer documentation. Phase 9 CI/release checks, Phase 10 deployment, and Phase 11 package release are complete. ChromaForge `1.0.1` is published to npm and externally consumer-verified. The Render-hosted API is available at `https://color-api-9qdz.onrender.com` for verification; its `/v1` API contract remains pre-release. See `task.md` for current phase status.
 
 ## Scope and roadmap
 
@@ -179,8 +179,8 @@ Automatic semantic light/dark role assignment is deferred. Current scale and con
 - The built package can be imported by Node and passes real browser compatibility checks before browser support is claimed.
 - CI passes; a package consumer check passes; OpenAPI matches the routes.
 - The hosted public API URL is reached and smoke-tested successfully.
-- The public package is installable with `npm install chromaforge`; `1.0.0` was registry- and consumer-verified, and `1.0.1` contains documentation/release-metadata corrections only.
+- The public package is installable with `npm install chromaforge`; `1.0.1` is registry- and consumer-verified and contains documentation/release-metadata corrections only.
 
 ## Release strategy
 
-Phases 0–10 are complete and checkpointed. Phase 11 published `chromaforge@1.0.0` under MIT and verified registry metadata and an isolated consumer installation. A documentation-only `1.0.1` patch is now being prepared to correct the stale release wording in the immutable 1.0.0 npm README; do not publish until its candidate passes verification and receives the separate release authorization. API v1 remains a pre-release contract until separately released. Keep commits focused and checkpointed.
+Phases 0–11 are complete and checkpointed. `chromaforge@1.0.1` is published under MIT; registry metadata, its approved tarball digest, and an external exact-version consumer install/import were verified. The patch corrects stale release wording in the immutable 1.0.0 npm README and changes no runtime behavior. API v1 remains a pre-release contract until separately released. Keep commits focused and checkpointed.
