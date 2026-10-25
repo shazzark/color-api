@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PhasePlaceholder } from "@/components/phase-placeholder";
+import { ApiReference } from "@/features/docs/api-reference";
+import { PackageGuide } from "@/features/docs/package-guide";
 import { documentationRoutes } from "@/lib/site-navigation";
 
 interface DocumentationPageProps {
@@ -26,6 +28,9 @@ export default async function DocumentationPage({ params }: DocumentationPagePro
   const { section } = await params;
   const route = getSection(section);
   if (!route) notFound();
+
+  if (section === "package") return <PackageGuide />;
+  if (section === "api") return <ApiReference />;
 
   return (
     <PhasePlaceholder

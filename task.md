@@ -437,7 +437,8 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 **TASK CHECKLIST:**
 
 - [x] Website foundation: Phase 13 built the approved isolated `web/` shell and static route placeholders; see [docs/website](docs/website/README.md).
-- [ ] Website tools and docs: local color tools, accessibility/analysis/token journeys, package documentation, and API playground remain in proposed Phases 14–16. Phase 17 release readiness is also proposed; none is authorized.
+- [x] Website tools and documentation implementation: Phases 14–15 are complete, and Phase 16 package guide, OpenAPI reference, and fixed-origin playground implementation and mocked browser verification are complete. Phase 16 remains open for exact-origin CORS and live browser/API verification after the website domain is selected.
+- [ ] Phase 17 website release readiness remains proposed and unauthorized.
 - [ ] AI: define validated operation-plan schema and privacy/cost policy before any provider integration.
 - [ ] AI: ensure model output only selects deterministic engine operations and verified results.
 - [ ] Persistence: design separately only if website use cases require saved projects/accounts/sharing.
@@ -464,7 +465,7 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **SCOPE:** Proposed website MVP, product requirements, technical requirements, app flow, architecture, design system, implementation phases, and task checklist are in [docs/website](docs/website/README.md).
 
-**DECISIONS RECORDED:** Approved MVP/tools and journeys; isolated `web/` app; Next.js App Router/TypeScript/Tailwind; published package for local tools; `/v1` visibly pre-release; no database/auth; Vercel initial host; approved theme and visual direction. Domain remains unselected and will be needed before Phase 17 CORS/deployment verification.
+**DECISIONS RECORDED:** Approved MVP/tools and journeys; isolated `web/` app; Next.js App Router/TypeScript/Tailwind; published package for local tools; `/v1` visibly pre-release; no database/auth; Vercel initial host; approved theme and visual direction. Domain remains unselected and is needed for Phase 16 exact-origin CORS/browser verification and Phase 17 deployment verification.
 
 **RESTRICTIONS:** This planning checkpoint does not implement the app, change package/API behavior, install dependencies, deploy, publish, modify Git history, or mark website delivery phases complete.
 

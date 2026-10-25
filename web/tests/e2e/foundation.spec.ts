@@ -11,10 +11,11 @@ test("homepage explains the product without unsupported claims", async ({ page }
   await expect(page.getByRole("link", { name: /API playground pre-release API/i })).toBeVisible();
 });
 
-test("planned documentation routes render an explicit phase state", async ({ page }) => {
+test("API documentation route renders the contract and its pre-release status", async ({ page }) => {
   await page.goto("/docs/api/");
-  await expect(page.getByRole("heading", { level: 1, name: "API reference" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("planned for Phase 16");
+  await expect(page.getByRole("heading", { level: 1, name: "API reference", exact: true })).toBeVisible();
+  await expect(page.locator(".api-operation")).toHaveCount(20);
+  await expect(page.locator(".status-tag", { hasText: "/v1 PRE-RELEASE" }).first()).toBeVisible();
 });
 
 test("mobile navigation and tool links remain keyboard reachable", async ({ page }) => {

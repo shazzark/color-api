@@ -26,6 +26,13 @@ const server = createServer((request, response) => {
     return;
   }
 
+  if (pathname === "/__playwright_shutdown") {
+    response.writeHead(204).end();
+    clearTimeout(shutdownTimer);
+    setImmediate(() => server.close(() => process.exit(0)));
+    return;
+  }
+
   const relativePath = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
   const routePath = resolve(root, relativePath);
   const candidates = [
@@ -46,8 +53,8 @@ const server = createServer((request, response) => {
 let shutdownTimer;
 function scheduleShutdown() {
   clearTimeout(shutdownTimer);
-  // Release Playwright's Windows webServer child after browser traffic stops.
-  shutdownTimer = setTimeout(() => server.close(() => process.exit(0)), 15_000);
+  // Fallback cleanup for interrupted Playwright runs; normal teardown uses the local shutdown route.
+  shutdownTimer = setTimeout(() => server.close(() => process.exit(0)), 120_000);
 }
 
 server.listen(3100, "127.0.0.1", scheduleShutdown);

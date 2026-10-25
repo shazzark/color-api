@@ -1,6 +1,6 @@
 # ChromaForge website implementation plan
 
-**Status: Phases 12–15 complete; Phases 16–17 proposed and not authorized.**
+**Status: Phases 12–15 complete; Phase 16 implementation is complete with exact-origin CORS and live browser verification pending; Phase 17 deployment preparation is recorded, and launch remains unauthorized.**
 
 ## Phase 12 — Product and architecture planning (complete)
 
@@ -54,8 +54,9 @@ successfully. Root `npm test` passed all 226 tests with a 20-second CLI
 timeout after the default 5-second timeout proved too short for the OpenAPI
 example test in this environment; root typecheck, build, and OpenAPI check
 passed.
-Independent review found no blocking issues. Production domain, deployment,
-and API CORS remain deferred to Phase 17.
+Independent review found no blocking issues. The production hostname is to be
+assigned by Vercel; exact-origin API CORS and browser integration verification
+are Phase 16 acceptance work. Website deployment and launch are Phase 17 work.
 
 **Definition of done:** COMPLETE. Phase 13 was recorded in local commit after
 review; Phases 14–17 remain unauthorized.
@@ -168,7 +169,7 @@ Chromium; automated axe results do not establish full WCAG conformance.
 review, final diff inspection, and focused local checkpoint. Phases 16–17
 remain unauthorized.
 
-## Phase 16 — API reference, package docs, and playground
+## Phase 16 — API reference, package docs, and playground (implementation complete; live integration pending)
 
 **Objective:** Make the existing package and HTTP contract easy to discover and
 try without altering either contract.
@@ -184,7 +185,9 @@ launch messaging.
 reference; the playground editor sends only documented `/v1` operations;
 requests target only configured ChromaForge API; explicit Send/cancel/timeout
 and safe error states work; examples validate against current package/API
-docs; CORS is configured for exact production origin before browser smoke.
+docs; CORS is configured for the exact assigned HTTPS production origin before
+live browser smoke. Implementation and mocked browser checks pass; exact-origin
+CORS and live browser-to-API evidence remain outstanding.
 
 **Verification:** Contract/example checks; mocked timeout/error cases; browser
 smoke against a controlled API test instance; authorized live public smoke
@@ -217,3 +220,7 @@ smoke, and final review of generated artifacts and Git diff.
 **Definition of done:** Website MVP is publicly reachable and documented, all
 approved journeys and release checks pass, and a focused Git checkpoint is
 created only when the user authorizes the release/checkpoint actions.
+
+See the [Phase 17 deployment runbook](deployment-runbook.md) for the proposed
+Vercel settings, Render CORS change, smoke tests, push side effects, and
+rollback steps. It is preparation only; no provider configuration was changed.

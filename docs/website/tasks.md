@@ -1,7 +1,6 @@
 # ChromaForge website phase checklist
 
-**Status: Phases 12–15 complete.** Phases 16–17 remain proposed and
-unauthorized. Work must stop at a failed phase definition of done.
+**Status: Phases 12–15 complete; Phase 16 implementation complete with exact-origin CORS verification pending; Phase 17 remains proposed and unauthorized.** Work must stop at a failed phase definition of done.
 
 ## Phase 12 — Planning handoff (complete)
 
@@ -150,34 +149,44 @@ pair result; preserve input on recoverable errors. Analysis explains package
 metrics and does not invent a `deltaEOK` pass/fail threshold.
 
 **Done when:** COMPLETE after all Phase 15 checks, independent review, final
-diff inspection, and a focused local checkpoint. Phase 16 remains unauthorized.
+diff inspection, and a focused local checkpoint.
 
-## Phase 16 — Documentation and API playground (not started)
+## Phase 16 — Documentation and API playground (implementation complete; CORS verification pending)
 
 **Candidate files:** `web/features/playground/**`, `web/features/docs/**`,
 `web/lib/api-client/**`, OpenAPI-generated/validated metadata and tests.
 
-- [ ] Generate operation index and request examples from OpenAPI.
-- [ ] Build package quickstart and guide from existing public exports/docs.
-- [ ] Build reference views for all documented OpenAPI operations and a JSON
+- [x] Generate operation index and request examples from OpenAPI.
+- [x] Build package quickstart and guide from existing public exports/docs.
+- [x] Build reference views for all documented OpenAPI operations and a JSON
   request editor for documented `/v1` operations only.
-- [ ] Restrict requests to fixed API origin and known paths; require explicit
-  send and support timeout/cancellation.
-- [ ] Display pre-release status and copyable curl/fetch snippets.
+- [x] Restrict requests to fixed API origin and known paths; require explicit
+  send, reject redirects, and support timeout/cancellation.
+- [x] Display pre-release status and copyable curl/fetch snippets.
 - [ ] Configure exact-origin CORS for approved website origin before browser
-  integration verification.
+  integration verification; production domain is still unselected.
 
-**Tests:** OpenAPI drift check, examples contract checks, no arbitrary URL,
-network/timeout/error tests, safe rendering, integration smoke.
+**Verification:** Web typecheck and lint passed; static production build and
+all 25 Chromium Playwright tests passed. Tests cover all 20 OpenAPI operations,
+all 17 documented POST `/v1` playground operations and request examples,
+package guide examples, restricted URLs/origins, redirect rejection, explicit
+send, request/response byte limits, timeout, HTTP/network errors, safe text
+rendering, keyboard use, 320/390/768/1280px layouts, and axe scans in both
+themes. Root `npm test` passed (226 tests), root typecheck and build passed,
+and `git diff --exit-code -- openapi.json` confirmed no generated contract
+drift. Browser requests were mocked; live CORS/API integration remains pending
+the production website origin.
 
 **Risk controls:** no API proxy, arbitrary host input, client-side secrets, or
 unescaped response rendering.
 
-**Done when:** users can safely try current documented `/v1` operations, all
-documented OpenAPI operations are discoverable in the reference, and examples
-remain contract-aligned.
+**Done when:** implementation and local verification are complete. The phase
+remains open until exact-origin CORS is configured for the approved website
+origin and a real browser-to-API smoke test passes.
 
 ## Phase 17 — Release readiness (not started)
+
+See the [deployment runbook](deployment-runbook.md) for an actionable checklist.
 
 **Candidate files:** web deployment config/workflow, `docs/website` release and
 rollback notes, browser/E2E/a11y/performance checks.

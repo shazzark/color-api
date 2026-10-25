@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { PhasePlaceholder } from "@/components/phase-placeholder";
+import { ApiPlayground } from "@/features/playground/api-playground";
+import { apiOriginConfiguration } from "@/lib/api-origin";
+import { getDocumentedLimits, getPlaygroundOperations } from "@/lib/openapi-source";
 
 export const metadata: Metadata = {
   title: "API playground",
@@ -7,16 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function PlaygroundPage() {
+  const operations = getPlaygroundOperations();
+  const limits = getDocumentedLimits();
   return (
-    <div className="single-page-shell">
-      <PhasePlaceholder
-        description="Explore the documented HTTP operations and review request and response examples."
-        href="/docs/api"
-        label="API playground"
-        phase={16}
-        kind="API playground"
-      />
-      <p className="release-note"><strong>API status:</strong> The existing `/v1` contract is pre-release.</p>
-    </div>
+    <ApiPlayground operations={operations} apiOrigin={apiOriginConfiguration} maxRequestBytes={limits.defaultBodyBytes} />
   );
 }

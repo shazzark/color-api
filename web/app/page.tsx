@@ -46,7 +46,7 @@ export default function HomePage() {
             <p className="eyebrow">THE WORKBENCH</p>
             <h2 id="tools-title">Start with a color task.</h2>
           </div>
-          <p>Available tools run the published package in your browser. Other tool routes show their planned phase.</p>
+          <p>Available tools run the published package in your browser. Each tool route describes its operation and inputs.</p>
         </div>
         <ToolIndex />
       </section>
@@ -62,7 +62,7 @@ export default function HomePage() {
           <pre><code>npm install chromaforge</code></pre>
           <div className="install-panel__links">
             <a href="https://www.npmjs.com/package/chromaforge">Package details <span aria-hidden="true">↗</span></a>
-            <a href="https://color-api-9qdz.onrender.com/docs">API reference <span aria-hidden="true">↗</span></a>
+            <Link href="/docs/api/">API reference <span aria-hidden="true">↗</span></Link>
           </div>
           <p className="api-status"><span className="status-indicator" aria-hidden="true" /> The public API `/v1` contract is pre-release.</p>
         </div>

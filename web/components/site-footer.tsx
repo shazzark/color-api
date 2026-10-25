@@ -10,10 +10,10 @@ export function SiteFooter() {
         </div>
         <nav aria-label="Developer resources">
           <a href="https://www.npmjs.com/package/chromaforge">npm package</a>
-          <a href="https://color-api-9qdz.onrender.com/docs">API documentation</a>
+          <Link href="/docs/api/">API reference</Link>
           <Link href="/playground">API playground <span className="status-tag">pre-release API</span></Link>
         </nav>
-        <p className="site-footer__note">Eight local color tools are available. The API playground and documentation remain on their planned routes.</p>
+        <p className="site-footer__note">Eight local color tools, package documentation, API reference, and a pre-release API playground are available.</p>
       </div>
     </footer>
   );
