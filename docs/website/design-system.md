@@ -53,6 +53,10 @@ help identify real color operations.
   avoid a runtime third-party font request. Keep body copy comfortably sized
   and line lengths near 60–75 characters.
 
+Phase 13 uses Geist Sans/Geist Mono and Inter as preferred installed-family
+names with system UI and monospace fallbacks. It does not make external font
+requests. No font files are bundled until their source and license are verified.
+
 ## Candidate semantic tokens
 
 These establish a direction only; calculate and document WCAG contrast for

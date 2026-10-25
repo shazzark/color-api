@@ -1,8 +1,7 @@
 # ChromaForge website phase checklist
 
-**Status: Phase 12 approved and complete; Phase 13 authorized.** Phases 14–17
-remain proposed and unauthorized. Work must stop at a failed phase definition
-of done.
+**Status: Phases 12–13 complete.** Phases 14–17 remain proposed and
+unauthorized. Work must stop at a failed phase definition of done.
 
 ## Phase 12 — Planning handoff (complete)
 
@@ -22,27 +21,40 @@ of done.
 - [x] Record Phase 13 implementation authorization; do not advance to Phases
   14–17.
 
-## Phase 13 — Web foundation and shell (authorized; in progress)
+## Phase 13 — Web foundation and shell (complete)
 
 **Candidate files:** `web/package.json`, `web/package-lock.json`, `web/tsconfig.json`,
 `web/next.config.*`, `web/postcss.config.*`, `web/app/**`, `web/components/**`,
 `web/styles/**`, and web-specific CI configuration.
 
-- [ ] Add isolated Next.js App Router app with Tailwind and no root workspace.
-- [ ] Add tokenized light/dark themes, semantic shell, responsive nav, and
+- [x] Add isolated Next.js App Router app with Tailwind and no root workspace.
+- [x] Add tokenized light/dark themes, semantic shell, responsive nav, and
   feedback/error boundaries.
-- [ ] Prove root package/API build, package contents, and CI remain unchanged.
-- [ ] Add web-specific install/lint/typecheck/test/build commands.
-- [ ] Verify static output and responsive keyboard navigation.
+- [x] Prove root package/API source, manifest, lockfile, exports, and API
+  behavior remain unchanged; root tests, typecheck, build, and OpenAPI check pass.
+- [x] Add web-specific install/lint/typecheck/test/build commands.
+- [x] Verify static output, theme persistence, keyboard navigation, responsive
+  layout at 320/390/768/1280px, and homepage axe checks.
 
-**Tests:** shell/component tests, theme tests, route rendering, keyboard and
-responsive smoke, independent production build.
+**Tests:** 5 Chromium Playwright scenarios cover homepage content, planned route
+states, keyboard-opened mobile navigation, theme persistence, responsive
+overflow, and homepage axe checks. Web typecheck, lint, and static production
+build pass. All Playwright cases passed in the final serial-worker run; on this
+Windows runner the CLI stayed alive after reporting all five results and was
+stopped after test completion. A clean `npm ci` attempt did not return a
+completion result; the earlier isolated `npm install` completed and the final
+installed dependency tree passed the production build. Root `npm test` initially
+exceeded the existing 5-second timeout for the OpenAPI example test; all 226
+tests passed when rerun with a
+20-second CLI timeout. Root test configuration and source were not changed.
 
 **Risk controls:** separate manifest/lock, no root `package.json` changes,
 no secrets, static-first rendering.
 
-**Done when:** web app builds in isolation and the existing package/API
-verification remains green.
+**Done when:** complete. Static export produced 15 routes; web typecheck, lint,
+production build, browser scenarios, and root package/API verification passed.
+The independent review found no blockers. The homepage screenshot is available
+as a local review artifact at `web/phase13-homepage-desktop.png`.
 
 ## Phase 14 — Local tools (not started)
 

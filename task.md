@@ -424,9 +424,9 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **GIT CHECKPOINT:** Create a focused local documentation checkpoint after final review. Do not push, publish, tag, or create a GitHub release.
 
-**DEFINITION OF DONE:** COMPLETE. Independent reviews, local release gates, package/browser checks, Node 22/24 CI, public API smoke, npm publication/metadata, and exact-version external consumer installation/import all passed. The published `1.0.1` tarball SHA-1 matches the approved candidate. Preserve the existing Render hostname and GitHub repository identifiers. HSTS/CSP remain absent and are not configured guarantees. The documented `CF-Connecting-IP` evidence still does not prove the forwarded value on an accepted request; this trust-boundary limitation remains. Other browser engines remain unverified. See deployment notes. API `/v1` remains pre-release. Phase 12 website/AI work remains FUTURE and is not started.
+**DEFINITION OF DONE:** COMPLETE. Independent reviews, local release gates, package/browser checks, Node 22/24 CI, public API smoke, npm publication/metadata, and exact-version external consumer installation/import all passed. The published `1.0.1` tarball SHA-1 matches the approved candidate. Preserve the existing Render hostname and GitHub repository identifiers. HSTS/CSP remain absent and are not configured guarantees. The documented `CF-Connecting-IP` evidence still does not prove the forwarded value on an accepted request; this trust-boundary limitation remains. Other browser engines remain unverified. See deployment notes. API `/v1` remains pre-release. Website Phase 12 planning and Phase 13 foundation are now complete; later website work remains future.
 
-## Future work — website and AI
+## Future work — website tools and AI
 
 **OBJECTIVE:** Keep future projects enabled without expanding this cycle.
 
@@ -436,8 +436,8 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TASK CHECKLIST:**
 
-- [ ] Website: build the approved separate web app consuming the browser-tested package and public API. Phase 13 is authorized; see [docs/website](docs/website/README.md). Phases 14–17 remain unauthorized.
-- [ ] Website tools: conversion, generation, palettes/scales, accessibility, analysis, manipulation, design tokens, docs, playground.
+- [x] Website foundation: Phase 13 built the approved isolated `web/` shell and static route placeholders; see [docs/website](docs/website/README.md).
+- [ ] Website tools and docs: local color tools, accessibility/analysis/token journeys, package documentation, and API playground remain in proposed Phases 14–16. Phase 17 release readiness is also proposed; none is authorized.
 - [ ] AI: define validated operation-plan schema and privacy/cost policy before any provider integration.
 - [ ] AI: ensure model output only selects deterministic engine operations and verified results.
 - [ ] Persistence: design separately only if website use cases require saved projects/accounts/sharing.
@@ -454,13 +454,13 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **GIT CHECKPOINT:** Separate project/release checkpoints.
 
-**DEFINITION OF DONE:** Future work remains outside the stateless deterministic engine until separately authorized and planned. Website Phase 12 planning is approved and complete; only Phase 13 implementation is currently authorized.
+**DEFINITION OF DONE:** Future work remains outside the stateless deterministic engine until separately authorized and planned. Website Phase 12 planning and Phase 13 foundation are complete; Phases 14–17 remain proposed and unauthorized.
 
-## Phase 12 — Website planning handoff (draft)
+## Phase 12 — Website planning handoff (complete)
 
 **OBJECTIVE:** Define a complete user-facing website cycle while preserving the completed package/API phases.
 
-**STATUS:** COMPLETE — website MVP and architecture approved; Phase 13 is authorized.
+**STATUS:** COMPLETE — website MVP and architecture approved; Phase 13 foundation is complete.
 
 **SCOPE:** Proposed website MVP, product requirements, technical requirements, app flow, architecture, design system, implementation phases, and task checklist are in [docs/website](docs/website/README.md).
 
@@ -468,4 +468,4 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **RESTRICTIONS:** This planning checkpoint does not implement the app, change package/API behavior, install dependencies, deploy, publish, modify Git history, or mark website delivery phases complete.
 
-**HANDOFF:** Phase 13 web foundation is authorized. Phases 14–17 remain proposed and must not begin without further authorization.
+**HANDOFF:** Phase 13 web foundation is complete. Phases 14–17 remain proposed and must not begin without further authorization.

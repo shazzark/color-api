@@ -1,0 +1,8 @@
+.next/
+out/
+*.tsbuildinfo
+phase13-homepage-*.png
+playwright-report/
+test-results/
+playwright/.cache/
+.vercel/

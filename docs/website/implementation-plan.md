@@ -1,6 +1,6 @@
 # ChromaForge website implementation plan
 
-**Status: Phase 12 complete; Phase 13 authorized; Phases 14–17 proposed and not authorized.**
+**Status: Phases 12–13 complete; Phases 14–17 proposed and not authorized.**
 
 ## Phase 12 — Product and architecture planning (complete)
 
@@ -21,7 +21,7 @@ review, and scope consistency review. No app tests/build apply to planning.
 **Definition of done:** Planning package is reviewed and approved. No website
 implementation phase is marked complete by this planning phase.
 
-## Phase 13 — Isolated web foundation and shell
+## Phase 13 — Isolated web foundation and shell (complete)
 
 **Objective:** Create the `web/` Next.js App Router application and core shell.
 
@@ -38,8 +38,27 @@ web app installs/builds independently; all routes render in light/dark modes;
 responsive navigation is keyboard-operable; no authentication, database, API
 proxy, or runtime secrets are introduced.
 
-**Verification:** Clean isolated install, lint/typecheck, unit/component tests,
-production static build and preview; keyboard, reflow, and theme smoke checks.
+**Verification:** Isolated dependency install, lint/typecheck, unit/component
+tests, production static build and preview; keyboard, reflow, and theme smoke
+checks.
+
+**Result:** Implemented under `web/` with an independent manifest and lockfile.
+Next.js static export generated 15 routes. Isolated typecheck, lint, and build
+passed. Five Chromium Playwright scenarios passed, covering route states,
+keyboard-operated mobile navigation, theme persistence, responsive overflow at
+320/390/768/1280px, and homepage axe checks. The Playwright CLI remained alive
+after reporting all five tests as passed on Windows and was stopped after test
+completion. A later clean `npm ci` attempt did not return a completion result;
+the earlier isolated `npm install` completed and the final installed tree built
+successfully. Root `npm test` passed all 226 tests with a 20-second CLI
+timeout after the default 5-second timeout proved too short for the OpenAPI
+example test in this environment; root typecheck, build, and OpenAPI check
+passed.
+Independent review found no blocking issues. Production domain, deployment,
+and API CORS remain deferred to Phase 17.
+
+**Definition of done:** COMPLETE. Phase 13 was recorded in local commit after
+review; Phases 14–17 remain unauthorized.
 
 ## Phase 14 — Local color tools
 

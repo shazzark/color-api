@@ -62,26 +62,28 @@ existing src/color/* → existing package build and Fastify API
 
 ## Rendering and deployment
 
-The proposed site is mostly static documentation plus client-only tools and
-client-to-API playground calls. Prefer Next.js static export if route and build
-requirements remain compatible; it avoids a persistent website server and has
-no website secrets. If a needed feature requires dynamic server behavior, make
-that an explicit architecture review rather than silently adding a proxy.
+The site is mostly static documentation plus client-only tools and client-to-API
+playground calls. Phase 13 verified that the current App Router shell and its
+15 routes build with Next.js static export, so a persistent website server is
+not needed for the foundation. If a later feature requires dynamic server
+behavior, make that an explicit architecture review rather than silently
+adding a proxy.
 
-No hosting provider or domain is selected. Deployment requirements are a static
-HTTPS host, immutable asset delivery, route fallback/asset correctness,
-website security headers, and an exact-origin API CORS entry. Keep the existing
-Render API deployment independent. Preview origins must be explicitly
-allow-listed or preview API calls disabled. Verify deployed tool use and
-playground preflight/request behavior before launch.
+Vercel is the approved initial host; the production domain is not selected.
+Deployment requirements are a static HTTPS host, immutable asset delivery,
+route fallback/asset correctness, website security headers, and an exact-origin
+API CORS entry. Keep the existing Render API deployment independent. Preview
+origins must be explicitly allow-listed or preview API calls disabled. Verify
+deployed tool use and playground preflight/request behavior before launch.
 
 ## Technology references
 
 The current official Next.js docs describe App Router layouts/pages as Server
 Components by default and recommend Client Components for state, event handlers,
-and browser APIs; static export is an available deployment mode. Tailwind's
-official Next.js guide uses a PostCSS integration. Verify exact versions and
-static-export constraints when implementation begins:
+and browser APIs; static export is an available deployment mode and Phase 13
+successfully built the current shell in that mode. Tailwind's official Next.js
+guide uses a PostCSS integration. The isolated app pins Next.js 16.4.3, React
+19.3.1, and Tailwind CSS 4.3.3:
 
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [Next.js Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)

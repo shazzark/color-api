@@ -1,12 +1,13 @@
 # ChromaForge website cycle
 
-**Status: Phase 12 complete; Website MVP scope and Phase 13 are approved.**
+**Status: Phases 12–13 complete; Phases 14–17 await approval.**
 
-This is the Phase 12 planning handoff for a user-facing ChromaForge website. It
-does not change the released package/API scope or mark future website delivery
-phases complete. Phase 13 is the only implementation phase currently
-authorized. The website should consume the existing
-`chromaforge@1.0.1` package and public API; it must not reimplement color math.
+This is the Phase 12 planning handoff and Phase 13 implementation record for a
+user-facing ChromaForge website. It does not change the released package/API scope or mark future website delivery
+phases complete. Phase 13 was the only implementation phase authorized in
+this cycle, and its foundation checkpoint is complete. The website should
+consume the existing `chromaforge@1.0.1` package and public API; it must not
+reimplement color math.
 
 ## Planning documents
 
@@ -38,6 +39,11 @@ temporary text wordmark; static export only if compatible.
 The production domain is not selected. Exact production CORS configuration and
 deployment remain Phase 17 work and are not Phase 13 blockers. API CORS must
 not be changed during Phase 13.
+
+Phase 13 delivered the responsive static shell and route placeholders. The
+interactive color tools, package guides, API reference, and playground are
+planned for later phases and are not implemented. See [the Phase 13 checklist](tasks.md#phase-13--web-foundation-and-shell-complete)
+for verification results and limitations.
 
 ## Evidence and proposals
 
