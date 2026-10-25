@@ -11,11 +11,7 @@ test("homepage explains the product without unsupported claims", async ({ page }
   await expect(page.getByRole("link", { name: /API playground pre-release API/i })).toBeVisible();
 });
 
-test("planned tool and documentation routes render an explicit phase state", async ({ page }) => {
-  await page.goto("/tools/contrast/");
-  await expect(page.getByRole("heading", { level: 1, name: "Contrast" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("planned for Phase 15");
-
+test("planned documentation routes render an explicit phase state", async ({ page }) => {
   await page.goto("/docs/api/");
   await expect(page.getByRole("heading", { level: 1, name: "API reference" })).toBeVisible();
   await expect(page.getByRole("status")).toContainText("planned for Phase 16");

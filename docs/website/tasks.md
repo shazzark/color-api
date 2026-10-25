@@ -1,6 +1,6 @@
 # ChromaForge website phase checklist
 
-**Status: Phases 12–14 complete.** Phases 15–17 remain proposed and
+**Status: Phases 12–15 complete.** Phases 16–17 remain proposed and
 unauthorized. Work must stop at a failed phase definition of done.
 
 ## Phase 12 — Planning handoff (complete)
@@ -110,26 +110,47 @@ operation ranges; seeded/unseeded state must be explicit.
 the frontend contains no color conversion, manipulation, palette, or scale
 algorithm implementation.
 
-## Phase 15 — Contrast, analysis, and tokens (not authorized; next phase)
+## Phase 15 — Contrast, analysis, and tokens (complete)
 
 **Candidate files:** `web/features/contrast/**`, `analyze/**`, `tokens/**`, and
 tool-specific tests.
 
-- [ ] Build criterion/context-aware contrast UI and backdrop/compositing input.
-- [ ] Display deterministic suggestions with assumptions and measured ratios.
-- [ ] Display analysis metrics and scoped deltaEOK output.
-- [ ] Support existing validated token names and serializers.
-- [ ] Copy/download output with accessible confirmation/fallback.
+- [x] Build criterion/context-aware contrast UI and backdrop/compositing input.
+- [x] Display deterministic suggestions with assumptions and measured ratios.
+- [x] Display analysis metrics and scoped deltaEOK output.
+- [x] Support existing validated token names and serializers.
+- [x] Copy/download output with accessible confirmation/fallback.
 
-**Tests:** WCAG known vectors through package functions, transparent context,
-candidate explanations, deltaEOK labeling, unsafe token names, serializer
-parity, keyboard and screen reader feedback.
+**Verification:** The three routes consume the published `chromaforge@1.0.1`
+package. Playwright verified the package black/white contrast ratio (21:1),
+criterion and required non-text context, translucent-background canvas,
+package suggestions, copy feedback, opaque-only analysis, `deltaEOK` output,
+unsafe token-name rejection, all six token output formats, clipboard contents,
+download filename/content, and reset behavior. Axe scans reported no violations
+for the Phase 15 routes in light and dark themes. All three routes had no
+horizontal overflow at 320/390/768/1280px. Keyboard-only browser checks
+submitted contrast and analysis forms, toggled the analyzer comparison control,
+and generated/copied tokens. Focused browser tests passed 5/5; the complete
+web suite passed 16/16 and exited normally. Web lint, typecheck, and static
+production build passed.
+
+Root typecheck, build, 20-operation OpenAPI check, and serial `npm test` passed
+(226 tests across 14 files). The first root test run had 225/226 pass: the
+existing OpenAPI example test exceeded its 5-second limit while other root
+and web checks were running concurrently. Bounded offline
+`npm ci --dry-run` made no install changes and reached dependency resolution;
+it emitted the existing ESLint 10 / `eslint-plugin-import` peer warning and
+then failed with `ENOTCACHED` for an uncached ESLint registry manifest. This
+indicates the current runner cannot verify a clean install offline; it does
+not by itself indicate a lockfile defect. The prior standard install's
+Windows/network `EACCES` finding remains noted above in the Phase 14 record.
 
 **Risk controls:** never label a whole palette or website accessible from one
-pair result; preserve input on recoverable errors.
+pair result; preserve input on recoverable errors. Analysis explains package
+metrics and does not invent a `deltaEOK` pass/fail threshold.
 
-**Done when:** displayed results and exports match package contracts and all
-assumptions are visible.
+**Done when:** COMPLETE after all Phase 15 checks, independent review, final
+diff inspection, and a focused local checkpoint. Phase 16 remains unauthorized.
 
 ## Phase 16 — Documentation and API playground (not started)
 

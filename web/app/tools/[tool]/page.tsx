@@ -7,6 +7,9 @@ import { ColorGenerator } from "@/features/generate/color-generator";
 import { ColorManipulator } from "@/features/manipulate/color-manipulator";
 import { PaletteGenerator } from "@/features/palettes/palette-generator";
 import { ColorScaleGenerator } from "@/features/scales/color-scale-generator";
+import { ContrastChecker } from "@/features/contrast/contrast-checker";
+import { ColorAnalyzer } from "@/features/analyze/color-analyzer";
+import { DesignTokenGenerator } from "@/features/tokens/design-token-generator";
 
 interface ToolPageProps {
   params: Promise<{ tool: string }>;
@@ -27,6 +30,9 @@ function getToolComponent(tool: string) {
     case "manipulate": return <ColorManipulator />;
     case "palettes": return <PaletteGenerator />;
     case "scales": return <ColorScaleGenerator />;
+    case "contrast": return <ContrastChecker />;
+    case "analyze": return <ColorAnalyzer />;
+    case "tokens": return <DesignTokenGenerator />;
     default: return undefined;
   }
 }

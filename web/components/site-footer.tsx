@@ -13,7 +13,7 @@ export function SiteFooter() {
           <a href="https://color-api-9qdz.onrender.com/docs">API documentation</a>
           <Link href="/playground">API playground <span className="status-tag">pre-release API</span></Link>
         </nav>
-        <p className="site-footer__note">Five local color tools are available. The API playground and documentation remain on their planned routes.</p>
+        <p className="site-footer__note">Eight local color tools are available. The API playground and documentation remain on their planned routes.</p>
       </div>
     </footer>
   );

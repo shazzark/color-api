@@ -1,11 +1,11 @@
 # ChromaForge website cycle
 
-**Status: Phases 12–14 complete; Phases 15–17 await authorization.**
+**Status: Phases 12–15 complete; Phases 16–17 await authorization.**
 
 This is the Phase 12 planning handoff and implementation record for the
 user-facing ChromaForge website. It does not change the released package/API
-scope or mark future website delivery phases complete. Phases 13 and 14 are
-complete; Phases 15–17 are not yet authorized. The website consumes the
+scope or mark future website delivery phases complete. Phases 13–15 are
+complete; Phases 16–17 remain proposed. The website consumes the
 existing `chromaforge@1.0.1` package and public API; it must not reimplement
 color math.
 
@@ -42,8 +42,9 @@ deployment remain Phase 17 work. API CORS was not changed during Phases 13 or
 
 Phase 13 delivered the responsive static shell. Phase 14 added package-backed
 converter, generator, manipulation, palette, and scale tools while retaining
-static export. The contrast, analysis, and token tools, package guides, API
-reference, and playground remain in later phases. See the [Phase 14 checklist](tasks.md#phase-14--package-backed-local-tools-complete)
+static export. Phase 15 added package-backed contrast, analysis, and token
+tools. Package guides, API reference, and playground remain in Phase 16. See
+the [Phase 15 checklist](tasks.md#phase-15--contrast-analysis-and-tokens-complete)
 for verification results and limitations.
 
 ## Evidence and proposals

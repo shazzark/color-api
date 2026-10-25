@@ -1,6 +1,6 @@
 # ChromaForge website implementation plan
 
-**Status: Phases 12–14 complete; Phases 15–17 proposed and not authorized.**
+**Status: Phases 12–15 complete; Phases 16–17 proposed and not authorized.**
 
 ## Phase 12 — Product and architecture planning (complete)
 
@@ -130,6 +130,43 @@ threshold; serializers match package output and unsafe names are rejected.
 
 **Verification:** Component tests against package vectors/results; accessibility
 and keyboard checks for forms/results; browser tests for export and failures.
+
+**Result:** Implemented `/tools/contrast`, `/tools/analyze`, and `/tools/tokens`
+using only `chromaforge@1.0.1` exports. Contrast includes sample-text and
+non-text interface-boundary previews, criterion-scoped results, raw and
+displayed ratios, effective composited colors, explicit opaque-canvas
+handling, and pair-scoped package suggestions. Analysis
+displays package luminance/classification and available OKLCH/HSL/HSV metrics;
+optional `deltaEOK` is described as a distance without a universal threshold.
+Token export supports the package's versioned JSON, CSS variables, JavaScript,
+TypeScript, SCSS, and Tailwind color-data formats with package name validation,
+copy, and a client-side download. No persistence or backend was added.
+
+**Package calls:** Contrast uses `analyzeContrast` and
+`suggestContrastingColors`; analysis uses `analyzeColor` and `deltaEOK`; token
+creation uses `validateTokenName`, `createToken`, and `createColorObject`.
+Serializers use `serializeDesignTokens`, `createCssVariablesBlock`,
+`serializeJavaScriptObject`, `serializeTypeScriptObject`,
+`serializeScssVariables`, and `createTailwindColorData`.
+
+**Verification:** Web lint, typecheck, static production build, all 16 Chromium
+Playwright tests, browser tool journeys, keyboard form/action operation,
+copy/download, validation/reset, axe
+scans in both themes, and responsive overflow checks at 320/390/768/1280px
+passed. Root typecheck, build, and 20-operation OpenAPI verification passed.
+The first root Vitest run had 225/226 pass because an existing 5-second
+OpenAPI-example test timed out while root checks and web checks ran concurrently;
+a serial rerun passed all 226 tests across 14 files. The bounded offline web
+`npm ci --dry-run` did not install or change dependencies: npm reported the
+existing ESLint 10 / `eslint-plugin-import` peer-range warning, then stopped
+with `ENOTCACHED` because the ESLint registry manifest is absent from cache.
+This does not establish a lockfile defect; the earlier standard clean install
+failure remains an environment/network limitation. Browser coverage ran in
+Chromium; automated axe results do not establish full WCAG conformance.
+
+**Definition of done:** COMPLETE after browser tests, root tests, independent
+review, final diff inspection, and focused local checkpoint. Phases 16–17
+remain unauthorized.
 
 ## Phase 16 — API reference, package docs, and playground
 

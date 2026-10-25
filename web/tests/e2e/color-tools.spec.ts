@@ -95,7 +95,8 @@ test("palette methods and scale generation call supported package operations", a
 });
 
 test("tool routes remain usable at target viewports and pass automated accessibility scans", async ({ page }, testInfo) => {
-  for (const path of ["/tools/convert/", "/tools/generate/", "/tools/manipulate/", "/tools/palettes/", "/tools/scales/"]) {
+  test.setTimeout(120_000);
+  for (const path of ["/tools/convert/", "/tools/generate/", "/tools/manipulate/", "/tools/palettes/", "/tools/scales/", "/tools/contrast/", "/tools/analyze/", "/tools/tokens/"]) {
     await page.goto(path);
     for (const width of [320, 390, 768, 1280]) {
       await page.setViewportSize({ width, height: 900 });
@@ -107,7 +108,7 @@ test("tool routes remain usable at target viewports and pass automated accessibi
     }
     await page.setViewportSize({ width: 1280, height: 900 });
     for (const theme of ["light", "dark"]) {
-      await page.getByLabel("Theme").selectOption(theme);
+      await page.getByLabel("Theme", { exact: true }).selectOption(theme);
       const accessibility = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
         .analyze();
