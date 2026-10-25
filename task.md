@@ -436,7 +436,7 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **TASK CHECKLIST:**
 
-- [ ] Website: build a separate visual product consuming the browser-tested package and public API.
+- [ ] Website: build the approved separate web app consuming the browser-tested package and public API. Phase 13 is authorized; see [docs/website](docs/website/README.md). Phases 14–17 remain unauthorized.
 - [ ] Website tools: conversion, generation, palettes/scales, accessibility, analysis, manipulation, design tokens, docs, playground.
 - [ ] AI: define validated operation-plan schema and privacy/cost policy before any provider integration.
 - [ ] AI: ensure model output only selects deterministic engine operations and verified results.
@@ -454,4 +454,18 @@ This is the execution source of truth. Work phase-by-phase, update checkboxes/st
 
 **GIT CHECKPOINT:** Separate project/release checkpoints.
 
-**DEFINITION OF DONE:** Future work remains outside the stateless deterministic engine until separately authorized and planned.
+**DEFINITION OF DONE:** Future work remains outside the stateless deterministic engine until separately authorized and planned. Website Phase 12 planning is approved and complete; only Phase 13 implementation is currently authorized.
+
+## Phase 12 — Website planning handoff (draft)
+
+**OBJECTIVE:** Define a complete user-facing website cycle while preserving the completed package/API phases.
+
+**STATUS:** COMPLETE — website MVP and architecture approved; Phase 13 is authorized.
+
+**SCOPE:** Proposed website MVP, product requirements, technical requirements, app flow, architecture, design system, implementation phases, and task checklist are in [docs/website](docs/website/README.md).
+
+**DECISIONS RECORDED:** Approved MVP/tools and journeys; isolated `web/` app; Next.js App Router/TypeScript/Tailwind; published package for local tools; `/v1` visibly pre-release; no database/auth; Vercel initial host; approved theme and visual direction. Domain remains unselected and will be needed before Phase 17 CORS/deployment verification.
+
+**RESTRICTIONS:** This planning checkpoint does not implement the app, change package/API behavior, install dependencies, deploy, publish, modify Git history, or mark website delivery phases complete.
+
+**HANDOFF:** Phase 13 web foundation is authorized. Phases 14–17 remain proposed and must not begin without further authorization.

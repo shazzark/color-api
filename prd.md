@@ -105,7 +105,7 @@ Automatic semantic light/dark role assignment is deferred. Current scale and con
 
 ### NEXT
 
-- Website implementation in a separate project/cycle, using the package for deterministic client-side operations and the API for hosted API exploration.
+- Website implementation in the approved separate web app/cycle, using the package for deterministic client-side operations and the API for hosted API exploration. Phase 13 is authorized; see [docs/website](docs/website/README.md). This website scope does not alter package/API contracts.
 - Light/dark theme generation if not completed in NOW.
 - Additional platform capabilities only when supported by demand: API keys/quotas, Postman collection, expanded observability, or richer export formats.
 - APCA may be evaluated as a separate experimental metric; it must not replace stable WCAG results.

@@ -183,6 +183,7 @@ Do not add workspaces/monorepo until there are multiple independently released p
 ## Future website, AI, and persistence
 
 - Website is a separate future surface that imports browser-tested package exports and can call public API operations.
+- The approved website boundary is an isolated `web/` Next.js App Router app in this repository, with its own manifest/lockfile and no root npm workspace. Phase 13 is authorized; see [docs/website/architecture.md](docs/website/architecture.md). The website does not change package/API behavior.
 - Keep UI state, routing, visual editors, and docs presentation outside the core engine.
 - Future AI flow: natural-language request → validated typed operation plan → deterministic engine → verified result. AI may interpret/explain, never calculate authoritative color/contrast/gamut/accessibility values.
 - Provider SDKs, prompts, retries, cost/privacy policy, and model-output validation belong to a separate orchestration layer.
