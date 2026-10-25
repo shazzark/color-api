@@ -77,7 +77,7 @@ export function ApiPlayground({ operations, apiOrigin, maxRequestBytes }: ApiPla
 
     let url: string;
     try {
-      url = buildOperationUrl(apiOrigin.origin, operation);
+      url = buildOperationUrl(apiOrigin.origin, operation, apiOrigin.environment);
     } catch (error) {
       setIssue({ kind: "request", message: error instanceof Error ? error.message : "The selected API operation is unavailable." });
       return;
@@ -148,8 +148,8 @@ export function ApiPlayground({ operations, apiOrigin, maxRequestBytes }: ApiPla
     setIssue(undefined);
   }
 
-  const requestUrl = apiOrigin.available && operation ? buildOperationUrl(apiOrigin.origin, operation) : "";
-  const snippets = validation.valid && requestUrl ? buildRequestSnippets(requestUrl, validation.value) : undefined;
+  const requestUrl = apiOrigin.available && operation ? buildOperationUrl(apiOrigin.origin, operation, apiOrigin.environment) : "";
+  const snippets = validation.valid && requestUrl ? buildRequestSnippets(requestUrl, validation.value, apiOrigin.environment) : undefined;
 
   return (
     <section className="api-playground" aria-labelledby="playground-title">

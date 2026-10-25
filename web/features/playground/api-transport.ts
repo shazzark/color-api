@@ -1,4 +1,6 @@
 import type { PlaygroundOperation } from "@/lib/openapi-source";
+import { CHROMAFORGE_API_ORIGIN } from "@/lib/api-origin-constants";
+import type { ApiOriginEnvironment } from "@/lib/api-origin";
 
 export const API_REQUEST_TIMEOUT_MS = 15_000;
 export const API_RESPONSE_LIMIT_BYTES = 1_048_576;
@@ -7,6 +9,20 @@ export class ResponseTooLargeError extends Error {
   public constructor(public readonly limitBytes: number) {
     super(`The API response exceeded the ${limitBytes.toLocaleString()} byte display limit.`);
     this.name = "ResponseTooLargeError";
+  }
+}
+
+function isApprovedApiOrigin(origin: string, environment: ApiOriginEnvironment): boolean {
+  try {
+    const url = new URL(origin);
+    const isConfiguredApi = url.origin === CHROMAFORGE_API_ORIGIN;
+    const isLoopback = environment === "development"
+      && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)
+      && (url.protocol === "http:" || url.protocol === "https:");
+    return url.origin === origin && url.pathname === "/" && url.search === "" && url.hash === ""
+      && url.username === "" && url.password === "" && (isConfiguredApi || isLoopback);
+  } catch {
+    return false;
   }
 }
 
@@ -20,10 +36,11 @@ export function parseJsonRequest(source: string, maxBytes: number): { valid: tru
   }
 }
 
-export function buildOperationUrl(origin: string, operation: PlaygroundOperation): string {
-  if (operation.method !== "POST"
+export function buildOperationUrl(origin: string, operation: PlaygroundOperation, environment: ApiOriginEnvironment): string {
+  if (!isApprovedApiOrigin(origin, environment)
+    || operation.method !== "POST"
     || !/^\/v1\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(operation.path)) {
-    throw new Error("Only documented POST /v1 operations can be sent from the playground.");
+    throw new Error("Only documented POST /v1 operations at an approved API origin can be sent from the playground.");
   }
   const target = new URL(operation.path, `${origin}/`);
   if (target.origin !== origin || target.pathname !== operation.path) {
@@ -70,7 +87,16 @@ export function parseResponseBody(contentType: string, text: string): { isJson: 
   }
 }
 
-export function buildRequestSnippets(url: string, body: unknown) {
+export function buildRequestSnippets(url: string, body: unknown, environment: ApiOriginEnvironment) {
+  const target = new URL(url);
+  if (!isApprovedApiOrigin(target.origin, environment)
+    || !/^\/v1\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(target.pathname)
+    || target.search !== ""
+    || target.hash !== ""
+    || target.username !== ""
+    || target.password !== "") {
+    throw new Error("Only documented POST /v1 operations at an approved API origin can be shown as examples.");
+  }
   const compactBody = JSON.stringify(body);
   if (compactBody === undefined) throw new Error("A JSON request body is required for this operation.");
   const shellBody = compactBody.replaceAll("'", "'\\''");

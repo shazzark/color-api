@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { resolveApiOrigin } from "../../lib/api-origin";
+import { CHROMAFORGE_API_ORIGIN } from "../../lib/api-origin-constants";
 import { getDocumentedOperations, getPlaygroundOperations, openApiDocument, readPackageExample } from "../../lib/openapi-source";
 import {
   API_REQUEST_TIMEOUT_MS,
@@ -13,7 +14,7 @@ import {
   ResponseTooLargeError
 } from "../../features/playground/api-transport";
 
-const apiOrigin = "https://color-api-9qdz.onrender.com";
+const apiOrigin = CHROMAFORGE_API_ORIGIN;
 
 test("Phase 16 source data covers the OpenAPI contract and published package examples", async () => {
   const documented = getDocumentedOperations();
@@ -39,15 +40,30 @@ test("Phase 16 transport validates JSON, bounds bytes, and restricts operation U
   expect(parseJsonRequest('{"color":"#123456"}', 64).valid).toBe(true);
   expect(parseJsonRequest("{invalid", 64)).toMatchObject({ valid: false, message: "Request body is not valid JSON." });
   expect(parseJsonRequest('"é"', 3).valid).toBe(false);
-  expect(resolveApiOrigin(undefined)).toMatchObject({ available: true, origin: apiOrigin });
-  expect(resolveApiOrigin("").available).toBe(false);
-  expect(resolveApiOrigin("https://example.test/path").available).toBe(false);
+  expect(resolveApiOrigin(undefined, "production").available).toBe(false);
+  expect(resolveApiOrigin("", "preview").available).toBe(false);
+  expect(resolveApiOrigin("   ", "development").available).toBe(false);
+  expect(resolveApiOrigin(apiOrigin, "production")).toMatchObject({ available: true, origin: apiOrigin, source: "configured" });
+  expect(resolveApiOrigin("http://127.0.0.1:3001", "development")).toMatchObject({ available: true, origin: "http://127.0.0.1:3001" });
+  expect(resolveApiOrigin("http://127.0.0.1:3001", "preview").available).toBe(false);
+  expect(resolveApiOrigin("http://example.test", "production").available).toBe(false);
+  expect(resolveApiOrigin("https://example.test", "production").available).toBe(false);
+  expect(resolveApiOrigin("https://example.test/path", "production").available).toBe(false);
+  expect(resolveApiOrigin("not a URL", "production").available).toBe(false);
 
   const operation = getPlaygroundOperations()[0];
-  expect(buildOperationUrl(apiOrigin, operation)).toBe(`${apiOrigin}${operation.path}`);
-  expect(() => buildOperationUrl(apiOrigin, { ...operation, path: "https://attacker.test/" })).toThrow();
-  expect(() => buildOperationUrl(apiOrigin, { ...operation, method: "GET" as "POST" })).toThrow();
-  const snippets = buildRequestSnippets(`${apiOrigin}${operation.path}`, operation.requestExample);
+  expect(buildOperationUrl(apiOrigin, operation, "production")).toBe(`${apiOrigin}${operation.path}`);
+  expect(buildOperationUrl("http://localhost:3001", operation, "development")).toBe(`http://localhost:3001${operation.path}`);
+  expect(() => buildOperationUrl("http://localhost:3001", operation, "production")).toThrow();
+  expect(() => buildOperationUrl(apiOrigin, { ...operation, path: "https://attacker.test/" }, "production")).toThrow();
+  expect(() => buildOperationUrl("https://attacker.test", operation, "production")).toThrow();
+  expect(() => buildOperationUrl(apiOrigin, { ...operation, method: "GET" as "POST" }, "production")).toThrow();
+  expect(() => buildRequestSnippets(`https://attacker.test${operation.path}`, operation.requestExample, "production")).toThrow();
+  expect(() => buildRequestSnippets(`https://user:password@color-api-9qdz.onrender.com${operation.path}`, operation.requestExample, "production")).toThrow();
+  expect(() => buildRequestSnippets(`http://localhost:3001${operation.path}`, operation.requestExample, "production")).toThrow();
+  const localSnippets = buildRequestSnippets(`http://localhost:3001${operation.path}`, operation.requestExample, "development");
+  expect(localSnippets.fetch).toContain('redirect: "error"');
+  const snippets = buildRequestSnippets(`${apiOrigin}${operation.path}`, operation.requestExample, "production");
   expect(snippets.curl).toContain(`'${apiOrigin}${operation.path}'`);
   expect(snippets.curl).not.toContain("attacker.test");
   expect(snippets.fetch).toContain(JSON.stringify(`${apiOrigin}${operation.path}`));
