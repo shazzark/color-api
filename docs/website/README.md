@@ -1,13 +1,13 @@
 # ChromaForge website cycle
 
-**Status: Phases 12–13 complete; Phases 14–17 await approval.**
+**Status: Phases 12–14 complete; Phases 15–17 await authorization.**
 
-This is the Phase 12 planning handoff and Phase 13 implementation record for a
-user-facing ChromaForge website. It does not change the released package/API scope or mark future website delivery
-phases complete. Phase 13 was the only implementation phase authorized in
-this cycle, and its foundation checkpoint is complete. The website should
-consume the existing `chromaforge@1.0.1` package and public API; it must not
-reimplement color math.
+This is the Phase 12 planning handoff and implementation record for the
+user-facing ChromaForge website. It does not change the released package/API
+scope or mark future website delivery phases complete. Phases 13 and 14 are
+complete; Phases 15–17 are not yet authorized. The website consumes the
+existing `chromaforge@1.0.1` package and public API; it must not reimplement
+color math.
 
 ## Planning documents
 
@@ -37,12 +37,13 @@ with restrained playful accents; Geist Sans/Mono candidates with fallbacks;
 temporary text wordmark; static export only if compatible.
 
 The production domain is not selected. Exact production CORS configuration and
-deployment remain Phase 17 work and are not Phase 13 blockers. API CORS must
-not be changed during Phase 13.
+deployment remain Phase 17 work. API CORS was not changed during Phases 13 or
+14.
 
-Phase 13 delivered the responsive static shell and route placeholders. The
-interactive color tools, package guides, API reference, and playground are
-planned for later phases and are not implemented. See [the Phase 13 checklist](tasks.md#phase-13--web-foundation-and-shell-complete)
+Phase 13 delivered the responsive static shell. Phase 14 added package-backed
+converter, generator, manipulation, palette, and scale tools while retaining
+static export. The contrast, analysis, and token tools, package guides, API
+reference, and playground remain in later phases. See the [Phase 14 checklist](tasks.md#phase-14--package-backed-local-tools-complete)
 for verification results and limitations.
 
 ## Evidence and proposals

@@ -12,7 +12,7 @@ export function ToolIndex() {
               <span className="tool-index__title">{tool.label}</span>
               <span className="tool-index__description">{tool.description}</span>
             </span>
-            <span className="tool-index__phase">Phase {tool.phase}</span>
+            <span className="tool-index__phase">{tool.available ? "Available" : `Phase ${tool.phase}`}</span>
             <span className="tool-index__arrow" aria-hidden="true">↗</span>
           </Link>
         </li>

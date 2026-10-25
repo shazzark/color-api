@@ -15,7 +15,7 @@ export default function HomePage() {
             <Link className="button button--primary" href="/tools/convert">Explore the tool routes <span aria-hidden="true">↗</span></Link>
             <a className="button button--quiet" href="https://www.npmjs.com/package/chromaforge">View the npm package <span aria-hidden="true">↗</span></a>
           </div>
-          <p className="hero-meta">The website foundation is in Phase 13. Tool interactions are being delivered in later approved phases.</p>
+          <p className="hero-meta">Explore the published color engine in your browser. Local tools use the package and expose its documented inputs and results.</p>
         </div>
         <div className="hero-visual" role="group" aria-labelledby="hero-visual-caption">
           <div className="hero-visual__topline">
@@ -46,7 +46,7 @@ export default function HomePage() {
             <p className="eyebrow">THE WORKBENCH</p>
             <h2 id="tools-title">Start with a color task.</h2>
           </div>
-          <p>Each route is labeled with its planned delivery phase. The tools will call the published package rather than repeat its color calculations.</p>
+          <p>Available tools run the published package in your browser. Other tool routes show their planned phase.</p>
         </div>
         <ToolIndex />
       </section>

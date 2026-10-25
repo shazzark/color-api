@@ -8,7 +8,7 @@ export function ToolNavigation() {
       {toolRoutes.map((tool) => (
         <Link key={tool.href} href={tool.href}>
           <span>{tool.label}</span>
-          <span className="tool-navigation__phase">P{tool.phase}</span>
+          <span className="tool-navigation__phase">{tool.available ? "Ready" : `P${tool.phase}`}</span>
         </Link>
       ))}
     </nav>

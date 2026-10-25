@@ -6,6 +6,7 @@ export interface SiteLink {
 export interface ToolRoute extends SiteLink {
   description: string;
   phase: 14 | 15;
+  available: boolean;
 }
 
 export interface DocumentationRoute extends SiteLink {
@@ -21,14 +22,14 @@ export const primaryLinks: SiteLink[] = [
 ];
 
 export const toolRoutes: ToolRoute[] = [
-  { href: "/tools/convert", label: "Convert", description: "Move between the supported color formats.", phase: 14 },
-  { href: "/tools/generate", label: "Generate", description: "Create seeded or unseeded OKLCH colors.", phase: 14 },
-  { href: "/tools/manipulate", label: "Manipulate", description: "Adjust, mix, or composite colors.", phase: 14 },
-  { href: "/tools/palettes", label: "Palettes", description: "Explore supported HSL harmony and variant sets.", phase: 14 },
-  { href: "/tools/scales", label: "Scales", description: "Build a scale from OKLCH stops.", phase: 14 },
-  { href: "/tools/contrast", label: "Contrast", description: "Evaluate a color pair against a named criterion.", phase: 15 },
-  { href: "/tools/analyze", label: "Analyze", description: "Inspect color metrics and pairwise distance.", phase: 15 },
-  { href: "/tools/tokens", label: "Design tokens", description: "Serialize colors into supported token formats.", phase: 15 }
+  { href: "/tools/convert", label: "Convert", description: "Move between the supported color formats.", phase: 14, available: true },
+  { href: "/tools/generate", label: "Generate", description: "Create seeded or unseeded OKLCH colors.", phase: 14, available: true },
+  { href: "/tools/manipulate", label: "Manipulate", description: "Adjust, mix, or composite colors.", phase: 14, available: true },
+  { href: "/tools/palettes", label: "Palettes", description: "Explore supported HSL harmony and variant sets.", phase: 14, available: true },
+  { href: "/tools/scales", label: "Scales", description: "Build a scale from OKLCH stops.", phase: 14, available: true },
+  { href: "/tools/contrast", label: "Contrast", description: "Evaluate a color pair against a named criterion.", phase: 15, available: false },
+  { href: "/tools/analyze", label: "Analyze", description: "Inspect color metrics and pairwise distance.", phase: 15, available: false },
+  { href: "/tools/tokens", label: "Design tokens", description: "Serialize colors into supported token formats.", phase: 15, available: false }
 ];
 
 export const documentationRoutes: DocumentationRoute[] = [

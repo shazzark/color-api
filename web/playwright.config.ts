@@ -15,9 +15,9 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 -p 3100",
+    command: "node scripts/serve-export.mjs",
     url: "http://127.0.0.1:3100",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000
+    reuseExistingServer: false,
+    timeout: 10_000
   }
 });

@@ -1,6 +1,6 @@
 # ChromaForge website implementation plan
 
-**Status: Phases 12–13 complete; Phases 14–17 proposed and not authorized.**
+**Status: Phases 12–14 complete; Phases 15–17 proposed and not authorized.**
 
 ## Phase 12 — Product and architecture planning (complete)
 
@@ -78,6 +78,39 @@ copy and error feedback work; no duplicate color implementation exists.
 **Verification:** Focused package-parity component tests; browser journeys for
 valid/invalid input, gamut metadata, alpha, seeds, responsive controls, and
 copy fallback.
+
+**Result:** Implemented all five local tools at `/tools/{convert,generate,
+manipulate,palettes,scales}` using `chromaforge@1.0.1` public exports. The
+converter exposes all six package formats. Generation, nine manipulation
+operations, all six HSL harmony strategies, shades/tints/tones, and stop-based
+OKLCH scales call the package directly. Shared input validation, previews,
+copy feedback, and result/error components remain inside `web/features/`.
+Supported gamut metadata is surfaced; mix and encoded-sRGB source-over
+compositing remain distinct. The static export now includes the same tool
+routes, and the homepage/navigation identify only these five routes as
+available.
+
+**Verification:** Web typecheck, lint, production static build, and all 11
+Chromium Playwright tests passed. The browser suite covered converter formats,
+alpha, invalid values, copying, seeded/unseeded generation, manipulation,
+palette methods, scales, keyboard focus, responsive behavior at
+320/390/768/1280px, and axe scans for all five tools in both light and dark
+themes. It captured actual screenshots in `web/test-results/` (ignored by
+Git). Static-export Playwright serving now exits reliably after the tests.
+Root `npm test -- --testTimeout=20000` passed all 226 tests across 14 files;
+root typecheck, build, and the 20-operation OpenAPI check passed. The default
+web clean install could not be verified in this network-restricted Windows
+environment: npm `ci` reached a registry request for `eslint` and failed with
+`EACCES`, alongside the pre-existing ESLint peer-range warning. A local
+legacy-peer-resolution `npm ci` restored the locked dependencies and all web
+checks passed afterward. No package/API source or release behavior changed.
+
+**Independent review:** No confirmed package/API misuse, duplicated color
+math, static export issue, or unrelated root changes. A list-semantic issue in
+manipulation results was found and fixed before final verification.
+
+**Definition of done:** COMPLETE after focused local checkpoint. Phases 15–17
+remain unauthorized.
 
 ## Phase 15 — Accessibility, analysis, and token tools
 

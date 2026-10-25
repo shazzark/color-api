@@ -6,7 +6,7 @@ test("homepage explains the product without unsupported claims", async ({ page }
 
   await expect(page).toHaveTitle(/ChromaForge/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("deterministic math");
-  await expect(page.getByText(/website foundation is in Phase 13/i)).toBeVisible();
+  await expect(page.getByText(/Explore the published color engine in your browser/i)).toBeVisible();
   await expect(page.getByText("npm install chromaforge")).toBeVisible();
   await expect(page.getByRole("link", { name: /API playground pre-release API/i })).toBeVisible();
 });
@@ -33,7 +33,7 @@ test("mobile navigation and tool links remain keyboard reachable", async ({ page
 
   await page.getByRole("link", { name: "Tools", exact: true }).first().click();
   await expect(page).toHaveURL(/\/tools\/convert\/$/);
-  await expect(page.getByRole("navigation", { name: "Color tools" }).getByRole("link", { name: "Manipulate" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Color tools" }).getByRole("link", { name: "Manipulate", exact: true })).toBeVisible();
 });
 
 test("theme follows system and persists a manual override", async ({ page }) => {

@@ -11,7 +11,7 @@
     "build": "next build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "playwright test"
+    "test": "npm run build && playwright test"
   },
   "dependencies": {
     "chromaforge": "1.0.1",

@@ -25,8 +25,10 @@ function applyPreference(preference: ThemePreference): void {
 
 export function ThemeControl() {
   const selectRef = useRef<HTMLSelectElement>(null);
+  const userChangedPreference = useRef(false);
 
   useEffect(() => {
+    if (userChangedPreference.current) return;
     const savedPreference = readPreference();
     if (selectRef.current) selectRef.current.value = savedPreference;
     applyPreference(savedPreference);
@@ -34,6 +36,7 @@ export function ThemeControl() {
 
   function updatePreference(value: string): void {
     if (value !== "system" && value !== "light" && value !== "dark") return;
+    userChangedPreference.current = true;
     applyPreference(value);
     try {
       if (value === "system") {

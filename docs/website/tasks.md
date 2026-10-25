@@ -1,6 +1,6 @@
 # ChromaForge website phase checklist
 
-**Status: Phases 12–13 complete.** Phases 14–17 remain proposed and
+**Status: Phases 12–14 complete.** Phases 15–17 remain proposed and
 unauthorized. Work must stop at a failed phase definition of done.
 
 ## Phase 12 — Planning handoff (complete)
@@ -56,30 +56,61 @@ production build, browser scenarios, and root package/API verification passed.
 The independent review found no blockers. The homepage screenshot is available
 as a local review artifact at `web/phase13-homepage-desktop.png`.
 
-## Phase 14 — Local tools (not started)
+## Phase 14 — Package-backed local tools (complete)
 
 **Candidate files:** `web/features/convert/**`, `generate/**`, `manipulate/**`,
-`palettes/**`, `scales/**`, shared `ColorInput`, `ColorSwatch`, `ResultPanel`,
-and focused tests.
+`palettes/**`, `scales/**`, shared `ColorInput`, `ColorResult`, `ColorResultList`,
+copy/field controls, and focused browser tests.
 
-- [ ] Implement converter using public `convertColor`/validation exports.
-- [ ] Implement generation using `generateColors` with seed/constraint status.
-- [ ] Implement supported manipulation, with mix and composite as distinct
+- [x] Implement converter using public `convertColor`/validation exports for
+  HEX, RGB, HSL, HSV, OKLab, and OKLCH input/output.
+- [x] Implement generation using `generateColors` with seed/constraint status.
+- [x] Implement supported manipulation, with mix and composite as distinct
   operations and controls.
-- [ ] Implement HSL harmony palettes and shades/tints/tones.
-- [ ] Implement stop-based OKLCH scales.
-- [ ] Add copy and recoverable input/output feedback.
+- [x] Implement all six HSL harmony strategies and shades/tints/tones.
+- [x] Implement stop-based OKLCH scales.
+- [x] Add copy and recoverable input/output feedback.
+- [x] Wire five Phase 14 routes as available while leaving Phase 15 routes
+  explicitly planned.
+- [x] Preserve static export and keep the website on the published package;
+  root package/API source, manifests, exports, and behavior remain unchanged.
 
-**Tests:** package parity and boundaries, alpha/format/gamut outputs, seeds,
-constraints/counts, invalid values, browser journeys and responsive layout.
+**Verification:** Web `npm ci --legacy-peer-deps --no-audit --no-fund
+--prefer-offline` restored the locked 360-package tree in about three minutes;
+web typecheck, lint, static production build, and 11 Chromium Playwright tests
+passed. Browser coverage exercised all six conversion outputs, alpha, invalid
+HEX, copy, seeded determinism, unseeded status, supported manipulation
+operations, palette strategies/variants, scale generation/validation,
+keyboard focus, and both themes. All five tool routes had no horizontal
+overflow at 320/390/768/1280px and passed axe scans in light and dark themes.
+The tests captured converter screenshots at all four viewport widths and in
+both themes under ignored `web/test-results/` artifacts. The Playwright runner
+exited with code 0; a 15-second idle shutdown in its static-export test server
+lets its Windows child process close cleanly after the suite.
+
+The default clean `npm ci --no-audit --no-fund --prefer-offline` did not
+complete within the initial 90-second bound. A subsequent attempt ran for
+about three minutes and failed with Windows `EACCES` while fetching the
+`eslint` package manifest from `registry.npmjs.org`; npm also reported the
+existing ESLint 10 / `eslint-plugin-import` peer-range mismatch. This was an
+environment/network failure, not a source or lockfile edit. Dependencies were
+restored using npm's legacy peer-resolution mode. No global packages changed.
+
+Root package/API checks passed after the web work: 226 tests across 14 files
+with the existing 20-second test timeout, typecheck, build, and OpenAPI check
+(20 operations). Independent review found no confirmed package contract,
+duplicate color math, static-export, or root API/package issues. The review
+noted no blocker; Phase 14 axe coverage includes both themes on each active
+tool route.
 
 **Risk controls:** package is sole math source; constrain UI to actual
 operation ranges; seeded/unseeded state must be explicit.
 
-**Done when:** all local tool journeys match package outputs with no duplicate
-color logic.
+**Done when:** complete. All local tool journeys call the published package;
+the frontend contains no color conversion, manipulation, palette, or scale
+algorithm implementation.
 
-## Phase 15 — Contrast, analysis, and tokens (not started)
+## Phase 15 — Contrast, analysis, and tokens (not authorized; next phase)
 
 **Candidate files:** `web/features/contrast/**`, `analyze/**`, `tokens/**`, and
 tool-specific tests.
