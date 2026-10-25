@@ -1,6 +1,6 @@
 # ChromaForge website implementation plan
 
-**Status: Phases 12–15 complete; Phase 16 implementation is complete with exact-origin CORS and live browser verification pending; Phase 17 deployment preparation is recorded, and launch remains unauthorized.**
+**Status: Phases 12–15 complete; Phase 16 implementation is complete with exact-origin CORS and live browser verification pending; Phase 17A CI/origin hardening is authorized locally; Phase 17B deployment remains unauthorized.**
 
 ## Phase 12 — Product and architecture planning (complete)
 
@@ -193,7 +193,58 @@ CORS and live browser-to-API evidence remain outstanding.
 smoke against a controlled API test instance; authorized live public smoke
 only after release approval.
 
-## Phase 17 — Release readiness and website launch
+## Phase 17A — CI hardening and release readiness (local only)
+
+**Objective:** Add a repeatable web CI gate and make static API-origin selection
+safe before deployment work starts.
+
+**Scope:** GitHub Actions web checks, fail-closed API-origin validation,
+playground destination safeguards, dependency/install investigation, and
+deployment preparation documentation.
+
+**Acceptance:** Keep root package/API CI behavior unchanged; web CI installs
+from its lockfile, runs on a supported Node release, typechecks, lints, builds
+once, and propagates Playwright failures. Missing/empty configuration disables
+the playground, hosted requests require the approved HTTPS API origin, and
+development-only loopback is the sole local exception. No provider state,
+production configuration, package behavior, or `/v1` release label changes.
+
+**Verification:** root tests/typecheck/build/OpenAPI, web typecheck/lint/build/
+Playwright, clean install and dependency-tree review, workflow review, and
+`git diff --check`. Record results in [tasks.md](tasks.md).
+
+**Dependency finding:** ESLint 10.13.0 is current, but some plugins transitively
+included by `eslint-config-next@16.4.3` still declare ESLint 9 as their maximum
+peer. This is a real metadata compatibility warning distinct from registry
+access failures. Use standard `npm ci`; add no legacy peer flag unless its need
+is proven by a clean supported environment. Revisit when upstream plugin peer
+ranges and runtime compatibility are updated.
+
+**Definition of done:** local checks, independent security review, final diff,
+focused commits, and local/remote comparison are recorded. No deployment.
+
+**Result:** The web CI job uses Node 24, the separate web lockfile, standard
+`npm ci`, Chromium, typecheck, lint, and one build-plus-browser-test command;
+the root Node 22/24 matrix and checks are unchanged. ESLint 10.13 installs
+without a legacy flag and lint passes, but `npm ci` warns and `npm ls` reports
+peer-range incompatibility in three plugins under `eslint-config-next`. ESLint
+9 is end-of-life, so the workflow does not downgrade to it; track upstream
+plugin compatibility. The lockfile’s platform-applicable dependency engines
+permit Node 24. This Windows machine did not have Node 24 installed, making the
+GitHub CI run the required first runtime proof.
+
+The origin resolver now disables missing/blank settings, accepts the exact
+Render HTTPS API origin for hosted builds, and permits loopback only in local
+development. The client transport uses a constants-only module and requires
+the environment when validating origins, so Preview/Production cannot send to
+loopback. The static export remains at 15 routes. Configured Chromium tests
+passed 25/25 with the offline-only case skipped; a separate offline export and
+browser check passed 1/1 and observed disabled Send with no external request.
+Root tests passed 226/226, typecheck/build/OpenAPI (20 operations)/package type
+checks passed, workflow YAML parsed, and `git diff --check` passed. No API,
+package calculation, CORS, production environment, or deployment state changed.
+
+## Phase 17B — Release readiness and website launch (not authorized)
 
 **Objective:** Verify accessible, performant, secure static output and deploy
 the approved website.

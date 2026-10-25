@@ -1,6 +1,6 @@
 # ChromaForge website phase checklist
 
-**Status: Phases 12–15 complete; Phase 16 implementation complete with exact-origin CORS verification pending; Phase 17 remains proposed and unauthorized.** Work must stop at a failed phase definition of done.
+**Status: Phases 12–15 complete; Phase 16 implementation complete with exact-origin CORS verification pending; Phase 17A local CI/security readiness is complete; Phase 17B deployment remains unauthorized.** Work must stop at a failed phase definition of done.
 
 ## Phase 12 — Planning handoff (complete)
 
@@ -184,7 +184,49 @@ unescaped response rendering.
 remains open until exact-origin CORS is configured for the approved website
 origin and a real browser-to-API smoke test passes.
 
-## Phase 17 — Release readiness (not started)
+## Phase 17A — CI, origin safety, and release-readiness verification
+
+**Status: complete for this checkpoint; deployment is not authorized.**
+
+- [x] Preserve root package/API CI matrix and add one Node 24 web job with
+  locked install, Chromium, typecheck, lint, production build, and Playwright.
+- [x] Make missing/blank API origin disable requests; validate the explicit
+  hosted API origin and development-only loopback destinations.
+- [x] Keep browser and generated fetch examples restricted to approved API
+  destinations, documented POST `/v1` paths, and reject redirects.
+- [x] Review static export, client environment exposure, workflow permissions,
+  CORS assumptions, hosting security headers, and rollback notes.
+- [x] Update the deployment runbook and environment documentation without
+  changing provider settings or closing Phase 16 live acceptance.
+- [x] Run the full local checks, review the final diff, and create focused
+  local checkpoint commits.
+
+**Dependency finding:** the web lock uses current ESLint 10.13.0. The selected
+`eslint-plugin-import`, `eslint-plugin-jsx-a11y`, and `eslint-plugin-react`
+versions declare peer ranges that stop at ESLint 9. A clean standard `npm ci`
+completed with `ERESOLVE overriding peer dependency` warnings once registry
+access was available; the earlier Windows `EACCES` was a network/permission
+failure. `npm ls eslint --all` still reports the peer tree as invalid. The web
+lint command is verified separately. CI uses standard `npm ci`; no legacy peer
+flag or deprecated ESLint release is used.
+
+**Verification evidence:** root Vitest passed 226 tests; root typecheck, build,
+20-operation OpenAPI check, generated-spec diff check, and package consumer
+types passed. A standard clean web `npm ci --no-audit --no-fund` installed 360
+packages after registry access was enabled. ESLint peer warnings were reported;
+`npm ls` exits `ELSPROBLEMS`, while `npm run lint` passes. Web typecheck/lint
+passed, the production build emitted 15 static routes, and the configured
+Chromium run passed 25 tests (the offline-only test is skipped for that build).
+A separate empty-origin static build passed its Chromium check: Send was
+disabled and no external API request occurred. The configured browser tests
+also cover destination validation and redirect rejection. The Actions YAML
+parsed successfully, the client static chunks contain no `VERCEL_ENV`
+reference, and the applicable locked package engines allow Node 24; this
+Windows runner did not have Node 24 installed for a local runtime execution.
+`git diff --check` passed. Phase 16 remains incomplete until exact-origin
+production CORS and real browser-to-API evidence are recorded.
+
+## Phase 17B — Deployment and live integration (not authorized)
 
 See the [deployment runbook](deployment-runbook.md) for an actionable checklist.
 
@@ -207,4 +249,5 @@ authorized.
 database; preserve current API rate and trust assumptions.
 
 **Done when:** all approved P0 criteria pass on the deployed website and the
-release has a reviewed rollback path.
+release has a reviewed rollback path. Do not begin until separately
+authorized.

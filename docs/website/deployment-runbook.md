@@ -1,10 +1,10 @@
 # Phase 17 deployment runbook
 
-**Status: preparation only.** No Vercel project, production hostname, Render
-environment variable, GitHub setting, push, or deployment was changed while
-writing this runbook. The `/v1` API remains pre-release. Phase 16 stays open
-until the exact production origin is configured and a real browser completes
-an API request successfully.
+**Status: Phase 17A local readiness work only.** No Vercel project, production
+hostname, Render environment variable, GitHub setting, push, or deployment
+was changed. The `/v1` API remains pre-release. Phase 16 stays open until the
+exact production origin is configured and a real browser completes an API
+request successfully.
 
 ## Deployment shape
 
@@ -29,15 +29,20 @@ Create one Vercel project connected to the existing GitHub repository
 | Root directory | `web` |
 | Include files outside root directory | Enabled. `web/lib/openapi-source.ts` reads the root `openapi.json` during the build. |
 | Node.js | `24.x`, matching the root `.nvmrc` major and supported CI matrix |
-| Install command | `npm ci --legacy-peer-deps --no-audit --no-fund` |
+| Install command | `npm ci --no-audit --no-fund` |
 | Build command | `npm run build` |
 | Output directory | Keep Vercel's Next.js framework detection. The repository sets `output: "export"` and `trailingSlash: true`; `next build` emits `web/out`. If Vercel requires an explicit static directory override, use `out` and verify all generated routes/assets before promotion. |
 | Functions / server routes | None expected; this app is a static export. |
 
-The install override matches the Phase 14 dependency-resolution mode recorded
-in the website checklist. Do not add a root npm workspace or install the root
-API dependencies into the Vercel project. Verify the platform's build logs
-show the web lockfile was used and the exported route list is complete.
+Use the web lockfile with standard `npm ci`; do not add a root npm workspace or
+install the root API dependencies into the Vercel project. The current lock
+does emit peer warnings because three plugins in `eslint-config-next@16.4.3`
+declare ESLint support only through version 9, while the project uses ESLint
+10.13.0. Standard clean installation and lint succeed, but `npm ls` flags the
+peer tree as invalid. Do not downgrade to end-of-life ESLint 9 or use legacy
+peer resolution as a workaround. Revisit when upstream plugin support changes
+or after a deliberate lint-config migration. Verify Vercel logs use the web
+lockfile and produce all exported routes.
 
 ### Environment variables
 
@@ -48,13 +53,18 @@ environment-variable edits to new deployments, not already-built deployments.
 | Vercel environment | Variable | Value |
 | --- | --- | --- |
 | Production | `NEXT_PUBLIC_CHROMAFORGE_API_ORIGIN` | `https://color-api-9qdz.onrender.com` |
-| Preview | `NEXT_PUBLIC_CHROMAFORGE_API_ORIGIN` | Empty string, so the playground disables Send. Verify the built preview reports no configured API origin. Do not allow dynamic preview hosts through production CORS. |
-| Development | `NEXT_PUBLIC_CHROMAFORGE_API_ORIGIN` | Set an explicit empty string to disable playground calls; if omitted, the app falls back to the production Render origin. Set a local API origin only for an intentional local integration run. |
+| Preview | `NEXT_PUBLIC_CHROMAFORGE_API_ORIGIN` | Empty or unset. Both disable Send and omit request destinations. Do not allow dynamic preview hosts through production CORS. |
+| Development | `NEXT_PUBLIC_CHROMAFORGE_API_ORIGIN` | Empty or unset to disable requests. For intentional local integration only, set a loopback origin such as `http://127.0.0.1:3001`; external hosts are rejected. |
 
-No API key or other secret is needed by the website. If Vercel does not retain
-an empty Preview value as an empty string at build time, do not enable preview
-API calls; make the preview origin unavailable or implement and verify an
-explicit playground-disable setting before proceeding.
+Origin behavior is fail-closed: missing, blank, malformed, non-HTTPS production,
+and unapproved hosts disable the playground. Only the explicit Render HTTPS
+origin is accepted for hosted builds. `NEXT_PUBLIC_` values are embedded in
+static browser assets and are public; do not place secrets in this variable.
+Changing a Vercel environment value requires a new build and deployment.
+
+No API key or other secret is needed by the website. An unset Preview value is
+safe and disables requests; if Vercel drops an empty value, leave it unset and
+verify the exported preview reports no configured origin.
 
 Use Vercel's assigned production `.vercel.app` hostname as the initial public
 site hostname. Record the exact scheme and host from the project after its
@@ -96,20 +106,28 @@ Render production service.
 
 ### Before any push or provider setup
 
-- [ ] Review the complete commit range and final working tree. At this
-  checkpoint `main` is locally ahead of cached `origin/main` by five commits;
-  the Phase 16 commit will make it six. The five existing commits are the
-  Phase 11 release record and website Phases 12–15.
-- [ ] Fetch and inspect the live remote before pushing. The read-only
-  `git ls-remote` check could not reach GitHub in the current network
-  environment, so `origin/main` may have moved since the cached ref.
+- [ ] Review the complete commit range and final working tree. The Phase 16
+  checkpoint reported local `main` six commits ahead of cached `origin/main`;
+  that tracking ref may be stale. Fetch before any push and inspect all commits
+  that would be published.
+- [ ] Fetch and inspect the live remote before pushing. A read-only fetch
+  succeeded during Phase 17A and updated the local tracking ref; fetch again
+  immediately before any push because `origin/main` can move afterward.
 - [ ] Confirm the GitHub identity has repository write access and branch
   protection requirements are understood. Never force-push or rewrite history.
-- [ ] Confirm CI passes on Node 22 and 24 for the exact commit range. The
-  existing `.github/workflows/ci.yml` checks the root API/package only; it does
-  not run the `web/` lint, typecheck, build, or Playwright suite. Add a web CI
-  job or require and record equivalent checks before treating GitHub CI as a
-  website release gate.
+- [ ] Confirm CI passes on Node 22 and 24 for the root package/API and on Node
+  24 for the website on the exact commit range. The web job uses the web lock,
+  installs Chromium, runs typecheck and lint, then `npm test` (one production
+  build plus Playwright). Local Phase 17A verification does not replace the
+  required GitHub Actions run after an authorized push. The local runner had no
+  Node 24 executable; lockfile engine ranges are compatible, but GitHub CI must
+  provide the first actual Node 24 build evidence.
+- [ ] Review npm's ESLint peer warnings. ESLint 10 is current, while the
+  versions resolved through `eslint-config-next@16.4.3` declare peer support
+  only through ESLint 9. Standard `npm ci` is expected to continue with
+  `ERESOLVE overriding peer dependency` warnings; do not add
+  `--legacy-peer-deps` unless a future clean install proves it is required and
+  that temporary compatibility exception is documented.
 - [ ] Account for push-triggered side effects: Render's root `render.yaml`
   tracks `main` with `autoDeployTrigger: checksPass`, so a push can redeploy the
   existing API after CI. A Vercel project connected to `main` will also create
