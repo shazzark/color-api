@@ -40,3 +40,31 @@ jobs:
       - run: npm run release:stage
       - run: npm run release:smoke
       - run: npm run container:smoke
+
+  web-verify:
+    name: Website (Node 24)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install website dependencies
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+      - name: Install Playwright Chromium
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Typecheck website
+        working-directory: web
+        run: npm run typecheck
+      - name: Lint website
+        working-directory: web
+        run: npm run lint
+      - name: Build and run Chromium tests
+        working-directory: web
+        env:
+          NEXT_PUBLIC_CHROMAFORGE_API_ORIGIN: https://color-api-9qdz.onrender.com
+        run: npm test
