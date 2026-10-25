@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import { waitForThemeTransitions } from "./helpers";
 
 test("contrast uses package thresholds, exposes scoped WCAG results, and handles alpha context", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
@@ -133,6 +134,7 @@ test("Phase 15 tools have no viewport overflow and pass axe in both themes", asy
     }
     for (const theme of ["light", "dark"]) {
       await page.getByLabel("Theme", { exact: true }).selectOption(theme);
+      await waitForThemeTransitions(page);
       const accessibility = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
         .analyze();

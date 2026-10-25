@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { waitForThemeTransitions } from "./helpers";
 import { resolveApiOrigin } from "../../lib/api-origin";
 import { CHROMAFORGE_API_ORIGIN } from "../../lib/api-origin-constants";
 import { getDocumentedOperations, getPlaygroundOperations, openApiDocument, readPackageExample } from "../../lib/openapi-source";
@@ -270,6 +271,7 @@ test("package guide, reference, and playground remain usable across viewports an
     }
     for (const theme of ["light", "dark"]) {
       await page.getByLabel("Theme", { exact: true }).selectOption(theme);
+      await waitForThemeTransitions(page);
       const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
       expect(result.violations, `${path} ${theme} axe violations`).toEqual([]);
     }

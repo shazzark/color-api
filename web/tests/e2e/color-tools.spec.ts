@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { waitForThemeTransitions } from "./helpers";
 
 test("converter supports documented formats, validation, alpha, and copy", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
@@ -109,6 +110,7 @@ test("tool routes remain usable at target viewports and pass automated accessibi
     await page.setViewportSize({ width: 1280, height: 900 });
     for (const theme of ["light", "dark"]) {
       await page.getByLabel("Theme", { exact: true }).selectOption(theme);
+      await waitForThemeTransitions(page);
       const accessibility = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
         .analyze();

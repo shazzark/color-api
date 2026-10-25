@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { waitForThemeTransitions } from "./helpers";
 
 test("homepage explains the product without unsupported claims", async ({ page }) => {
   await page.goto("/");
@@ -52,14 +53,32 @@ test("theme follows system and persists a manual override", async ({ page }) => 
 
 test("homepage has no horizontal overflow and passes automated accessibility checks", async ({ page }) => {
   await page.goto("/");
-  for (const width of [320, 390, 768, 1280]) {
-    await page.setViewportSize({ width, height: 900 });
-    const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    expect(overflows, `Unexpected horizontal overflow at ${width}px`).toBe(false);
-  }
+  for (const theme of ["light", "dark"]) {
+    await page.getByLabel("Theme", { exact: true }).selectOption(theme);
+    await waitForThemeTransitions(page);
+    const footerNoteColor = await page.locator(".site-footer__note").evaluate((element) => getComputedStyle(element).color);
+    const inkColor = await page.locator("body").evaluate((element) => getComputedStyle(element).color);
+    expect(footerNoteColor).toBe(inkColor);
 
-  const accessibility = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
-    .analyze();
-  expect(accessibility.violations).toEqual([]);
+    for (const width of [320, 390, 768, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      const overflow = await page.evaluate(() => ({
+        hasOverflow: document.documentElement.scrollWidth > window.innerWidth,
+        elements: Array.from(document.body.querySelectorAll<HTMLElement>("*"))
+          .map((element) => ({
+            selector: element.tagName.toLowerCase() + (element.className && typeof element.className === "string" ? `.${element.className.trim().replaceAll(/\s+/g, ".")}` : ""),
+            left: Math.round(element.getBoundingClientRect().left),
+            right: Math.round(element.getBoundingClientRect().right)
+          }))
+          .filter((element) => element.left < 0 || element.right > window.innerWidth)
+          .slice(0, 8)
+      }));
+      expect(overflow.hasOverflow, `Unexpected horizontal overflow at ${width}px in ${theme} theme: ${JSON.stringify(overflow.elements)}`).toBe(false);
+    }
+
+    const accessibility = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(accessibility.violations, `${theme} theme accessibility violations`).toEqual([]);
+  }
 });
